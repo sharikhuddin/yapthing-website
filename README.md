@@ -8,8 +8,8 @@ This **public repository contains website files only**. The Android app's privat
 - Domain: yapthing.com is registered with GoDaddy; domain purchase and renewal are separate from free hosting.
 - Domain configured in GitHub Pages: **yapthing.com**. Source: **main**, root (/). GitHub Pages build: successful.
 
-## GoDaddy DNS records still needed
-Replace the existing GoDaddy parking **A @** records, without touching MX, TXT, NS, DMARC/SPF, DKIM or other records. The target GitHub Pages apex IPv4 values are:
+## GoDaddy DNS records — configured and verified October 27, 2026
+The GoDaddy parking record was replaced. The following GitHub Pages apex IPv4 values and www CNAME are live. No nameserver or DMARC record was changed:
 
 | Type | Host | Value | TTL |
 |---|---|---|---|
@@ -19,11 +19,11 @@ Replace the existing GoDaddy parking **A @** records, without touching MX, TXT, 
 | A | @ | 185.199.111.153 | 600 seconds |
 | CNAME | www | sharikhuddin.github.io | 600 seconds |
 
-If an existing A or CNAME record for @/www points to GoDaddy parking, replace/delete the conflicting parking value first. Do NOT leave GoDaddy parking IPs alongside GitHub Pages IPs.
+Verified via both 1.1.1.1 and 8.8.8.8: only the correct GitHub Pages A IPs and the correct www CNAME remain. Original nameservers and the DMARC record are intact.
 
 Official instructions: https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site
 
-After DNS propagates, go to repository **Settings → Pages**, enable **Enforce HTTPS** when GitHub issues the certificate (typically available after DNS verification). DNS may take up to 24 hours to fully propagate.
+**HTTPS is enforced and the TLS certificate is approved** for yapthing.com and www.yapthing.com. Both http://yapthing.com/ and https://www.yapthing.com/ redirect to https://yapthing.com/. The home, privacy, deletion and support pages each return HTTPS 200.
 
 ## Pages
 - / — Home and app features
