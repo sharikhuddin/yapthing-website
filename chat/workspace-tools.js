@@ -16,6 +16,7 @@
   career:{hint:'Resumes, interviews and job research.',prompt:'Help me with this career goal. Do not invent my experience: '},
   data:{hint:'Data analysis and practical insights.',prompt:'Analyze this data or question, explaining assumptions and calculations: '},
   coding:{hint:'Build, debug and test software.',prompt:'Help me implement and test this software requirement: '},
+  'medical-education':{hint:'Study anatomy, physiology, clinical reasoning and evidence-based medicine. Avoid identifiable patient details.',prompt:'Act as a medical education tutor for a student or licensed clinician. Teach this topic using evidence-based sources, explain uncertainty, and offer differential diagnosis frameworks or practice questions for learning only. Do not present educational material as a patient-specific diagnosis or treatment plan. Do not request or retain identifiable patient information. Topic: '},
   education:{hint:'Learn with explanations and exercises.',prompt:'Teach me this subject with examples and a practice exercise: '},
   business:{hint:'Operations, planning and growth.',prompt:'Help me solve this business problem with practical next steps: '},
   creative:{hint:'Original ideas and creative projects.',prompt:'Help me create and refine this original project: '}
