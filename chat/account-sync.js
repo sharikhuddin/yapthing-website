@@ -22,7 +22,7 @@ $('account-toggle').onclick=()=>{$('account-panel').hidden=!$('account-panel').h
 $('account-form').onsubmit=async e=>{e.preventDefault();note('Signing in…');try{const s=await request('auth/v1/token?grant_type=password','POST',{email:$('account-email').value.trim(),password:$('account-password').value},key);$('account-password').value='';setSession(s);await status()}catch(err){note(err.message)}};
 $('account-signup').onclick=async()=>{note('Creating account…');try{await request('auth/v1/signup','POST',{email:$('account-email').value.trim(),password:$('account-password').value},key);note('Check your email for verification, then sign in.')}catch(err){note(err.message)}};
 $('account-signout').onclick=()=>{setSession(null);$('cloud-quota').textContent=''};
-async function status(){if(!session)return;try{await ready();const q=await request('functions/v1/yap-quota-status');publishQuota(q);$('cloud-quota').textContent='Cloud AI: '+q.features.cloud_chat.remaining+'/'+q.features.cloud_chat.limit+' requests left today (UTC). Local AI remains on-device.'}catch(err){$('cloud-quota').textContent=err.message}}
+async function memoryName(){await ready();const rows=await request('rest/v1/yap_user_memory?select=memory_value&memory_key=eq.preferred_name&limit=1');return Array.isArray(rows)?rows[0]?.memory_value||'':''}async function saveName(value){await ready();const name=String(value||'').trim().slice(0,80);if(!name)return;await request('rest/v1/yap_user_memory?on_conflict=user_id,memory_key','POST',{user_id:session.user.id,memory_key:'preferred_name',memory_value:name})}async function deleteName(){await ready();await request('rest/v1/yap_user_memory?memory_key=eq.preferred_name','DELETE')}async function status(){if(!session)return;try{await ready();const q=await request('functions/v1/yap-quota-status');publishQuota(q);$('cloud-quota').textContent='Cloud AI: '+q.features.cloud_chat.remaining+'/'+q.features.cloud_chat.limit+' requests left today (UTC). Local AI remains on-device.'}catch(err){$('cloud-quota').textContent=err.message}}
 
 // Opt-in cloud backup. Never upload guest chats or authentication tokens.
 const chatKey='yapthing.web.preview.v1';
@@ -66,5 +66,5 @@ $('cloud-load').onclick=async()=>{
  }catch(err){note('Restore failed: '+err.message)}
 };
 render();if(session)status();
-window.YapWebAccount={getToken:async()=>{await ready();return session.access_token},getUserId:()=>session?.user?.id||null,status,getQuota:()=>quotaCache};
+window.YapWebAccount={getToken:async()=>{await ready();return session.access_token},getUserId:()=>session?.user?.id||null,status,getQuota:()=>quotaCache,memoryName,saveName,deleteName};
 })();
