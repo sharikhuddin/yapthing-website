@@ -14,5 +14,5 @@ window.YapPluginConnections=(()=>{
   if(!r.ok)throw Error(data.error||'Connection request failed');
   return data;
  }
- return {list:()=>request(),connect:p=>request('connect',p),disconnect:p=>request('disconnect',p)};
+ return {getToken:token,list:()=>request(),connect:p=>request('connect',p),disconnect:p=>request('disconnect',p)};
 })();
