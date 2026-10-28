@@ -25,6 +25,7 @@ run.addEventListener('click',async()=>{
  const uri='data:'+data.mimeType+';base64,'+data.imageBase64;
  $('edit-result-image').src=uri;$('edit-download').href=uri;$('edit-download').download='YapThing-edited-profile.'+(data.mimeType==='image/jpeg'?'jpg':data.mimeType==='image/webp'?'webp':'png');
  result.hidden=false;status.textContent='Edited image ready. '+(data.notice||'');
+ window.dispatchEvent(new CustomEvent('yap-edited-image',{detail:{url:uri,prompt}}));
  window.YapWebAccount?.refreshQuota?.();
  }catch(error){status.textContent=error.message||'Unable to edit photo.';}finally{busy=false;run.disabled=false}
 });
