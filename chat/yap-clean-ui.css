@@ -1,0 +1,11 @@
+/* Progressive enhancement: one quiet YapThing brand, optional specialist tools. */
+.yap-workspace-tools{border:1px solid var(--border);border-radius:12px;margin-bottom:9px;background:var(--panel);padding:0!important;display:block!important}
+.yap-workspace-tools>summary{list-style:none;cursor:pointer;padding:10px 13px;font-size:13px;font-weight:650;display:flex;gap:8px;align-items:center}
+.yap-workspace-tools>summary::-webkit-details-marker{display:none}
+.yap-workspace-tools>summary:after{content:'⌄';margin-left:auto;opacity:.65}
+.yap-workspace-tools[open]>summary:after{content:'⌃'}
+.yap-tool-options{display:flex;gap:9px;align-items:center;flex-wrap:wrap;padding:0 12px 12px}
+.yap-tool-options label,.yap-tool-options small{font-size:12px}
+.yap-tool-options select{max-width:260px;min-width:0}
+.yap-workspace-tools:not([open]) .yap-tool-options{display:none}
+@media(max-width:650px){.yap-tool-options select{width:100%;max-width:none}.yap-workspace-tools>summary{padding:9px 11px}}
