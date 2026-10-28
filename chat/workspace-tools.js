@@ -11,7 +11,14 @@
   work:{hint:'Draft emails, summarize tasks and improve workflows.',prompt:'Act as my work productivity assistant. Help me turn this goal into an actionable checklist, identify repetitive steps to automate, and draft any messages or documents needed. Goal: '},
   design:{hint:'Plan spaces and conceptual site layouts anywhere.',prompt:'Help me plan a conceptual building or site layout. Ask for location, dimensions, orientation, local authority and intended use. Verify applicable rules with official sources and do not invent zoning, setbacks or approvals. Project: '},
   photo:{hint:'Attach a photo, describe the changes, then choose Edit with AI.',prompt:'Edit the attached photo while keeping important details consistent. Make these changes: '},
-  research:{hint:'Choose Google, Brave or Parallel Sources for current information.',prompt:'Research this topic using reliable sources, compare evidence and explain what is confirmed versus uncertain: '}
+  research:{hint:'Choose Google, Brave or Parallel Sources for current information.',prompt:'Research this topic using reliable sources, compare evidence and explain what is confirmed versus uncertain: '},
+  writing:{hint:'Write, edit and translate.',prompt:'Help me write a polished message or document for this audience and purpose: '},
+  career:{hint:'Resumes, interviews and job research.',prompt:'Help me with this career goal. Do not invent my experience: '},
+  data:{hint:'Data analysis and practical insights.',prompt:'Analyze this data or question, explaining assumptions and calculations: '},
+  coding:{hint:'Build, debug and test software.',prompt:'Help me implement and test this software requirement: '},
+  education:{hint:'Learn with explanations and exercises.',prompt:'Teach me this subject with examples and a practice exercise: '},
+  business:{hint:'Operations, planning and growth.',prompt:'Help me solve this business problem with practical next steps: '},
+  creative:{hint:'Original ideas and creative projects.',prompt:'Help me create and refine this original project: '}
  };
  try{const stored=localStorage.getItem('yapthing.workspace.preference');if(tasks[stored])select.value=stored}catch{}
  function update(){const t=tasks[select.value]||tasks.general;hint.textContent=t.hint;try{localStorage.setItem('yapthing.workspace.preference',select.value)}catch{}}
