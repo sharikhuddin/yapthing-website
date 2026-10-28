@@ -28,6 +28,7 @@
  const medicalLevel=document.createElement('select');medicalLevel.id='yap-medical-level';medicalLevel.setAttribute('aria-label','Medical education learning level');medicalLevel.innerHTML='<option value="general">General learning</option><option value="student" selected>Medical student</option><option value="clinician">Clinical professional education</option>';medicalLevel.style.cssText='min-height:38px;max-width:260px;border-radius:10px;padding:6px;margin:6px;background:var(--panel);color:var(--fg);border:1px solid var(--border)';medicalLevel.hidden=true;hint.after(medicalLevel);
  function update(){const t=tasks[select.value]||tasks.general;hint.textContent=t.hint;medicalLevel.hidden=select.value!=='medical-education';try{localStorage.setItem('yapthing.workspace.preference',select.value)}catch{}}
  select.addEventListener('change',update);
+ if(new URLSearchParams(location.search).get('workspace')==='medical-education')select.value='medical-education';
  start.addEventListener('click',()=>{
   const t=tasks[select.value]||tasks.general;
   if(!prompt.value.trim())prompt.value=t.prompt;
