@@ -70,3 +70,10 @@ body{font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI"
 #edit-download{font-weight:650}
 #messages .message{box-shadow:none}
 @media(max-width:600px){.topline{align-items:center}.composer{padding-top:6px!important}.quick-prompts{margin-bottom:7px}.compose-row{gap:5px}.compose-row label{padding:7px!important}.compose-row textarea{min-height:42px}.message{max-width:95%}}
+
+.yap-workspace-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 8px;font-size:12px}
+.yap-workspace-tools label{opacity:.75}
+.yap-workspace-tools select{background:var(--panel);color:inherit;border:1px solid var(--border);border-radius:10px;padding:7px;max-width:200px}
+.yap-workspace-tools button{border-radius:10px;padding:7px 12px}
+.yap-workspace-tools small{opacity:.7;flex:1;min-width:160px}
+@media(max-width:600px){.yap-workspace-tools small{flex-basis:100%;font-size:11px}.yap-workspace-tools select{max-width:160px}}
