@@ -7,7 +7,7 @@ document.body.append(details);
 function openDetails(item){
  document.getElementById('plugin-name').textContent=item[1];
  document.getElementById('plugin-description').textContent=item[3];
- const ready=Object.hasOwn(publicTools,item[1]);
+ const ready=Object.prototype.hasOwnProperty.call(publicTools,item[1]);
  document.getElementById('plugin-access').textContent=ready?'Public search is available without connecting an account.':'Not connected to YapThing. This requires a separate provider authorization and backend integration. A ChatGPT plugin connection cannot be reused automatically.';
  const actions=document.getElementById('plugin-actions');actions.replaceChildren();
  if(ready){
@@ -19,7 +19,7 @@ function openDetails(item){
  }else{
   const info=document.createElement('p');info.textContent='Connection status: Setup required. No account access has been granted.';
   info.style.fontSize='14px';actions.append(info);
-  if(item[1]==='Desktop Commander'){const link=document.createElement('a');link.href='https://desktopcommander.app/';link.target='_blank';link.rel='noopener noreferrer';link.textContent='Desktop Commander information';actions.append(link)}
+  const provider=document.createElement('a');provider.href='https://'+item[2]+'/';provider.target='_blank';provider.rel='noopener noreferrer';provider.textContent='Open '+item[1]+' website';provider.style.cssText='display:inline-block;padding:10px 0;color:#295d3b';actions.append(provider);
  }
  details.showModal();
 }
