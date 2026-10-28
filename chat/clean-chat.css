@@ -49,3 +49,5 @@ body{font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI"
 
 /* Quiet, branded working state: subtle pulse, never a blocking overlay. */
 #send:disabled{background:var(--btn);color:var(--fg);animation:yap-breathe 1.6s ease-in-out infinite}#model-status{transition:opacity .2s ease}@keyframes yap-breathe{0%,100%{opacity:.9}50%{opacity:.65}}@media(prefers-reduced-motion:reduce){#send:disabled{animation:none}}
+
+.yap-working{display:flex;align-items:center;gap:9px;background:transparent!important;border:0!important;box-shadow:none!important;padding:8px!important;min-height:54px}.yap-working-logo{width:32px;height:32px;border-radius:10px}.yap-working-ring{width:16px;height:16px;border-radius:50%;border:2px solid var(--border);border-top-color:var(--accent);animation:yap-ring .85s linear infinite}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}@keyframes yap-ring{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.yap-working-ring{animation:none;border-top-color:var(--accent)}}
