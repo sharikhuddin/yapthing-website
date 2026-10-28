@@ -24,20 +24,25 @@ async function prepare(file){
  let binary='';for(let i=0;i<bytes.length;i+=8192)binary+=String.fromCharCode(...bytes.subarray(i,i+8192));
  return btoa(binary);
 }
-window.YapPhotoVision={
- hasPhoto:()=>!!image,
- analyze:async(prompt,history)=>{
-  if(!image)throw Error('Attach a photo first');
+async function cloudRequest(prompt,history,imageBase64){
   const token=await window.YapWebAccount?.getToken();
-  if(!token)throw Error('Sign in to analyze photos. Local AI cannot see images.');
-  const imageBase64=await prepare(image);
+  if(!token)throw Error('Sign in to use YapThing Cloud.');
   const response=await fetch('https://uemjkfvcadggyvhbqqyp.supabase.co/functions/v1/ios-chat',{
    method:'POST',headers:{'content-type':'application/json','authorization':'Bearer '+token,
     'apikey':'sb_publishable_HqcXeSMELbRgGodOzr0kCA_VwZldmBJ'},
-   body:JSON.stringify({prompt,history:history.slice(-4).map(m=>({role:m.role,text:m.content})),imageBase64,search:false})
+   body:JSON.stringify({prompt,history:history.slice(-4).map(m=>({role:m.role==='assistant'?'model':m.role,text:m.content})),...(imageBase64?{imageBase64}:{}),search:false})
   });
   const result=await response.json().catch(()=>({}));
-  if(!response.ok)throw Error(result.error||result.message||'Photo analysis unavailable ('+response.status+')');
+  if(!response.ok)throw Error(result.error||result.message||'YapThing Cloud unavailable ('+response.status+')');
+  return result;
+}
+window.YapPhotoVision={
+ ask:(prompt,history)=>cloudRequest(prompt,history),
+ hasPhoto:()=>!!image,
+ analyze:async(prompt,history)=>{
+  if(!image)throw Error('Attach a photo first');
+  const imageBase64=await prepare(image);
+  const result=await cloudRequest(prompt,history,imageBase64);
   reset();return result;
  }
 };
