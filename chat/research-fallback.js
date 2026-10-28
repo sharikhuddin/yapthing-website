@@ -22,6 +22,13 @@ window.YapResearchFallback=(()=>{
   }finally{clearTimeout(timer)}
  }
  async function research(prompt,mode='auto'){
+  if(mode==='parallel'){
+   const checks=await Promise.allSettled(['search-web','yap-public-research'].map(p=>call(p,prompt)));
+   const good=checks.filter(x=>x.status==='fulfilled').map(x=>x.value);
+   if(!good.length)throw Error('Parallel sources unavailable');
+   const sources=[...new Map(good.flatMap(x=>x.sources).map(s=>[s.url,s])).values()].slice(0,12);
+   return {answer:good.map(x=>x.provider+': '+x.answer).join('\n\n'),sources,provider:'Parallel sources',scope:'Compare independent sources before relying on claims.'};
+  }
   const errors=[];
   for(const provider of (mode==='google'?['google-grounded-search']:mode==='brave'?['search-web']:mode==='public'?['yap-public-research']:['google-grounded-search','search-web','yap-public-research'])){
    try{return await call(provider,prompt)}catch(e){errors.push(provider+': '+String(e.message||e))}
