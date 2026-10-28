@@ -5,4 +5,7 @@
 <url><loc>https://yapthing.com/plans/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
 <url><loc>https://yapthing.com/support/</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
 <url><loc>https://yapthing.com/privacy/</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
+<url><loc>https://yapthing.com/ai-writing-assistant/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://yapthing.com/ai-research-assistant/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://yapthing.com/ai-work-productivity/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
 </urlset>
