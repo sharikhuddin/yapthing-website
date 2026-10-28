@@ -4,9 +4,9 @@ window.YapResearchFallback=(()=>{
  const base='https://uemjkfvcadggyvhbqqyp.supabase.co/functions/v1/';
  const apikey='sb_publishable_HqcXeSMELbRgGodOzr0kCA_VwZldmBJ';
  function shouldSearch(prompt){
-  return /\b(latest|current|today|recent|news|research|sources?|cite|verify|search|look up|find online|compare options|regulations?|laws?|legal requirements?|best (?:available|options?|results?|places?|tools?|services?))\b/i.test(prompt);
+  return /\b(latest|current|today|recent|news|research|sources?|citations?|cite|verify|search|look up|find online|compare options|regulations?|laws?|legal requirements?|updated|202[4-9]|best (?:available|options?|results?|places?|tools?|services?))\b/i.test(prompt);
  }
- function queryFor(prompt){return String(prompt||'').trim().slice(0,180)}
+ function queryFor(prompt){return String(prompt||'').replace(/\s+/g,' ').trim().slice(0,280)}
  async function call(slug,prompt,timeoutMs=26000){
   const token=await window.YapWebAccount?.getToken();
   if(!token)throw Error('Sign in to research the live web.');
@@ -15,7 +15,7 @@ window.YapResearchFallback=(()=>{
    const response=await fetch(base+slug,{method:'POST',headers:{'content-type':'application/json','authorization':'Bearer '+token,'apikey':apikey},body:JSON.stringify({query:queryFor(prompt)}),signal:controller.signal});
    const data=await response.json().catch(()=>({}));
    if(!response.ok)throw Error(String(data.error||'Search unavailable ('+response.status+')'));
-   const sources=(Array.isArray(data.results)?data.results:[]).flatMap(s=>{try{const u=new URL(s.url);if(u.protocol!=='https:')return [];return [{title:String(s.title||u.hostname).slice(0,140),url:u.href,summary:String(s.summary||'').slice(0,450)}]}catch{return []}}).slice(0,7);
+   const sources=[...new Map((Array.isArray(data.results)?data.results:[]).flatMap(s=>{try{const u=new URL(s.url);if(u.protocol!=='https:'||u.username||u.password)return [];u.hash='';return [{title:String(s.title||u.hostname).slice(0,140),url:u.href,summary:String(s.summary||'').slice(0,450)}]}catch{return []}}).map(s=>[s.url,s])).values()].slice(0,9);
    if(!sources.length)throw Error('Search returned no verifiable source links.');
    const answer=typeof data.answer==='string'&&data.answer.trim()?data.answer.trim():sources.map((s,i)=>'['+(i+1)+'] '+s.title+'\n'+s.summary).join('\n\n');
    return {answer,sources:sources.map(s=>({title:s.title,url:s.url})),provider:data.provider||slug,scope:String(data.scope||'').slice(0,240)};
@@ -31,9 +31,9 @@ window.YapResearchFallback=(()=>{
    return {answer:good.map(x=>x.provider+': '+x.answer).join('\n\n'),sources,provider:'Parallel sources',durationMs:Math.round(performance.now()-started),scope:'Compare independent sources before relying on claims.'};
   }
   if(mode==='auto'){
-   const attempts=['google-grounded-search','yap-public-research'].map(p=>call(p,prompt,14000));
+   const attempts=['google-grounded-search','search-web','yap-public-research'].map(p=>call(p,prompt,12000));
    try{const result=await Promise.any(attempts);return {...result,durationMs:Math.round(performance.now()-started)}}
-   catch{const result=await call('search-web',prompt,14000);return {...result,durationMs:Math.round(performance.now()-started)}}
+   catch{throw Error('Live search is temporarily unavailable from all configured providers.')}
   }
   const errors=[];
   for(const provider of (mode==='google'?['google-grounded-search']:mode==='brave'?['search-web']:mode==='public'?['yap-public-research']:['google-grounded-search','search-web','yap-public-research'])){
