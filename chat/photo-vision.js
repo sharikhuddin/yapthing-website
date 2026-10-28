@@ -12,11 +12,11 @@ $('photo-input').onchange=async()=>{
  $('photo-thumb').src=previewURL;$('photo-name').textContent=file.name;$('photo-preview').hidden=false;
 };
 async function prepare(file){
- const bitmap=await createImageBitmap(file);
+ const bitmap=typeof createImageBitmap==='function'?await createImageBitmap(file):await new Promise((resolve,reject)=>{const img=new Image();const url=URL.createObjectURL(file);img.onload=()=>{URL.revokeObjectURL(url);resolve(img)};img.onerror=()=>{URL.revokeObjectURL(url);reject(Error('Could not open photo'))};img.src=url});
  const scale=Math.min(1,1280/Math.max(bitmap.width,bitmap.height));
  const canvas=document.createElement('canvas');
  canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));
- canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();
+ canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close?.();
  const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.78));
  if(!blob)throw Error('Could not process image');
  if(blob.size>2*1024*1024)throw Error('Image is too large after compression');
