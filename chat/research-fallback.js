@@ -18,12 +18,12 @@ window.YapResearchFallback=(()=>{
    const sources=(Array.isArray(data.results)?data.results:[]).flatMap(s=>{try{const u=new URL(s.url);if(u.protocol!=='https:')return [];return [{title:String(s.title||u.hostname).slice(0,140),url:u.href,summary:String(s.summary||'').slice(0,450)}]}catch{return []}}).slice(0,7);
    if(!sources.length)throw Error('Search returned no verifiable source links.');
    const answer=typeof data.answer==='string'&&data.answer.trim()?data.answer.trim():sources.map((s,i)=>'['+(i+1)+'] '+s.title+'\n'+s.summary).join('\n\n');
-   return {answer,sources:sources.map(s=>({title:s.title,url:s.url})),provider:data.provider||slug};
+   return {answer,sources:sources.map(s=>({title:s.title,url:s.url})),provider:data.provider||slug,scope:String(data.scope||'').slice(0,240)};
   }finally{clearTimeout(timer)}
  }
  async function research(prompt){
   const errors=[];
-  for(const provider of ['google-grounded-search','search-web']){
+  for(const provider of ['google-grounded-search','search-web','yap-public-research']){
    try{return await call(provider,prompt)}catch(e){errors.push(provider+': '+String(e.message||e))}
   }
   throw Error('Live research is unavailable. '+errors.join(' | ').slice(0,260));
