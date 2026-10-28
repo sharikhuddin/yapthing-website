@@ -30,6 +30,11 @@ window.YapResearchFallback=(()=>{
    const sources=[...new Map(good.flatMap(x=>x.sources).map(s=>[s.url,s])).values()].slice(0,12);
    return {answer:good.map(x=>x.provider+': '+x.answer).join('\n\n'),sources,provider:'Parallel sources',durationMs:Math.round(performance.now()-started),scope:'Compare independent sources before relying on claims.'};
   }
+  if(mode==='auto'){
+   const attempts=['google-grounded-search','yap-public-research'].map(p=>call(p,prompt,14000));
+   try{const result=await Promise.any(attempts);return {...result,durationMs:Math.round(performance.now()-started)}}
+   catch{const result=await call('search-web',prompt,14000);return {...result,durationMs:Math.round(performance.now()-started)}}
+  }
   const errors=[];
   for(const provider of (mode==='google'?['google-grounded-search']:mode==='brave'?['search-web']:mode==='public'?['yap-public-research']:['google-grounded-search','search-web','yap-public-research'])){
    try{const result=await call(provider,prompt,mode==='auto'?14000:26000);return {...result,durationMs:Math.round(performance.now()-started)}}catch(e){errors.push(provider+': '+String(e.message||e))}
