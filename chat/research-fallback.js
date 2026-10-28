@@ -21,9 +21,9 @@ window.YapResearchFallback=(()=>{
    return {answer,sources:sources.map(s=>({title:s.title,url:s.url})),provider:data.provider||slug,scope:String(data.scope||'').slice(0,240)};
   }finally{clearTimeout(timer)}
  }
- async function research(prompt){
+ async function research(prompt,mode='auto'){
   const errors=[];
-  for(const provider of ['google-grounded-search','search-web','yap-public-research']){
+  for(const provider of (mode==='google'?['google-grounded-search']:mode==='brave'?['search-web']:mode==='public'?['yap-public-research']:['google-grounded-search','search-web','yap-public-research'])){
    try{return await call(provider,prompt)}catch(e){errors.push(provider+': '+String(e.message||e))}
   }
   throw Error('Live research is unavailable. '+errors.join(' | ').slice(0,260));
