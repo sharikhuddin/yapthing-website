@@ -7,10 +7,10 @@ window.YapResearchFallback=(()=>{
   return /\b(latest|current|today|recent|news|research|sources?|cite|verify|search|look up|find online|compare options|regulations?|laws?|legal requirements?|best (?:available|options?|results?|places?|tools?|services?))\b/i.test(prompt);
  }
  function queryFor(prompt){return String(prompt||'').trim().slice(0,180)}
- async function call(slug,prompt){
+ async function call(slug,prompt,timeoutMs=26000){
   const token=await window.YapWebAccount?.getToken();
   if(!token)throw Error('Sign in to research the live web.');
-  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),26000);
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeoutMs);
   try{
    const response=await fetch(base+slug,{method:'POST',headers:{'content-type':'application/json','authorization':'Bearer '+token,'apikey':apikey},body:JSON.stringify({query:queryFor(prompt)}),signal:controller.signal});
    const data=await response.json().catch(()=>({}));
@@ -22,16 +22,17 @@ window.YapResearchFallback=(()=>{
   }finally{clearTimeout(timer)}
  }
  async function research(prompt,mode='auto'){
+  const started=performance.now();
   if(mode==='parallel'){
-   const checks=await Promise.allSettled(['search-web','yap-public-research'].map(p=>call(p,prompt)));
+   const checks=await Promise.allSettled(['search-web','yap-public-research'].map(p=>call(p,prompt,14000)));
    const good=checks.filter(x=>x.status==='fulfilled').map(x=>x.value);
    if(!good.length)throw Error('Parallel sources unavailable');
    const sources=[...new Map(good.flatMap(x=>x.sources).map(s=>[s.url,s])).values()].slice(0,12);
-   return {answer:good.map(x=>x.provider+': '+x.answer).join('\n\n'),sources,provider:'Parallel sources',scope:'Compare independent sources before relying on claims.'};
+   return {answer:good.map(x=>x.provider+': '+x.answer).join('\n\n'),sources,provider:'Parallel sources',durationMs:Math.round(performance.now()-started),scope:'Compare independent sources before relying on claims.'};
   }
   const errors=[];
   for(const provider of (mode==='google'?['google-grounded-search']:mode==='brave'?['search-web']:mode==='public'?['yap-public-research']:['google-grounded-search','search-web','yap-public-research'])){
-   try{return await call(provider,prompt)}catch(e){errors.push(provider+': '+String(e.message||e))}
+   try{const result=await call(provider,prompt,mode==='auto'?14000:26000);return {...result,durationMs:Math.round(performance.now()-started)}}catch(e){errors.push(provider+': '+String(e.message||e))}
   }
   throw Error('Live research is unavailable. '+errors.join(' | ').slice(0,260));
  }
