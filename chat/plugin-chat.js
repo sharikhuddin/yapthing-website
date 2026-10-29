@@ -5,7 +5,7 @@ const form=document.getElementById('form'),prompt=document.getElementById('promp
 const api='https://uemjkfvcadggyvhbqqyp.supabase.co/functions/v1/yap-gmail-messages';
 const anon='sb_publishable_HqcXeSMELbRgGodOzr0kCA_VwZldmBJ';
 function result(message){const root=document.getElementById('messages');if(!root)return;const box=document.createElement('div');box.setAttribute('role','status');box.style.cssText='white-space:pre-wrap;overflow-wrap:anywhere;margin:10px 0;padding:14px;border:1px solid var(--border);border-radius:13px;background:var(--panel);color:var(--fg);font:14px/1.55 system-ui';box.textContent=message;root.append(box);root.scrollTop=root.scrollHeight}
-function parse(value){const m=value.trim().match(/^\✦(?:\s+(.*))?$/i);return m?String(m[1]||'').trim():null}
+function parse(value){const m=value.trim().match(/^(?:✦|\\/plugin)(?:\\s+(.*))?$/i);return m?String(m[1]||'').trim():null}
 async function handle(command){
 if(!command||/^help$/i.test(command)){result('YapThing plugins — available chat commands:\n✦ gmail inbox — read recent Gmail subjects and snippets (requires connected Gmail)\n✦ github owner/repo — show public repository details\n✦ connections — manage account connections\n✦ help — show these commands\n\nOther private plugins are not yet available for chat execution.');return}
 if(/^connections$/i.test(command)){result('Open YapThing Plugins to connect supported services: https://yapthing.com✦s/');return}
