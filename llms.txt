@@ -10,5 +10,10 @@
 - [Deletion](https://yapthing.com/delete-account/): Account deletion guidance.
 - [Support](https://yapthing.com/support/): Contact and access questions.
 
+## Useful reading
+- [Guides](https://yapthing.com/guides/): Practical workflows.
+- [Research with sources](https://yapthing.com/guides/research-with-sources/): How to verify AI-supported research.
+- [About and content standards](https://yapthing.com/about/): Product identity and correction guidance.
+
 ## Limitations
 Android testing and iOS development are ongoing; do not infer public app-store availability. Live research depends on providers and quota. Computer Work requires authorization and a paired computer. This file is a discovery aid, not an access-control or indexing guarantee.
