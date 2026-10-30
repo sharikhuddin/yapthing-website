@@ -4,7 +4,7 @@ on:
     branches: [main]
   pull_request:
   workflow_run:
-    workflows: ["pages build and deployment"]
+    workflows: ["pages-build-deployment", "pages build and deployment"]
     types: [completed]
   workflow_dispatch:
 permissions:
@@ -43,4 +43,5 @@ jobs:
           path: indexnow-result.json
           if-no-files-found: ignore
           retention-days: 30
+
 
