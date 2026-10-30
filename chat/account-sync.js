@@ -5,19 +5,18 @@ const key='sb_publishable_HqcXeSMELbRgGodOzr0kCA_VwZldmBJ';
 const $=id=>document.getElementById(id);
 const sessionKey='yapthing.web.session.v1';
 let session=null;
-try{session=JSON.parse(localStorage.getItem(sessionKey)||'null')}catch{}
+session=window.YapSession.get();window.addEventListener('yap:session-change',()=>{session=window.YapSession.get();render();});
 const note=s=>{$('account-state').textContent=s};let quotaCache=null;const publishQuota=q=>{const f=q?.features?.cloud_chat;if(!f)return;quotaCache=f;window.dispatchEvent(new CustomEvent('yap:quota',{detail:{remaining:Math.max(0,Number(f.remaining)||0),limit:Number(f.limit)||20}}))};
 const headers=(token)=>({'apikey':key,'Authorization':'Bearer '+token,'Content-Type':'application/json'});
 async function request(path,method='GET',body,token=session?.access_token){
- const requestHeaders=headers(token||key);if(path.includes('on_conflict='))requestHeaders['Prefer']='resolution=merge-duplicates,return=minimal';const res=await fetch(base+'/'+path,{method,headers:requestHeaders,body:body?JSON.stringify(body):undefined});
+ const requestHeaders=headers(token||key);if(path.includes('on_conflict='))requestHeaders['Prefer']='resolution=merge-duplicates,return=minimal';const options={method,headers:requestHeaders,body:body?JSON.stringify(body):undefined};const res=path.startsWith('auth/')?await fetch(base+'/'+path,options):await window.YapSession.authFetch(base+'/'+path,options);
  const json=await res.json().catch(()=>({}));
  if(!res.ok)throw Error(json.msg||json.message||json.error_description||json.error||'Request failed');
  return json;
 }
-function setSession(s){session=s;window.dispatchEvent(new Event('yap:session-change'));try{if(s)localStorage.setItem(sessionKey,JSON.stringify(s));else localStorage.removeItem(sessionKey)}catch{};render();}
-function render(){const on=!!session?.access_token;$('account-email').hidden=on;$('account-password').hidden=on;$('account-form').querySelector('[type=submit]').hidden=on;$('account-signup').hidden=on;$('account-signout').hidden=!on;note(on?'Signed in. Cloud sync available.':'Sign in to sync your cloud quota and conversations.');}
-async function refresh(){if(!session?.refresh_token)return;const next=await request('auth/v1/token?grant_type=refresh_token','POST',{refresh_token:session.refresh_token},key);setSession(next)}
-async function ready(){if(!session?.access_token)throw Error('Sign in first');if(session.expires_at&&Date.now()/1000<Number(session.expires_at)-90)return;try{await refresh()}catch{setSession(null);throw Error('Session expired. Sign in again')}}
+function setSession(s){window.YapSession.set(s);session=window.YapSession.get();render();}
+function render(){const on=!!session?.access_token;$('account-email').hidden=on;$('account-password').hidden=on;$('account-form').querySelector('[type=submit]').hidden=on;$('account-signup').hidden=on;$('account-signout').hidden=!on;note(on?'Signed in. Your work stays with your account.':'Sign in to save and sync your work.');}
+async function ready(){await window.YapSession.token();session=window.YapSession.get();}
 $('account-toggle').onclick=()=>{$('account-panel').hidden=!$('account-panel').hidden;if(!$('account-panel').hidden)status()};
 $('account-form').onsubmit=async e=>{e.preventDefault();note('Signing in…');try{const s=await request('auth/v1/token?grant_type=password','POST',{email:$('account-email').value.trim(),password:$('account-password').value},key);$('account-password').value='';setSession(s);await status()}catch(err){note(err.message)}};
 $('account-signup').onclick=async()=>{note('Creating account…');try{await request('auth/v1/signup','POST',{email:$('account-email').value.trim(),password:$('account-password').value},key);note('Check your email for verification, then sign in.')}catch(err){note(err.message)}};
@@ -66,5 +65,5 @@ $('cloud-load').onclick=async()=>{
  }catch(err){note('Restore failed: '+err.message)}
 };
 render();if(session)status();
-window.YapWebAccount={getToken:async()=>{await ready();return session.access_token},getUserId:()=>session?.user?.id||null,status,getQuota:()=>quotaCache,memoryName,saveName,deleteName};
+window.YapWebAccount={getToken:async()=>{await ready();return session.access_token},getUserId:()=>session?.user?.id||null,authFetch:window.YapSession.authFetch,status,getQuota:()=>quotaCache,memoryName,saveName,deleteName};
 })();
