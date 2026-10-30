@@ -9,6 +9,7 @@ function app(options={}){
  return {root:window,api:window.YapLocation,fetches,events,geoCalls:()=>geoCalls,advance:ms=>now+=ms};
 }
 (async()=>{
+ const flow=app();const waiting=[{role:'user',text:'restaurants near me'},{role:'assistant',source:'location-question',localQuestion:'restaurants near me'}];assert.equal(flow.api.resolveTurn('Karachi',waiting),'restaurants near me');assert.equal(flow.api.snapshot().label,'Karachi');assert.match(flow.api.queryFor('restaurants near me'),/Karachi/);assert.equal(flow.api.queryFor('restaurants in London'),'restaurants in London');assert.equal(flow.api.resolveTurn('Tell me a joke',waiting),'Tell me a joke');flow.api.useCity('Austin, Texas');assert.equal(flow.api.snapshot().label,'Austin, Texas');flow.api.forget();assert.equal(flow.api.snapshot().label,undefined);assert.equal(flow.api.localIntent('local events this weekend'),true);assert.equal(flow.api.localIntent('weather for the weekend'),true);
  const a=app();assert.equal(a.fetches.length,0,'no IP lookup at startup');assert.equal(a.geoCalls(),0);
  const clock=a.api.clockAnswer('Can you tell me the time in karachi');assert.equal(clock.timezone,'Asia/Karachi');assert.match(clock.text,/Oct 31, 2026/);assert.match(clock.text,/4:30:00/);
  assert.equal(a.api.clockAnswer('How does time travel work?'),null);

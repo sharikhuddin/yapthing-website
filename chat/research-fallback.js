@@ -4,7 +4,7 @@ window.YapResearchFallback=(()=>{
  const base='https://uemjkfvcadggyvhbqqyp.supabase.co/functions/v1/';
  const apikey='sb_publishable_HqcXeSMELbRgGodOzr0kCA_VwZldmBJ';
  function shouldSearch(prompt){
-  return /\b(latest|current|today|tonight|recent|weather|forecast|price|prices|availability|opening hours|near me|nearby|news|research|sources?|citations?|cite|verify|search|look up|find online|compare options|regulations?|laws?|legal requirements?|updated|202[4-9]|best (?:available|options?|results?|places?|tools?|services?))\b/i.test(prompt);
+  return /\b(restaurants?|cafes?|pharmacies|local events|latest|current|today|tonight|recent|weather|forecast|price|prices|availability|opening hours|near me|nearby|news|research|sources?|citations?|cite|verify|search|look up|find online|compare options|regulations?|laws?|legal requirements?|updated|202[4-9]|best (?:available|options?|results?|places?|tools?|services?))\b/i.test(prompt);
  }
  function queryFor(prompt){return String(prompt||'').replace(/\s+/g,' ').trim().slice(0,180)}
  async function call(slug,prompt,timeoutMs=26000){
@@ -33,7 +33,7 @@ window.YapResearchFallback=(()=>{
    return {answer:good.map(x=>x.provider+': '+x.answer).join('\n\n'),sources,provider:'Parallel sources',durationMs:Math.round(performance.now()-started),scope:'Compare independent sources before relying on claims.'};
   }
   const errors=[];
-  const live=/\b(weather|forecast|prices?|availability|opening hours|nearby|near me|latest|current|today|tonight|news|exchange rate)\b/i.test(prompt);
+  const live=/\b(restaurants?|cafes?|pharmacies|local events|weather|forecast|prices?|availability|opening hours|nearby|near me|latest|current|today|tonight|news|exchange rate)\b/i.test(prompt);
   for(const provider of (mode==='google'?['google-grounded-search']:mode==='brave'?['search-web']:mode==='public'?['yap-public-research']:live?['google-grounded-search','search-web']:['google-grounded-search','search-web','yap-public-research'])){
    try{const result=await call(provider,prompt,mode==='auto'?14000:26000);return {...result,durationMs:Math.round(performance.now()-started)}}catch(e){if([401,403,409,429].includes(e.status))throw e;errors.push(provider+': unavailable')}
   }

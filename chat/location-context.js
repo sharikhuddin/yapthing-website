@@ -51,8 +51,10 @@
   }catch(error){if(ticket!==epoch)return false;throw Error(error?.code===1?'Location permission denied. Enter a city or choose approximate IP location.':error?.code===3?'Location timed out. Enter a city or choose approximate IP location.':'Device location unavailable. Enter a city or choose approximate IP location.');}
   finally{if(ticket===epoch)pending=false;}
  }
- const explicitPlace=q=>/\b(?:in|for|near|around)\s+(?!(?:me|my|here|today|now|tomorrow)\b)[\p{L}][\p{L}\s,.'-]{1,70}(?:[?!.]|$)/iu.test(q);
- const localIntent=q=>!explicitPlace(q)&&(/\b(near me|nearby|around me|my (?:city|area|location)|here|local (?:weather|news|shops|stores|time|restaurants))\b/i.test(q)||/^(?:what(?:'s| is) (?:the )?)?(?:weather|forecast)(?:\s+(?:today|now|tomorrow))?[?!.]*$/i.test(q.trim()));
+ function useCity(value){const label=clean(value,80);if(!label||!/[\p{L}]/u.test(label))throw Error('Enter your city or region.');forget();location={label,timezone:cities[label.toLowerCase()]||'',source:'manual',expires:Infinity};draw();return snapshot();}
+ function resolveTurn(text,history=[]){const last=history.at(-1);if(last?.source!=='location-question'||!last.localQuestion)return text;const city=clean(text,80).replace(/^(?:I(?:'m| am) in|my city is|in)\s+/i,'').replace(/[.!?]+$/,'');if(city.length>70||city.split(/\s+/).length>7||! /^[\p{L}][\p{L}\p{N}\s,.'-]*$/u.test(city)||/\b(?:weather|restaurants?|find|explain|write|what|why|how|forget|cancel|thanks|no|yes|hello|help|tell|please|can|could|show|make|stop|okay|don't|do not)\b/i.test(city))return text;useCity(city);return last.localQuestion;}
+ const explicitPlace=q=>/\b(?:in|for|near|around)\s+(?!(?:me|my|our|the|a|here|today|now|tomorrow|this|next)\b)[\p{L}][\p{L}\s,.'-]{1,70}(?:[?!.]|$)/iu.test(q);
+ const localIntent=q=>!explicitPlace(q)&&(/\b(near me|nearby|around me|my (?:city|area|location)|here|local (?:weather|news|shops|stores|time|restaurants|events|traffic|businesses|services|cafes|pharmacies))\b/i.test(q)||/\b(?:weather|forecast)\s+(?:for\s+)?(?:the\s+)?(?:weekend|this week|next week)\b/i.test(q)||/^(?:what(?:'s| is) (?:the )?)?(?:weather|forecast)(?:\s+(?:today|now|tomorrow))?[?!.]*$/i.test(q.trim()));
  function contextFor(q){
   if(!localIntent(q))return '';
   const s=snapshot();
@@ -99,7 +101,7 @@
   root.setInterval?.(()=>{if(doc.visibilityState!=='hidden')draw();},1000);
   doc.addEventListener?.('visibilitychange',draw);
  }
- root.YapLocation=Object.freeze({snapshot,revision:()=>epoch,forget,manual,approximate,precise,contextFor,queryFor,clockAnswer,localIntent,explicitPlace});
+ root.YapLocation=Object.freeze({snapshot,useCity,resolveTurn,revision:()=>epoch,forget,manual,approximate,precise,contextFor,queryFor,clockAnswer,localIntent,explicitPlace});
  root.addEventListener?.('yap:session-change',forget);root.addEventListener?.('pagehide',forget);
  if(root.document?.readyState==='loading')root.document.addEventListener('DOMContentLoaded',mount);else mount();
 })(typeof window!=='undefined'?window:globalThis);
