@@ -24,7 +24,7 @@ const server=http.createServer((req,res)=>{let rel=decodeURIComponent(new URL(re
  await page.locator('#yap-location-controls summary').click();await page.getByRole('button',{name:'Use approximate IP location',exact:true}).click();await page.waitForFunction(()=>YapLocation.snapshot().source==='ip');assert.equal(ipCalls,1);
  await page.getByRole('button',{name:'Use device location once',exact:true}).click();await page.waitForFunction(()=>YapLocation.snapshot().source==='device');assert.match(await page.locator('#yap-location-state').textContent(),/24.86, 67.00/);
  await page.getByRole('button',{name:'Forget location',exact:true}).click();assert.equal(await page.evaluate(()=>YapLocation.snapshot().label),undefined);
- await page.getByLabel('City or region',{exact:true}).fill('London');await page.getByLabel('IANA timezone',{exact:true}).fill('Europe/London');await page.getByRole('button',{name:'Use entered city',exact:true}).click();
+ await page.getByLabel('City or region',{exact:true}).fill('London');await page.getByLabel('IANA timezone',{exact:true}).fill('Europe/London');assert.equal(await page.getByLabel('IANA timezone',{exact:true}).inputValue(),'Europe/London','city autofill must not duplicate timezone during focus change');await page.getByRole('button',{name:'Use entered city',exact:true}).click();
  assert.equal(await page.evaluate(()=>YapLocation.queryFor('Weather in Karachi today')),'Weather in Karachi today');
  await page.locator('#yap-location-controls summary').click();
  await page.evaluate(()=>{window.YapWebAccount={getUserId:()=> 'test-user',getToken:async()=> 'test-token',getQuota:()=>({remaining:20,limit:20}),status:async()=>{},memoryName:async()=>''};});
