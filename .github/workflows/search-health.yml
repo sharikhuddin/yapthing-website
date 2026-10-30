@@ -1,0 +1,46 @@
+name: Search health and discovery
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_run:
+    workflows: ["pages build and deployment"]
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: search-health-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  check:
+    if: github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.head_repository.full_name == github.repository)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check generated search files
+        run: node scripts/search-build.cjs --check
+      - name: Check metadata, schema, sitemap and local links
+        run: node tests/search-health.cjs
+      - name: Check notification guards
+        run: node tests/indexnow.cjs
+      - name: Check admin behavior
+        run: node tests/admin-operations.cjs
+      - name: Notify participating search engines after verified Pages deployment
+        if: github.event_name == 'workflow_run'
+        run: node scripts/indexnow.cjs --submit --changed-from HEAD^
+      - name: Save actual notification receipt
+        if: always() && github.event_name == 'workflow_run'
+        uses: actions/upload-artifact@v4
+        with:
+          name: indexnow-receipt
+          path: indexnow-result.json
+          if-no-files-found: ignore
+          retention-days: 30
+
