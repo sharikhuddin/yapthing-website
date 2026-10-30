@@ -10,7 +10,7 @@ window.YapResearchFallback=(()=>{
  async function call(slug,prompt,timeoutMs=26000){
   const token=await window.YapWebAccount?.getToken();
   if(!token)throw Error('Sign in to research the live web.');
-  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeoutMs);
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeoutMs);const provider=slug==='google-grounded-search'?'google':slug==='search-web'?'brave':'web';const activity=window.YapActivity?.start(provider,'Searching for sources…');let complete=false;
   try{
    const response=await fetch(base+slug,{method:'POST',headers:{'content-type':'application/json','authorization':'Bearer '+token,'apikey':apikey},body:JSON.stringify({query:queryFor(prompt)}),signal:controller.signal});
    const data=await response.json().catch(()=>({}));
@@ -18,8 +18,8 @@ window.YapResearchFallback=(()=>{
    const sources=[...new Map((Array.isArray(data.results)?data.results:[]).flatMap(s=>{try{const u=new URL(s.url);if(u.protocol!=='https:'||u.username||u.password)return [];u.hash='';return [{title:String(s.title||u.hostname).slice(0,140),url:u.href,summary:String(s.summary||'').slice(0,450)}]}catch{return []}}).map(s=>[s.url,s])).values()].slice(0,9);
    if(!sources.length)throw Error('Search returned no verifiable source links.');
    const answer=typeof data.answer==='string'&&data.answer.trim()?data.answer.trim():sources.map((s,i)=>'['+(i+1)+'] '+s.title+'\n'+s.summary).join('\n\n');
-   return {answer,sources:sources.map(s=>({title:s.title,url:s.url})),provider:data.provider||slug,scope:String(data.scope||'').slice(0,240)};
-  }finally{clearTimeout(timer)}
+   complete=true;return {answer,sources:sources.map(s=>({title:s.title,url:s.url})),provider:data.provider||slug,scope:String(data.scope||'').slice(0,240)};
+  }finally{clearTimeout(timer);activity?.finish(complete?'Sources found':'Search unavailable',!complete)}
  }
  async function research(prompt,mode='auto'){
   const started=performance.now();
