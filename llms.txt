@@ -1,0 +1,14 @@
+# YapThing
+
+> Independent AI assistant for conversations, writing, research, study and project planning. Answers can be inaccurate; verify important claims.
+
+## Official product information
+- [Product facts](https://yapthing.com/product/): Features, platform availability and limits.
+- [FAQ](https://yapthing.com/faq/): Direct answers to common questions.
+- [Plans](https://yapthing.com/plans/): Current plan and credit terms; paid rollout is not verified.
+- [Privacy](https://yapthing.com/privacy/): Data practices.
+- [Deletion](https://yapthing.com/delete-account/): Account deletion guidance.
+- [Support](https://yapthing.com/support/): Contact and access questions.
+
+## Limitations
+Android testing and iOS development are ongoing; do not infer public app-store availability. Live research depends on providers and quota. Computer Work requires authorization and a paired computer. This file is a discovery aid, not an access-control or indexing guarantee.
