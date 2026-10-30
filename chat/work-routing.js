@@ -1,0 +1,2 @@
+'use strict';
+(()=>{document.getElementById('form')?.addEventListener('submit',event=>{const focus=document.getElementById('yap-workspace')?.value,text=document.getElementById('prompt')?.value||'';if(!['coding','work','engineering'].includes(focus)||!/\b(code|script|app|website|debug|refactor|implement|component)\b/i.test(text))return;event.preventDefault();event.stopImmediatePropagation();window.YapWorkHub?.open();const prompt=document.getElementById('work-prompt');if(prompt)prompt.value=text.slice(0,3000);},true);})();
