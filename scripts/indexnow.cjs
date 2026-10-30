@@ -4,7 +4,7 @@ process.chdir(path.resolve(__dirname,'..'));
 async function main(){
 const args=process.argv.slice(2),submit=args.includes('--submit'),config=JSON.parse(fs.readFileSync('indexnow.json','utf8')),manifest=JSON.parse(fs.readFileSync('search-manifest.json','utf8'));
 let pages=manifest.pages;const at=args.indexOf('--changed-from');
-if(at>=0){const ref=args[at+1];if(!ref||! /^[a-fA-F0-9^~]{7,45}$/.test(ref))throw Error('Expected a commit SHA with an optional parent suffix');
+if(at>=0){const ref=args[at+1];if(!ref||!(ref==='HEAD^'||/^[a-fA-F0-9]{7,40}(\^|~[0-9]+)?$/.test(ref)))throw Error('Expected a commit SHA with an optional parent suffix');
 const changed=cp.execFileSync('git',['diff','--name-only',ref,'HEAD'],{encoding:'utf8'}).trim().split(/\r?\n/);pages=pages.filter(p=>changed.includes(p.file))}
 if(!pages.length){console.log('No changed public HTML pages to notify.');return}
 const keyUrl=new URL(config.keyLocation);if(keyUrl.origin!==manifest.origin||config.host!==new URL(manifest.origin).host)throw Error('Unexpected verification host');
