@@ -6,3 +6,6 @@ body.yap-app-chat #yap-usage-menu{margin:0}body.yap-app-chat #yap-usage-menu sum
 @media(max-width:650px){.yap-mode-controls select{max-width:86px;font-size:13px;padding:7px}.yap-mode-controls #yap-project-picker{max-width:120px}.yap-work-message{padding:14px}.topline>strong{font-size:17px}}
 
 @media(max-width:450px){.app-header:has(#yap-project-picker:not([hidden])) .brand{font-size:0;gap:0}.app-header:has(#yap-project-picker:not([hidden])) .brand img{width:30px;height:30px}}
+
+/* Keep task detail secondary to the conversation. */
+.yap-work-message{background:transparent;border:0;border-left:3px solid #cbd9c4;border-radius:0;padding:12px 18px}.yap-work-message h3{font-size:16px}.yap-work-message details{margin:8px 0}.yap-work-message details>summary{font-size:13px;color:#526957;border:0;padding:10px 0}.yap-work-message p{margin:8px 0}.yap-mode-controls select{border-color:transparent;background:transparent}.yap-work-message button:focus-visible,.yap-work-message summary:focus-visible{outline:2px solid #24553c;outline-offset:3px}
