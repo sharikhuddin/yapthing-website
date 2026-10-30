@@ -1,0 +1,21 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
+const source=fs.readFileSync(path.join(__dirname,'../chat/research-fallback.js'),'utf8');
+function app(replies,token='session'){
+ const calls=[],events=[];const window={YapWebAccount:{getToken:async()=>token},YapActivity:{start:provider=>{events.push(provider);return {finish:(_s,failed)=>events.push(failed)}}}};
+ vm.runInNewContext(source,{window,fetch:async(url,options)=>{calls.push({url,options});const r=replies.shift();if(r instanceof Error)throw r;return new Response(JSON.stringify(r?.body||{}),{status:r?.status||200});},AbortController,setTimeout,clearTimeout,performance,URL,Map,Promise});
+ return {api:window.YapResearchFallback,calls,events};
+}
+const links={results:[{title:'Official source',url:'https://example.com/report#chapter',summary:'A reported listing.'},{title:'Duplicate',url:'https://example.com/report#other'},{title:'Internal',url:'https://172.16.0.1/secret'},{title:'Loopback',url:'https://[::1]/'},{title:'Local',url:'https://localhost/path'},{title:'Credentials',url:'https://user:pass@example.com/'}]};
+(async()=>{
+ const a=app([{status:503},{body:links}]);const r=await a.api.research('Salt price today in Karachi');assert.equal(a.calls.length,2,'auto is sequential fallback, not three metered calls');assert(a.calls[0].url.endsWith('google-grounded-search'));assert(a.calls[1].url.endsWith('search-web'));assert.equal(r.sources.length,1);assert.equal(r.sources[0].url,'https://example.com/report');assert.match(r.answer,/snippets.*not independently verified/);assert(!r.answer.includes('172.16'));
+ for(const status of [401,403,429]){const b=app([{status}]);await assert.rejects(()=>b.api.research('Weather today'),new RegExp(String(status)));assert.equal(b.calls.length,1,'no retry after auth/quota failure');assert.equal(b.events.at(-1),true);}
+ const guest=app([],null);await assert.rejects(()=>guest.api.research('weather'),/Sign in/);assert.equal(guest.calls.length,0);assert.equal(guest.events.length,0);
+ const explicit=app([{body:links}]);await explicit.api.research('Research salt','public');assert.equal(explicit.calls.length,1);assert(explicit.calls[0].url.endsWith('yap-public-research'));
+ const failure=app([{status:503},{status:503},{status:503}]);await assert.rejects(()=>failure.api.research('latest price'),/unavailable/);assert.equal(failure.calls.length,2,'encyclopedia/paper fallback must not pretend to supply current prices');
+ const background=app([{status:503},{status:503},{body:links}]);await background.api.research('Research photosynthesis');assert.equal(background.calls.length,3);
+ let releaseToken;const revoked=app([]);let revision=0;revoked.api;const root={YapLocation:{revision:()=>revision},YapWebAccount:{getToken:()=>new Promise(r=>releaseToken=r)}};let dispatched=0;vm.runInNewContext(source,{window:root,fetch:async()=>{dispatched++;throw Error('not expected')},AbortController,setTimeout,clearTimeout,performance,URL,Map,Promise});const flight=root.YapResearchFallback.research('Weather near me');revision++;releaseToken('session');await assert.rejects(()=>flight,/Location context changed/);assert.equal(dispatched,0);
+ assert(a.api.shouldSearch('What is the price of salt?'));assert(a.api.shouldSearch('Weather in Karachi'));assert(a.api.shouldSearch('Restaurants nearby'));assert(!a.api.shouldSearch('Tell me a joke'));
+ const limit=app([{body:links}]);await limit.api.research('x'.repeat(500),'google');assert.equal(JSON.parse(limit.calls[0].options.body).query.length,180);
+ console.log('PASS sequential fallback, explicit providers, guest/auth/quota boundaries, private-source rejection, deduplication, snippets and query limits.');
+})().catch(e=>{console.error(e);process.exitCode=1});

@@ -24,6 +24,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - name: Check clock, location privacy and research behavior
+        run: |
+          node tests/location-context.cjs
+          node tests/research-behavior.cjs
       - name: Check generated search files
         run: node scripts/search-build.cjs --check
       - name: Check metadata, schema, sitemap and local links
