@@ -85,9 +85,9 @@
  }
  function mount(){
   const doc=root.document;if(!doc||doc.getElementById('yap-location-controls'))return;
-  const host=doc.querySelector('.statusline')||doc.querySelector('#chat-workspace .chat-bottom')||doc.querySelector('.app-header');if(!host)return;
+  const host=doc.getElementById('yap-menu-settings')||doc.getElementById('yap-chat-settings')||doc.querySelector('.statusline')||doc.querySelector('#chat-workspace .chat-bottom')||doc.querySelector('.app-header');if(!host)return;
   const wrap=doc.createElement('details');wrap.id='yap-location-controls';wrap.className='yap-location-controls';
-  const summary=doc.createElement('summary'),clock=doc.createElement('time');clock.id='yap-live-clock';clock.setAttribute('aria-live','off');summary.append(clock);wrap.append(summary);
+  const summary=doc.createElement('summary'),clock=doc.createElement('time');clock.id='yap-live-clock';clock.hidden=true;clock.setAttribute('aria-live','off');summary.textContent='Location settings';summary.append(clock);wrap.append(summary);
   const box=doc.createElement('div');box.className='yap-location-options';
   const state=doc.createElement('p');state.id='yap-location-state';state.setAttribute('role','status');box.append(state);
   const note=doc.createElement('p');note.textContent='Location is optional. A timezone is not proof of your city. Automatic location stays in memory for 15 minutes. Search/AI may receive your selected city or rounded area only for local questions. Use Forget location to stop sharing it.';box.append(note);

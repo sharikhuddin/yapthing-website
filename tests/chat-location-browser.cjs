@@ -15,27 +15,27 @@ const server=http.createServer((req,res)=>{let rel=decodeURIComponent(new URL(re
  if(url.includes('/functions/v1/google-grounded-search')){providerCalls++;return route.fulfill({status:503,contentType:'application/json',body:'{}'});}
  if(url.includes('/functions/v1/search-web')){providerCalls++;if(failSearch)return route.fulfill({status:429,contentType:'application/json',body:'{}'});return route.fulfill({contentType:'application/json',body:JSON.stringify({provider:'Brave Search',results:[{title:'Official listing',url:'https://example.com/listing',summary:'A listing in Karachi.'}]})});}
  return route.abort();});
- await page.goto(origin+'/chat/');await page.waitForSelector('#yap-live-clock');assert.equal(ipCalls,0);
+ await page.goto(origin+'/chat/');await page.waitForSelector('#yap-live-clock',{state:'attached'});assert.equal(await page.locator('#yap-live-clock').isVisible(),false,'clock stays hidden');assert.equal(ipCalls,0);
  const first=await page.locator('#yap-live-clock').textContent();await page.waitForTimeout(1100);assert.notEqual(await page.locator('#yap-live-clock').textContent(),first,'clock ticks without chat/model');
  async function send(text){await page.locator('#prompt').fill(text);await page.locator('#form').evaluate(f=>f.requestSubmit());}
  await send('Can you tell me the time in karachi');await page.waitForFunction(()=>document.getElementById('messages').textContent.includes('Asia/Karachi'));
  assert.equal(providerCalls,0);assert(!requests.some(x=>/huggingface|esm.run/.test(x)),'clock must not load AI');
  await send('Weather here');await page.waitForFunction(()=>document.getElementById('messages').textContent.includes('Which city or region'));assert.equal(ipCalls,0);
- await page.locator('#yap-location-controls summary').click();await page.getByRole('button',{name:'Use approximate IP location',exact:true}).click();await page.waitForFunction(()=>YapLocation.snapshot().source==='ip');assert.equal(ipCalls,1);
+ await page.locator('#yap-desktop-menu').evaluate(e=>e.open=true);await page.locator('#yap-menu-settings').evaluate(e=>e.open=true);await page.locator('#yap-location-controls summary').click();await page.getByRole('button',{name:'Use approximate IP location',exact:true}).click();await page.waitForFunction(()=>YapLocation.snapshot().source==='ip');assert.equal(ipCalls,1);
  await page.getByRole('button',{name:'Use device location once',exact:true}).click();await page.waitForFunction(()=>YapLocation.snapshot().source==='device');assert.match(await page.locator('#yap-location-state').textContent(),/24.86, 67.00/);
  await page.getByRole('button',{name:'Forget location',exact:true}).click();assert.equal(await page.evaluate(()=>YapLocation.snapshot().label),undefined);
  await page.getByLabel('City or region',{exact:true}).fill('London');await page.getByLabel('IANA timezone',{exact:true}).fill('Europe/London');assert.equal(await page.getByLabel('IANA timezone',{exact:true}).inputValue(),'Europe/London','city autofill must not duplicate timezone during focus change');await page.getByRole('button',{name:'Use entered city',exact:true}).click();
  assert.equal(await page.evaluate(()=>YapLocation.queryFor('Weather in Karachi today')),'Weather in Karachi today');
- await page.locator('#yap-location-controls summary').click();
+ await page.locator('#yap-desktop-menu').evaluate(e=>e.open=true);await page.locator('#yap-menu-settings').evaluate(e=>e.open=true);await page.locator('#yap-location-controls summary').click();
  await page.evaluate(()=>{window.YapWebAccount={getUserId:()=> 'test-user',getToken:async()=> 'test-token',getQuota:()=>({remaining:20,limit:20}),status:async()=>{},memoryName:async()=>''};});
  await send('Weather in Karachi today');await page.waitForFunction(()=>document.querySelectorAll('.yap-sources a').length>0);
  assert.equal(providerCalls,2);failSearch=true;await send('Current prices in Karachi');await page.waitForFunction(()=>document.querySelectorAll('.message a').length&&document.getElementById('messages').textContent.includes('I couldn’t retrieve current sources'));assert.equal(providerCalls,4,'quota stops fallback');assert.match(await page.locator('#messages').textContent(),/Search snippets/);
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
- await page.locator('#yap-location-controls summary').click();assert.equal(await page.locator('.yap-location-options').evaluate(e=>{const r=e.getBoundingClientRect();return r.left>=0&&r.right<=innerWidth+1}),true,'location options fit phone');
+ await page.locator('#yap-desktop-menu').evaluate(e=>e.open=true);await page.locator('#yap-menu-settings').evaluate(e=>e.open=true);await page.locator('#yap-location-controls summary').click();assert.equal(await page.locator('.yap-location-options').evaluate(e=>{const r=e.getBoundingClientRect();return r.left>=0&&r.right<=innerWidth+1}),true,'location options fit phone');
  const output=process.env.YAP_QA_OUTPUT;if(output){fs.mkdirSync(output,{recursive:true});await page.screenshot({path:path.join(output,'website-location-mobile.png')});}
  for(const width of [360,768,1280]){await page.setViewportSize({width,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'overflow at '+width);}
  assert.deepEqual(errors,[],'website runtime errors');
- if(fs.existsSync(native)){
+ if(!process.env.YAP_WEB_ONLY&&fs.existsSync(native)){
   await page.goto(origin+'/native/index.html');await page.waitForSelector('#yap-live-clock');await page.setViewportSize({width:390,height:844});
   await page.locator('#message-input').fill('What time is it in Karachi?');await page.locator('#chat-form').evaluate(f=>f.requestSubmit());await page.waitForFunction(()=>document.getElementById('messages').textContent.includes('Asia/Karachi'));
   assert.equal(await page.evaluate(()=>current.messages.at(-1).source),'clock');
