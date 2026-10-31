@@ -6,6 +6,7 @@
  const apps=[
   {id:'gmail',name:'Gmail',short:'G',group:'Productivity',desc:'Read your inbox, review messages, and choose what to do.',detail:'Requires your Google authorization. Only a verified, active connection grants access. Sending, archiving, and deleting always require separate confirmation.',kind:'oauth'},
   {id:'desktop-commander',name:'YapThing Desktop',short:'PC',group:'Developer',desc:'Pair your own Windows computer for files and coding work.',detail:'Install or pair the local desktop connector on your own trusted computer. Approve each permitted action in the companion workflow.',kind:'local',url:'../desktop/'},
+  {id:'github',name:'GitHub account',short:'GH',group:'Developer',desc:'Connect selected repositories with a GitHub App to inspect code and issues.',kind:'oauth',detail:'A GitHub App installed on repositories you choose is required. Read-only repository and issue operations; no commits, push or deletion.'},
   {id:'github-public',name:'GitHub Public',short:'GH',group:'Developer',desc:'Explore public repositories without connecting an account.',detail:'Public repository search works without account authorization. Private repositories require a separate verified connection.',kind:'public',url:'https://github.com/search?q=',param:true},
   {id:'wikipedia',name:'Wikipedia',short:'W',group:'Research',desc:'Find public encyclopedia articles and sources.',detail:'Public Wikipedia search. No private account access or OAuth needed.',kind:'public',url:'https://en.wikipedia.org/w/index.php?search=',param:true},
   {id:'crossref',name:'Crossref',short:'CR',group:'Research',desc:'Search scholarly publication metadata and citations.',detail:'Public publication search. Full-text articles are not guaranteed.',kind:'public',url:'https://search.crossref.org/?q=',param:true},
@@ -19,7 +20,7 @@
   {id:'notion',name:'Notion',short:'N',group:'Work',desc:'Find notes and workspace pages.',kind:'planned',detail:'Notion workspace authorization is not yet available.'},
   {id:'trello',name:'Trello',short:'T',group:'Work',desc:'Boards and tasks from your workspace.',kind:'planned',detail:'Requires a user-approved Trello integration.'},
   {id:'linear',name:'Linear',short:'L',group:'Developer',desc:'Track coding issues and projects.',kind:'planned',detail:'Requires delegated Linear OAuth access.'},
-  {id:'supabase',name:'Supabase',short:'Sb',group:'Developer',desc:'Work with authorized backend projects.',kind:'planned',detail:'A safe delegated project connection is required. Never paste service-role secrets.'},
+  {id:'supabase',name:'Supabase',short:'Sb',group:'Developer',desc:'Connect your Supabase account and inspect authorized project metadata and functions.',kind:'oauth',detail:'Supabase OAuth uses the app permissions approved in your Supabase organization. YapThing only performs read-only project and Edge Function listings. No keys or SQL are exposed.'},
   {id:'replit',name:'Replit',short:'R',group:'Developer',desc:'Explore code projects you authorize.',kind:'planned',detail:'Supported project authorization is needed before account access.'},
   {id:'shopify',name:'Shopify',short:'Sh',group:'Business',desc:'Review store data and orders.',kind:'planned',detail:'Requires Shopify app authorization and scoped store access.'}
  ];
@@ -44,6 +45,7 @@
  const state={filter:'All',providers:new Map(),signedIn:false,loading:false};
  const params=new URLSearchParams(location.search);
  const driveResult=params.get('drive');
+ const devResult=['github','supabase'].find(x=>params.has(x));
  const requestedConnect=params.get('connect');
  let deepLinkHandled=false;
  const statusOf=app=>{
@@ -58,7 +60,7 @@
  };
  const allowedAuth=url=>{
   const u=new URL(url);
-  if(u.protocol!=='https:'||u.hostname!=='accounts.google.com'||u.username||u.password)throw Error('Untrusted authorization destination.');
+  if(u.protocol!=='https:'||!['accounts.google.com','github.com','api.supabase.com'].includes(u.hostname)||u.username||u.password)throw Error('Untrusted authorization destination.');
   return u.href;
  };
  const ensureSession=async()=>{try{await api.getToken();return true;}catch{return false;}};
@@ -71,7 +73,7 @@
    const response=await api.list();
    if(!Array.isArray(response.providers))throw Error('Connection status is unavailable.');
    state.providers=new Map(response.providers.filter(p=>typeof p.id==='string').map(p=>[p.id,p]));
-   info(driveResult?driveResult==='connected'?'Google Drive authorization completed. Confirm the Connected status below.':'Google Drive authorization did not complete: '+driveResult.replace(/[^a-z_-]/g,' ').slice(0,65):'');
+   info(devResult?((params.get(devResult)==='connected'?devResult+' authorization completed. Verify the connection.':devResult+' connection was not completed: '+String(params.get(devResult)).slice(0,70))):driveResult?driveResult==='connected'?'Google Drive authorization completed. Confirm the Connected status below.':'Google Drive authorization did not complete: '+driveResult.replace(/[^a-z_-]/g,' ').slice(0,65):'');
   }catch(e){state.providers.clear();info('Connection status could not be verified: '+String(e.message||e));}
   finally{state.loading=false;refresh.disabled=false;refresh.textContent='Refresh connections';render();
    if(!deepLinkHandled&&requestedConnect){deepLinkHandled=true;const app=apps.find(x=>x.id===requestedConnect&&x.kind==='oauth');if(app)details(app);}
@@ -87,7 +89,7 @@
   }
   if(!record?.connect_available){details(app);return;}
   try{
-   info('Opening secure Google authorization…');
+   info('Opening secure '+app.name+' authorization…');
    const result=await api.connect(app.id);
    if(result.authorization_url){window.location.assign(allowedAuth(result.authorization_url));return;}
    await reload();details(app);
@@ -168,6 +170,69 @@
   }),createButton('Disconnect',()=>connect(app),false));
   load();
  }
+ function developerDetails(extra,actions,app){
+  const client=window.YapDeveloperClient;
+  const output=document.createElement('div');output.className='pc-result';output.setAttribute('role','status');
+  const items=document.createElement('div');items.className='pc-drive-list';
+  const preview=document.createElement('div');preview.className='pc-drive-preview';preview.setAttribute('aria-live','polite');
+  const note=document.createElement('p');note.textContent=app.id==='github'?
+   'Read-only GitHub App access to repositories you installed and authorized. Files are not automatically sent to AI.':
+   'Read-only access to authorized Supabase project and Edge Function metadata. No SQL execution or secret keys.';
+  extra.append(note,output,items,preview);
+  const button=(label,handler)=>{
+   const b=createButton(label,async()=>{b.disabled=true;try{await handler();}catch(e){output.textContent=String(e.message||e);}finally{b.disabled=false;}},false);
+   return b;
+  };
+  const info=text=>{output.textContent=text;};
+  if(app.id==='supabase'){
+   async function projects(){
+    info('Listing authorized Supabase projects…');items.replaceChildren();preview.replaceChildren();
+    const data=await client.supabaseProjects(),projects=Array.isArray(data.projects)?data.projects:[];
+    info(projects.length?projects.length+' authorized projects':'No projects visible through these OAuth permissions.');
+    for(const project of projects){
+     const row=document.createElement('div');row.className='pc-drive-row';
+     const name=document.createElement('span');name.textContent=String(project.name||'Project')+' · '+String(project.ref||'')+' · '+String(project.region||'');
+     row.append(name,button('Functions',async()=>{
+      preview.textContent='Reading Edge Function metadata…';
+      const result=await client.supabaseFunctions(project.ref);
+      const functions=Array.isArray(result.functions)?result.functions:[];
+      preview.textContent=functions.length?functions.map(f=>String(f.name||'Function')+' ('+String(f.status||'')+')').join('\n'):'No Edge Functions returned or permitted.';
+     }));items.append(row);
+    }
+   }
+   actions.append(button('View projects',projects),createButton('Disconnect',()=>connect(app),false));
+   projects().catch(e=>info('Supabase connection error: '+String(e.message||e)));
+  }else{
+   async function installations(){
+    info('Listing authorized GitHub App installations…');items.replaceChildren();preview.replaceChildren();
+    const data=await client.githubInstallations(),all=Array.isArray(data.installations)?data.installations:[];
+    info(all.length?all.length+' GitHub App installations':'No GitHub App installations accessible. Install the YapThing GitHub App on selected repositories in GitHub.');
+    for(const inst of all){
+     const row=document.createElement('div'),label=document.createElement('span');row.className='pc-drive-row';
+     label.textContent=String(inst.account||'GitHub account')+' · '+String(inst.repository_selection||'');
+     row.append(label,button('Repositories',async()=>{
+      preview.textContent='Loading accessible repositories…';
+      const result=await client.githubRepositories(inst.id);
+      const repos=Array.isArray(result.repositories)?result.repositories:[];
+      preview.replaceChildren();
+      if(!repos.length)preview.textContent='No repositories returned for this installation.';
+      for(const repo of repos){
+       const record=document.createElement('div');record.className='pc-drive-row';
+       const title=document.createElement('span');title.textContent=String(repo.name||'Repository')+(repo.private?' (private)':'');
+       const read=button('README',async()=>{
+        const [owner,name]=String(repo.name||'').split('/');
+        const result=await client.githubFile(owner,name,'README.md');
+        preview.textContent=String(repo.name)+' · README.md\n\n'+String(result.content||'').slice(0,14000);
+       });
+       record.append(title,read);preview.append(record);
+      }
+     }));items.append(row);
+    }
+   }
+   actions.append(button('My GitHub repositories',installations),createButton('Disconnect',()=>connect(app),false));
+   installations().catch(e=>info('GitHub connection error: '+String(e.message||e)));
+  }
+ }
  function details(app){
   const status=statusOf(app);dialog.querySelector('#pc-name').textContent=app.name;
   dialog.querySelector('#pc-details').textContent=app.detail;
@@ -188,9 +253,16 @@
     const inbox=document.createElement('div');inbox.className='pc-result';inbox.setAttribute('role','status');extra.append(inbox);
     if(app.id==='gmail')actions.append(createButton('Read recent inbox',()=>gmailInbox(inbox)),createButton('Compose email',()=>gmailCompose(inbox)),createButton('Disconnect',()=>connect(app),false));
     else if(app.id==='google-drive')driveDetails(extra,actions,app);
+    else if(app.id==='github'||app.id==='supabase')developerDetails(extra,actions,app);
     else actions.append(createButton('Disconnect',()=>connect(app),false));
-   }else if(p?.connect_available){actions.append(createButton('Authorize with Google',()=>connect(app)));}
-   else actions.append(createButton(state.signedIn?'View setup information':'Sign in to connect',()=>state.signedIn?info('This provider is not available for OAuth yet.'):window.location.assign('../chat/')));
+   }else if(p?.connect_available){actions.append(createButton('Authorize with '+(app.id==='github'?'GitHub':app.id==='supabase'?'Supabase':'Google'),()=>connect(app)));}
+   else {
+    if(app.id==='github'||app.id==='supabase'){
+     const note=document.createElement('p');note.textContent='YapThing administrator setup is required before customers can authorize their accounts. No access has been granted.';extra.append(note);
+     const link=document.createElement('a');link.href=app.id==='github'?'https://github.com/settings/apps':'https://supabase.com/dashboard/organizations';link.target='_blank';link.rel='noopener noreferrer';link.textContent=app.id==='github'?'GitHub Apps setup':'Supabase OAuth Apps setup';extra.append(link);
+    }
+    actions.append(createButton(state.signedIn?'Setup required':'Sign in to connect',()=>state.signedIn?info('The YapThing provider OAuth app must be registered by the administrator first.'):window.location.assign('../chat/')));
+   }
   }else {
    const p=document.createElement('p');p.textContent='This integration has not been enabled for user authorization. We will only show Connect when a supported flow is ready.';extra.append(p);
   }

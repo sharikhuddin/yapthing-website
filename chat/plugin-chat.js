@@ -17,7 +17,7 @@
   return found?String(found[1]||'').trim():null;
  };
  const session=()=>window.YapPluginConnections?.getToken?.();
- const help='Plugin commands:\n/plugin gmail inbox — show recent email subjects and snippets\n/plugin drive files — list authorized Drive files\n/plugin drive read FILE_ID — read a text note or Google Doc\n/plugin drive save Name | text to save — create a text note after confirmation\n/plugin github owner/repo — review a public repository\n/plugin connections — open https://yapthing.com/plugins/\n\nGoogle accounts must be connected separately in Plugins. Drive can access only files created or opened with YapThing.';
+ const help='Plugin commands:\n/plugin gmail inbox — show recent email subjects and snippets\n/plugin drive files — list authorized Drive files\n/plugin drive read FILE_ID — read a text note or Google Doc\n/plugin drive save Name | text to save — create a text note after confirmation\n/plugin github repos — list installed GitHub App repositories\n/plugin github file owner/repo README.md — read an authorized source file\n/plugin github issues owner/repo — list open issues\n/plugin supabase projects — list your authorized projects\n/plugin supabase functions PROJECT_REF — list Edge Functions\n/plugin github owner/repo — review a public repository\n/plugin connections — open https://yapthing.com/plugins/\n\nGoogle accounts must be connected separately in Plugins. Drive can access only files created or opened with YapThing.';
  async function handle(command){
   if(!command||/^help$/i.test(command)){show(help);return}
   if(/^connections$/i.test(command)){show('Connect Gmail or Google Drive at https://yapthing.com/plugins/. Each account must authorize Google separately.');return}
