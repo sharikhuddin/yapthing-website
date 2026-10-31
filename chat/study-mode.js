@@ -9,7 +9,13 @@
  const topic=document.createElement('input');topic.type='text';topic.placeholder='Topic or exam (e.g. USMLE, Python, biology)';topic.setAttribute('aria-label','Study topic');topic.style.cssText='flex:1 1 175px;min-width:120px;border:1px solid #8da49a;border-radius:12px;padding:9px;background:transparent;color:inherit';topic.hidden=true;
  const start=document.createElement('button');start.type='button';start.textContent='Start quiz';start.hidden=true;start.style.cssText='border:0;border-radius:12px;padding:9px 14px;background:#d9f78d;color:#193a29;font-weight:700;cursor:pointer';
  const hint=document.createElement('small');hint.textContent='One question at a time · answers stay hidden';hint.hidden=true;
- controls.append(toggle,topic,start,hint);form.parentElement.insertBefore(controls,form);
+ controls.append(toggle,topic,start,hint);
+ // Study tools belong to the selected Student Study workflow, never the main sidebar.
+ const workflow=document.getElementById('yap-workspace');
+ form.insertBefore(controls,form.querySelector('.compose-row')||form.firstChild);
+ const syncStudy=()=>{controls.hidden=workflow?.value!=='student-study';};
+ workflow?.addEventListener('change',syncStudy);
+ syncStudy();
  const instructions='You are YapThing interactive exam tutor. Ask exactly ONE exam-style question at a time for the topic below. Give 4 options (A-D) when suitable. DO NOT reveal the correct answer or rationale in this turn. Wait for the student to respond. After they answer, give supportive concise feedback, a clear explanation, and then ask the next question without revealing its answer. Adapt difficulty based on performance. For medical topics, use educational fictional cases only, not personal diagnosis. Topic: ';
  toggle.onclick=()=>{enabled=!enabled;toggle.textContent='🎓 Study mode: '+(enabled?'On':'Off');toggle.setAttribute('aria-pressed',String(enabled));topic.hidden=start.hidden=hint.hidden=!enabled;if(enabled)topic.focus()};
  start.onclick=()=>{const t=topic.value.trim();if(!t){topic.focus();return}input.value=instructions+t;input.focus();input.dispatchEvent(new Event('input',{bubbles:true}));};

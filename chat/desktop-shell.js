@@ -15,7 +15,7 @@ if(fresh){fresh.textContent='＋ New chat';drawer.append(fresh);}
 if(history){const chats=document.createElement('section');chats.className='yap-recent-navigation';const heading=document.createElement('h3');heading.textContent='Recent chats';chats.append(heading,history);drawer.append(chats);}
 if(aside)aside.hidden=true;
 const settings=document.createElement('details');settings.id='yap-menu-settings';const summary=document.createElement('summary');summary.textContent='⚙  Settings';settings.append(summary,actions);
-const study=document.getElementById('yap-study-controls');if(study)settings.append(study);
+// Study controls remain in the study workflow, not the navigation sidebar.
 const footer=document.createElement('div');footer.className='yap-sidebar-footer';
 footer.append(settings);
 const accountButton=actions.querySelector('#account-toggle');
