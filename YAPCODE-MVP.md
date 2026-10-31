@@ -51,3 +51,12 @@ Mock tests do not prove authenticated end-to-end service invocation, actual Olla
 - Test against a non-production repository: generate, review, save, check, PR.
 - Add iOS-native authenticated Work proxy and UI, entitlement/top-up UX, and hosted isolated sandboxes before offering fully autonomous coding publicly.
 - Obtain real-device testing and approval before store submission or production merge.
+
+## Unified app navigation (October 31, 2026)
+
+- Web and Android now present **Chat**, **Projects**, **Code** at the top of the application menu and **Recents** with selectable saved conversations below.
+- Web Projects expands the current project navigation including Create Project; Android Projects opens the existing in-app YapWork project studio. Code opens the YapCode modal without external navigation. Existing secondary tools live under Settings / More tools.
+- Navigation verified in headless Chrome at phone (390px) and desktop (1280px) widths on both platforms. Existing YapCode workflow tests and Android Work Studio tests passed.
+- Android test build has a separate debug-only application ID `com.sharkcorp.yapthing.yapcodepreview` and label **YapThing Code Test**; this leaves the main installed YapThing app untouched. `assembleDebug` and APK package/signature verification passed.
+- **Not yet validated:** an installed physical-device session, on-device sign-in and backend execution, full iOS app navigation, and Play Store production release. Android emulator could not start due to missing Windows hardware acceleration driver; browser tests are not an emulator replacement.
+- Do not auto-merge/deploy before validating actual account/credits and the trusted computer/Ollama integration on a test repository.
