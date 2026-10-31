@@ -48,7 +48,7 @@ window.YapResearchFallback=(()=>{
   const errors=[];const sensitive=['mental-health','health'].includes(topicFor(prompt));
   const live=/\b(restaurants?|cafes?|pharmacies|local events|weather|forecast|prices?|availability|opening hours|nearby|near me|latest|current|today|tonight|news|exchange rate)\b/i.test(prompt);
   for(const provider of (sensitive&&mode==='auto'?['google-grounded-search']:mode==='google'?['google-grounded-search']:mode==='brave'?['search-web']:mode==='public'?['yap-public-research']:live?['google-grounded-search','search-web']:['google-grounded-search','search-web','yap-public-research'])){
-   try{const result=await call(provider,prompt,mode==='auto'?14000:26000);return {...result,durationMs:Math.round(performance.now()-started)}}catch(e){if([401,403,409,429].includes(e.status))throw e;errors.push(provider+': unavailable')}
+   try{const result=await call(provider,prompt,mode==='auto'?14000:26000);return {...result,durationMs:Math.round(performance.now()-started)}}catch(e){if([401,403,409,429].includes(e.status))throw e;errors.push(provider+': '+String(e.message||'unavailable').slice(0,180))}
   }
   throw Error('Live research is unavailable. '+errors.join(' | ').slice(0,260));
  }
