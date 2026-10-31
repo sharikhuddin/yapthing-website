@@ -30,8 +30,12 @@ for(const phrase of ['YapThing','Safety guidance','Personalization','Original sy
 assert(!normalized.slice(1).some(m=>m.role==='system'));
 assert.equal(normalized.length,4);
 const identity=vm.runInNewContext(code.slice(start,end)+'\nyapIdentityReply');
-assert.match(identity('What is your name?').text,/^I'm YapThing/);
-assert.match(identity('Who made you?').text,/YapThing platform/);
+assert.equal(identity('What is your name?').text,"I'm YapThing.");
+assert.doesNotMatch(identity('What is your name?').text,/AI|assistant/i);
+assert.match(identity('Who are you?').text,/What's on your mind/);
+assert.doesNotMatch(identity('Who are you?').text,/AI assistant/i);
+assert.match(identity('Are you a human?').text,/not a person/);
+assert.equal(identity('Who made you?').text,'The YapThing team built me.');
 assert.match(identity('Are you Gemini?').text,/cloud features use Google/);
 assert.equal(identity('Explain photosynthesis'),null,'ordinary questions must not bypass the AI model');
 const legacy=vm.runInNewContext(code.slice(start,end)+'\nyapLegacyIdentityClaim');
@@ -40,6 +44,22 @@ assert.equal(legacy({role:'assistant',source:'ai',text:'I am named "SystematicAI
 assert.equal(legacy({role:'assistant',source:'ai',text:'Alibaba Cloud is a cloud computing provider.'}),false,'do not label ordinary factual content');
 assert.equal(legacy({role:'user',text:'I am SystematicAI.'}),false,'do not label user messages');
 assert.equal(identity('What is your name in Japanese?'),null,'do not intercept nontrivial instructions');
+assert.match(identity('Are you an AI?').text,/AI-powered/,'answer a direct AI identity question honestly');
+assert.match(normalized[0].content,/warm, natural, thoughtful conversational partner/,'local system prompt should specify a natural voice');
+const legacyStart=code.indexOf('function repairChatMessages(){');
+const initialMessages=[
+ {role:'assistant',source:'yap-identity',text:"I'm YapThing, your AI assistant. I can help with questions, writing, research, and everyday tasks."},
+ {role:'assistant',source:'yap-identity',text:"I'm YapThing, the AI assistant built for the YapThing platform."},
+ {role:'assistant',source:'ai',text:"I'm YapThing, your AI assistant. I can help with questions, writing, research, and everyday tasks."}
+];
+assert(legacyStart>0,'existing chat repair must be present');
+let writes=0;
+const history=[{messages:initialMessages}];
+vm.runInNewContext(code.slice(legacyStart,start),{chats:history,persist:()=>writes++});
+assert.equal(history[0].messages[0].text,"I'm YapThing.");
+assert.equal(history[0].messages[1].text,'The YapThing team built me.');
+assert.match(history[0].messages[2].text,/your AI assistant/,'do not silently rewrite non-template AI replies');
+assert.equal(writes,1,'update only old canned identity responses');
 assert(code.includes('(!hasPhoto&&!doc?yapIdentityReply(text):null)'),'website shortcut runs before model inference');
 assert(code.includes('messages:yapLocalMessages(context)'),'WebLLM must pass normalizer directly');
 assert(code.includes('const promptMessages=yapLocalMessages(context)'),'WASM must use normalized messages');

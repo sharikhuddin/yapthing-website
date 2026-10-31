@@ -25,16 +25,18 @@ async function run(){
   await call('Page.navigate',{url:'https://yapthing.com/chat/?test=identity-'+Date.now()});
   for(let i=0;i<80;i++){if(await ev("!!window.YapWebChat && !!document.querySelector('#form')"))break;await pause(180)}
   assert(await ev('!!window.YapWebChat'),'Public live website did not initialize');
-  assert(await ev("!!document.querySelector('script[src*=\"yap-identity2\"]')"),'Public HTML does not reference corrected identity script');
-  const send=async question=>{
+  assert(await ev("!!document.querySelector('script[src*=\"yap-voice1\"]')"),'Public HTML does not reference corrected identity script');
+  const send=async (question,expected)=>{
    await ev("(()=>{const el=document.querySelector('#prompt');el.value="+JSON.stringify(question)+";document.querySelector('#form').requestSubmit();return true})()");
-   for(let i=0;i<45;i++){const r=await ev("window.YapWebChat.latest?.()||''");if(r.startsWith("I'm YapThing"))return r;await pause(100)}
+   for(let i=0;i<55;i++){const r=await ev("window.YapWebChat.latest?.()||''");if(r===expected)return r;await pause(100)}
    return await ev("window.YapWebChat.latest?.()||''");
   };
-  let answer=await send('Who made you?');
-  assert.match(answer,/^I'm YapThing/,'Public site should identify YapThing when asked the maker');
-  answer=await send('What is your name?');
-  assert.match(answer,/^I'm YapThing/,'Public site must identify YapThing by name');
+  let answer=await send('Who made you?','The YapThing team built me.');
+  assert.equal(answer,'The YapThing team built me.','Public site should identify its maker naturally');
+  answer=await send('What is your name?', "I'm YapThing.");
+  assert.equal(answer,"I'm YapThing.",'Public site must use the YapThing name without an AI introduction');
+  answer=await send('Are you a human?', "I'm an AI-powered assistant in YapThing, not a person. You can talk to me naturally, and I'll be clear about what I can do.");
+  assert.match(answer,/not a person/,'Public site must answer direct human-or-AI questions honestly');
   const kept=await ev("window.YapWebChat.listChats().length");
   assert(kept>0);
   // Historical replies are not rewritten; a new question still should use the correct identity.
@@ -43,8 +45,8 @@ async function run(){
   for(let i=0;i<75;i++){if(await ev("!!window.YapWebChat && document.querySelector('#messages')?.textContent.includes('Alibaba Cloud')"))break;await pause(150)}
   assert(await ev("document.querySelector('#messages')?.textContent.includes('Alibaba Cloud')"),'Previously saved bad answer should remain in history');
   if(process.env.YAP_EXPECT_CORRECTION==='1')assert(await ev("document.querySelector('.yap-legacy-identity-note')?.textContent.includes('older reply incorrectly identified')"),'Earlier false identity reply should show correction');
-  answer=await send('What is your name?');
-  assert.match(answer,/^I'm YapThing/,'New questions in old conversations must use new identity answer');
+  answer=await send('What is your name?',"I'm YapThing.");
+  assert.equal(answer,"I'm YapThing.",'New questions in old conversations must use natural YapThing identity');
   console.log('PASS live YapThing: who-made-you, what-is-your-name, and new reply in a historical conversation');
  }finally{ws.close()}
 }
