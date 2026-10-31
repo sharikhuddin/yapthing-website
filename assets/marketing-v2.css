@@ -240,3 +240,234 @@ body.marketing-site.marketing-desktop>main h2{font-size:25px;letter-spacing:-.04
  .marketing-site .page-hero{padding:42px 0 10px}
 }
 
+
+
+/* Shared header foundation. Older public pages include inline nav/button CSS,
+   so these scoped rules establish one reliable responsive navigation layout. */
+body.marketing-site .header{
+ width:100%;
+ box-sizing:border-box;
+ padding:0;
+ margin:0;
+}
+body.marketing-site .header .nav.wrap{
+ width:min(1180px,calc(100% - 56px));
+ max-width:1180px;
+ margin-inline:auto;
+ padding:0;
+ min-height:77px;
+ box-sizing:border-box;
+ display:flex;
+ flex-direction:row;
+ flex-wrap:nowrap;
+ justify-content:space-between;
+ align-items:center;
+ gap:24px;
+}
+body.marketing-site .header a{
+ text-decoration:none;
+}
+body.marketing-site .header .brand{
+ flex:none;
+ display:inline-flex;
+ align-items:center;
+ gap:11px;
+ white-space:nowrap;
+ line-height:1.2;
+ min-width:0;
+}
+body.marketing-site .header .brand img{
+ display:block;
+ width:40px;
+ height:40px;
+ object-fit:contain;
+ flex:none;
+}
+body.marketing-site .header .menu{
+ display:none;
+ flex:none;
+ width:44px;
+ height:44px;
+ min-width:44px;
+ min-height:44px;
+ margin:0;
+ padding:8px;
+ box-shadow:none;
+}
+body.marketing-site .header nav.links{
+ margin-left:auto;
+ width:auto;
+ flex:0 1 auto;
+ display:flex;
+ align-items:center;
+ justify-content:flex-end;
+ gap:3px;
+ min-width:0;
+}
+body.marketing-site .header nav.links>a{
+ box-sizing:border-box;
+ display:inline-flex;
+ flex:none;
+ align-items:center;
+ justify-content:center;
+ min-height:43px;
+ width:auto;
+ line-height:1.25;
+ border-radius:11px;
+ text-decoration:none;
+ white-space:nowrap;
+ text-align:center;
+}
+body.marketing-site .header nav.links>a.primary{
+ margin-left:9px;
+ padding:11px 18px;
+ min-height:43px;
+ font-weight:700;
+ box-shadow:none;
+}
+body.marketing-site.marketing-pricing>main{
+ box-sizing:border-box;
+ padding-top:56px!important;
+}
+body.marketing-site.marketing-pricing>main>.grid{
+ grid-template-columns:repeat(3,minmax(0,1fr));
+ align-items:stretch;
+ gap:20px;
+}
+body.marketing-site.marketing-pricing>main>.grid .card{
+ display:flex;
+ flex-direction:column;
+ min-width:0;
+ border-color:var(--mk-line);
+ border-radius:21px;
+ padding:26px;
+}
+body.marketing-site.marketing-pricing>main>.grid .card>button,
+body.marketing-site.marketing-pricing>main>.grid .card>a{
+ margin-top:auto;
+}
+body.marketing-site.marketing-pricing>main .card button{
+ min-height:44px;
+ text-align:center;
+}
+body.marketing-site.marketing-pricing>main>.grid .card>h2{
+ margin:0 0 18px;
+ font-size:24px;
+ letter-spacing:-.035em;
+ line-height:1.2;
+}
+body.marketing-site.marketing-pricing>main>.grid .card>.price{
+ margin:0 0 19px;
+ font-size:35px;
+ line-height:1.2;
+ letter-spacing:-.03em;
+ color:var(--mk-ink);
+}
+body.marketing-site.marketing-pricing>main>.grid .card>.price small{
+ font-size:16px;
+ font-weight:650;
+ white-space:nowrap;
+}
+body.marketing-site.marketing-pricing>main>.grid .card>.credits{
+ margin:0 0 18px;
+ font-size:19px;
+ line-height:1.4;
+ letter-spacing:-.02em;
+}
+body.marketing-site.marketing-pricing>main>.grid .card>p:not(.price):not(.credits){
+ color:var(--mk-muted);
+ font-size:14px;
+ line-height:1.65;
+ margin:0 0 22px;
+}
+body.marketing-site.marketing-pricing>main>.grid .card>a{
+ display:inline-flex;
+ align-items:center;
+ justify-content:center;
+ width:100%;
+ min-height:46px;
+ border-radius:11px;
+ box-sizing:border-box;
+ background:#e9f2e4;
+ font-weight:750;
+ text-decoration:none;
+}
+body.marketing-site.marketing-pricing>main>.grid .card>a:hover{background:#d8e9d3}
+body.marketing-site.marketing-pricing>main>.grid .card>button{
+ width:100%;
+ box-sizing:border-box;
+ padding:11px 15px;
+ background:var(--mk-forest);
+ color:white;
+ font-weight:700;
+}
+body.marketing-site.marketing-pricing>main>.grid .card>button:hover:not(:disabled){background:#2c5944}
+
+body.marketing-site.marketing-pricing>main h1{
+ margin:0 0 20px;
+}
+body.marketing-site.marketing-pricing>main .note{
+ border:1px solid #e0ecd9;
+ line-height:1.65;
+}
+@media(max-width:1050px){
+ body.marketing-site .header .nav.wrap{gap:12px}
+ body.marketing-site .header nav.links{gap:0}
+ body.marketing-site .header nav.links>a{padding-inline:9px}
+ body.marketing-site .header nav.links>a.primary{margin-left:4px;padding-inline:12px}
+}
+@media(max-width:780px){
+ body.marketing-site .header .nav.wrap{
+   width:calc(100% - 36px);
+   min-height:66px;
+   gap:14px;
+ }
+ body.marketing-site .header .menu{
+   display:grid;
+   place-items:center;
+   margin-left:auto;
+ }
+ body.marketing-site .header nav.links{
+   display:none;
+   position:absolute;
+   top:calc(100% + 4px);
+   left:12px;
+   right:12px;
+   width:auto;
+   margin:0;
+   padding:10px;
+   z-index:100;
+   border:1px solid var(--mk-line);
+   border-radius:16px;
+   background:#fff;
+   box-shadow:0 22px 55px #173f2b28;
+   flex-direction:column;
+   align-items:stretch;
+   gap:3px;
+ }
+ body.marketing-site .header nav.links.open{display:flex}
+ body.marketing-site .header nav.links>a{
+   width:100%;
+   justify-content:flex-start;
+   min-height:45px;
+   padding:11px 14px;
+   text-align:left;
+ }
+ body.marketing-site .header nav.links>a.primary{
+   margin:7px 0 0;
+   justify-content:center;
+ }
+ body.marketing-site.marketing-pricing>main>.grid{
+   grid-template-columns:repeat(2,minmax(0,1fr));
+ }
+}
+@media(max-width:620px){
+ body.marketing-site .header .nav.wrap{width:calc(100% - 32px)}
+ body.marketing-site.marketing-pricing>main>.grid{
+  grid-template-columns:minmax(0,1fr);
+ }
+ body.marketing-site.marketing-pricing>main>.grid .card{padding:22px}
+ body.marketing-site.marketing-pricing>main{
+   padding:36px 17px 65px!important;
+ }
+}

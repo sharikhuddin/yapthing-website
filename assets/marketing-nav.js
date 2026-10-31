@@ -13,5 +13,5 @@
  nav.addEventListener('click',event=>{if(event.target.closest('a'))setOpen(false)});
  document.addEventListener('pointerdown',event=>{if(!menu.contains(event.target)&&!nav.contains(event.target))setOpen(false)});
  document.addEventListener('keydown',event=>{if(event.key==='Escape'){const was=nav.classList.contains('open');setOpen(false);if(was)menu.focus()}});
- window.matchMedia('(min-width:701px)').addEventListener('change',event=>{if(event.matches)setOpen(false)});
+ window.matchMedia('(min-width:781px)').addEventListener('change',event=>{if(event.matches)setOpen(false)});
 })();
