@@ -9,11 +9,11 @@ const modes=[
 let selected='balance';try{const saved=localStorage.getItem('yap.response-mode');if(modes.some(m=>m.id===saved))selected=saved;}catch{}
 const picker=document.createElement('details');picker.id='yap-response-modes';
 const summary=document.createElement('summary'),panel=document.createElement('div');panel.className='yap-mode-panel';picker.append(summary,panel);
-const note=document.createElement('p');note.textContent='Response styles and search strategies. These are not separate AI models. Actual speed depends on your connection and the response service.';panel.append(note);
+const heading=document.createElement('h3');heading.textContent='Make it your Yap';panel.append(heading);const note=document.createElement('p');note.textContent='Response styles and search strategies. These are not separate AI models. Actual speed depends on your connection and the response service.';panel.append(note);
 const buttons=[];
-function refresh(){summary.textContent=modes.find(m=>m.id===selected).name+' ▾';for(const [button,mode] of buttons)button.setAttribute('aria-pressed',String(mode.id===selected));}
+function refresh(){const mode=modes.find(m=>m.id===selected);summary.replaceChildren();const icon=document.createElement('img');icon.src='yapthing-icon.svg';icon.alt='';const label=document.createElement('span');label.textContent=mode.name;const caret=document.createElement('span');caret.textContent='⌃';caret.setAttribute('aria-hidden','true');summary.append(icon,label,caret);summary.setAttribute('aria-label','Choose your Yap style. Current: '+mode.name);for(const [button,item] of buttons)button.setAttribute('aria-pressed',String(item.id===selected));}
 for(const mode of modes){const button=document.createElement('button');button.type='button';const title=document.createElement('strong'),speed=document.createElement('span'),desc=document.createElement('small');title.textContent=mode.name;speed.textContent=mode.speed;desc.textContent=mode.description;button.append(title,speed,desc);button.onclick=()=>{selected=mode.id;try{localStorage.setItem('yap.response-mode',selected)}catch{}refresh();picker.open=false;summary.focus();};buttons.push([button,mode]);panel.append(button);}
-document.querySelector('.topline')?.append(picker);refresh();
+const row=document.querySelector('.compose-row');if(row){row.classList.add('yap-compose-modes');row.insertBefore(picker,document.getElementById('send'));}refresh();
 document.addEventListener('click',e=>{if(!picker.contains(e.target))picker.open=false;});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&picker.open){picker.open=false;summary.focus();}});
 window.YapResponseModes={current:()=>({...modes.find(m=>m.id===selected)})};
