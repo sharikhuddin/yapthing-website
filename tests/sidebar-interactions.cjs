@@ -44,6 +44,7 @@ const addAbs=(page)=>page.route('https://uemjkfvcadggyvhbqqyp.supabase.co/**',ro
  assert(Math.abs(Number(stored)-382)<14,'width should persist');
  await page.locator('.yap-sidebar-resize').focus();await page.keyboard.press('ArrowLeft');
  assert(Number(await page.locator('.yap-sidebar-resize').getAttribute('aria-valuenow'))<Number(stored),'keyboard should resize');
+ await page.evaluate(()=>window.YapWebChat.add('Example question','user'));
  await page.locator('#messages').click({position:{x:Math.min(300,(await page.locator('#messages').boundingBox()).width-40),y:30}});
  assert(await page.locator('#yap-tool-menu').isHidden(),'click in chat must close desktop sidebar');
  await page.locator('#yap-desktop-menu > summary').click();

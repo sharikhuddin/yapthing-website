@@ -64,6 +64,10 @@
  }
  form.addEventListener('submit',e=>{
   const command=parse(input.value);if(command===null)return;
+  if(window.YapWebChat?.isIncognito?.()){
+   e.preventDefault();e.stopImmediatePropagation();
+   show('Plugin actions are unavailable in Incognito. Switch to a regular chat to use connected apps.');return;
+  }
   e.preventDefault();e.stopImmediatePropagation();input.value='';handle(command);
  },true);
  window.YapPluginChat={showHelp:()=>handle('help')};
