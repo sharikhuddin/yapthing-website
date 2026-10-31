@@ -5,6 +5,18 @@
  const previous=window.YapResearchFallback;
  if(!previous||window.YapKnowledge)return;
  const cache=new Map();
+ const report=(event_type,outcome,duration_ms=0)=>{
+   if(window.YapWebChat?.isIncognito?.())return;
+   Promise.resolve().then(async()=>{
+     const token=await window.YapWebAccount?.getToken?.();
+     if(!token)return;
+     const ctrl=new AbortController(),timeout=setTimeout(()=>ctrl.abort(),5000);
+     try{await fetch('https://uemjkfvcadggyvhbqqyp.supabase.co/functions/v1/yap-knowledge-activity',{
+       method:'POST',headers:{authorization:'Bearer '+token,'content-type':'application/json',apikey:'sb_publishable_HqcXeSMELbRgGodOzr0kCA_VwZldmBJ'},
+       body:JSON.stringify({event_type,outcome,duration_ms:Math.max(0,Math.min(180000,Math.round(duration_ms)))}),signal:ctrl.signal
+     })}catch{}finally{clearTimeout(timeout)}
+   }).catch(()=>{});
+ };
  const owner=()=>window.YapWebAccount?.getUserId?.()||'guest';
  const normalize=q=>String(q||'').trim().replace(/\s+/g,' ').slice(0,180);
  const study=/\b(academic|literature review|scientific papers?|peer.reviewed|journal articles?|publications?|citations?|crossref|openalex|research studies|study findings|studies on|clinical trial|systematic review)\b/i;
@@ -20,11 +32,14 @@
  }
  function shouldSearch(q){return previous.shouldSearch(q)||study.test(q)||code.test(q);}
  async function research(prompt,mode='auto',style='balance'){
-  const q=normalize(prompt),kind=route(q,mode);
-  if(kind!=='academic'&&kind!=='developer')return previous.research(prompt,mode,style);
+  const q=normalize(prompt),kind=route(q,mode),begin=Date.now();
+  if(kind!=='academic'&&kind!=='developer'){
+   try{const result=await previous.research(prompt,mode,style);report('live','success',Date.now()-begin);return result}
+   catch(err){report('live','failure',Date.now()-begin);throw err}
+  }
   const uid=owner(),key=uid+'|'+kind+'|'+q.toLowerCase();
   const found=cache.get(key);
-  if(found&&Date.now()-found.at<180000)return {...found.value,provider:found.value.provider+' (cached)',cached:true};
+  if(found&&Date.now()-found.at<180000){report(kind,'cached',Date.now()-begin);return {...found.value,provider:found.value.provider+' (cached)',cached:true}}
   try{
    const source=await previous.research(q,'public',style);
    // Show source descriptions, not invented synthesis or unverified AI claims.
@@ -36,11 +51,11 @@
    };
    if(cache.size>55)cache.delete(cache.keys().next().value);
    if(uid!=='guest'&&uid===owner())cache.set(key,{at:Date.now(),value:result});
-   return result;
+   report(kind,'success',Date.now()-begin);return result;
   }catch(err){
-   if([401,403,409,429].includes(err?.status))throw err;
-   const fallback=await previous.research(prompt,'auto',style);
-   return {...fallback,scope:(fallback.scope||'')+' Specialist reference index was unavailable; using live web sources.'};
+   if([401,403,409,429].includes(err?.status)){report(kind,'failure',Date.now()-begin);throw err}
+   try{const fallback=await previous.research(prompt,'auto',style);report(kind,'failure',Date.now()-begin);return {...fallback,scope:(fallback.scope||'')+' Specialist reference index was unavailable; using live web sources.'}}
+   catch(error){report(kind,'failure',Date.now()-begin);throw error}
   }
  }
  // Read reputable public sources when their APIs allow it. Never accept arbitrary URLs.
@@ -89,8 +104,9 @@
   const u=new URL(url);if(!allowed(u))return;
   $('original').href=u.href;$('source').textContent=u.hostname;$('title').textContent='Read source';
   if(!dialog.open)dialog.showModal();
-  try{const result=await readSource(u.href);if(serial!==id)return;selected=result;$('title').textContent=result.title;$('excerpt').textContent=result.excerpt;$('use').disabled=false;}
-  catch(error){if(serial===id)$('excerpt').textContent=String(error.message||error).slice(0,240);}
+  const began=Date.now();
+  try{const result=await readSource(u.href);if(serial!==id)return;selected=result;$('title').textContent=result.title;$('excerpt').textContent=result.excerpt;$('use').disabled=false;report('source_read','success',Date.now()-began)}
+  catch(error){if(serial===id)$('excerpt').textContent=String(error.message||error).slice(0,240);report('source_read','failure',Date.now()-began)}
  }
  // Add an unobtrusive reader action beside source links only for supported URLs.
  function decorate(){

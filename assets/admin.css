@@ -16,3 +16,27 @@
 .cost-bar{display:block;background:#9de1c9;border-radius:4px 4px 0 0;width:70%;min-height:3px;max-height:95px}
 .cost-day small{font-size:10px;white-space:nowrap}
 @media(max-width:620px){.cost-layout{grid-template-columns:1fr}.cost-table-scroll th,.cost-table-scroll td{font-size:12px;padding:8px 5px}}
+
+/* SEO and YapKnowledge owner workspaces */
+#seo-marketing,#yapknowledge-admin{border-color:#366356;background:linear-gradient(160deg,#14292e,#0f2329 75%)}
+.seo-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:20px 0}
+.seo-button-link{display:inline-flex;align-items:center;justify-content:center;min-height:43px;padding:10px 14px;background:#223c41;border:1px solid #527a70;color:#d4f5e8;text-decoration:none;border-radius:9px;font-size:14px;font-weight:650}
+.seo-button-link:hover{background:#305052}
+#seo-marketing #seo-status,#yapknowledge-admin #knowledge-status{font-size:14px;color:#bdd7ce;margin:11px 0 20px}
+.seo-table{width:100%;min-width:620px;border-collapse:collapse}
+.seo-table th,.seo-table td{font-size:13px;text-align:left;padding:11px 9px;border-bottom:1px solid #30494e;vertical-align:top}
+.seo-table th{color:#bed1cd;font-weight:650}
+.seo-table td strong,.seo-table td small{display:block;line-height:1.45}
+.seo-table td small{font-size:12px;margin-top:7px;color:#a8c0bb}
+.seo-pass{color:#a2e7c9;font-weight:750}
+.seo-fail{color:#ffd3a5}
+.seo-ideas{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:13px;margin:16px 0}
+.seo-idea{border:1px solid #31534d;border-radius:14px;background:#1a3439;padding:17px;display:flex;flex-direction:column;gap:8px}
+.seo-idea .seo-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#aed4bc}
+.seo-idea strong{font-size:16px}
+.seo-idea p{margin:0 0 10px;line-height:1.55;color:#b9cac9;font-size:13px;flex:1}
+.seo-idea a{font-size:12px;font-weight:700}
+.seo-help{background:#1a3036;border:1px solid #38544d;border-radius:15px;padding:19px;margin-top:24px}
+.seo-help p{font-size:13px;line-height:1.7;color:#b6ccca;margin:10px 0}
+#seo-marketing h3,#yapknowledge-admin h3{margin-top:27px}
+@media(max-width:700px){.seo-table{min-width:620px}.seo-ideas{grid-template-columns:1fr}.seo-toolbar>*{width:100%;text-align:center}}

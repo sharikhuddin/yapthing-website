@@ -1,0 +1,249 @@
+{
+  "type": "human-review-marketing-queue",
+  "scope": "YapThing owned web pages only",
+  "automation": "Daily technical metadata maintenance. These topics are review suggestions, not auto-published campaigns.",
+  "status": "draft_ideas_need_human_review",
+  "pagesTracked": 24,
+  "pagesWithIssues": 2,
+  "pages": [
+    {
+      "url": "https://yapthing.com/",
+      "title": "YapThing AI Chat Assistant | Research, Writing & Education",
+      "description": "Explore YapThing, an AI chat assistant for research with sources, writing, studying, medical education and everyday work.",
+      "lastmod": "2026-10-31",
+      "issues": []
+    },
+    {
+      "url": "https://yapthing.com/product/",
+      "title": "YapThing AI assistant: features and availability",
+      "description": "Learn what YapThing does, how web chat and computer Work operate, and which features depend on accounts, providers or testing access.",
+      "lastmod": "2026-10-31",
+      "issues": []
+    },
+    {
+      "url": "https://yapthing.com/faq/",
+      "title": "YapThing frequently asked questions",
+      "description": "Answers about YapThing web chat, mobile availability, research limitations, plans, computer Work and privacy.",
+      "lastmod": "2026-10-31",
+      "issues": []
+    },
+    {
+      "url": "https://yapthing.com/guides/",
+      "title": "YapThing guides: practical AI workflows",
+      "description": "Practical guides for getting useful, verifiable answers from YapThing and understanding its limits.",
+      "lastmod": "2026-10-31",
+      "issues": []
+    },
+    {
+      "url": "https://yapthing.com/guides/research-with-sources/",
+      "title": "How to research a question with YapThing",
+      "description": "A practical workflow for asking focused research questions, checking citations and recognizing gaps in AI answers.",
+      "lastmod": "2026-10-31",
+      "issues": []
+    },
+    {
+      "url": "https://yapthing.com/about/",
+      "title": "About YapThing and our content standards",
+      "description": "Learn what YapThing is, how official product information is maintained, and how to report incorrect content.",
+      "lastmod": "2026-10-31",
+      "issues": []
+    },
+    {
+      "url": "https://yapthing.com/chat/",
+      "title": "YapThing AI Chat — Research, Writing & Work Assistant",
+      "description": "Try YapThing AI chat for everyday questions, research with sources, writing, work planning, coding help and creative projects.",
+      "lastmod": "2026-10-31",
+      "issues": []
+    },
+    {
+      "url": "https://yapthing.com/plans/",
+      "title": "YapThing plans and Work credits",
+      "description": "YapThing plans and Work credits — Explore YapThing features, access and guidance.",
+      "lastmod": "2026-10-31",
+      "issues": []
+    },
+    {
+      "url": "https://yapthing.com/desktop/",
+      "title": "YapThing for your computer",
+      "description": "Install YapThing as a desktop web app and learn how to pair a computer for reviewed file edits, code drafts and GitHub tasks.",
+      "lastmod": "2026-10-31",
+      "issues": []
+    },
+    {
+      "url": "https://yapthing.com/plugins/",
+      "title": "YapThing Plugins · Connect services",
+      "description": "Learn how YapThing connects supported services, what authorization is required, and where provider availability and limits apply.",
+      "lastmod": "2026-10-31",
+      "issues": []
+    },
+    {
+      "url": "https://yapthing.com/support/",
+      "title": "Support | YapThing",
+      "description": "Support — YapThing for Android and iPhone",
+      "lastmod": "2026-10-31",
+      "issues": [
+        "Review meta description length"
+      ]
+    },
+    {
+      "url": "https://yapthing.com/privacy/",
+      "title": "Privacy Policy | YapThing",
+      "description": "Privacy Policy — YapThing for Android",
+      "lastmod": "2026-10-31",
+      "issues": [
+        "Review meta description length"
+      ]
+    },
+    {
+      "url": "https://yapthing.com/delete-account/",
+      "title": "Delete your YapThing account | YapThing",
+      "description": "How to request deletion of your YapThing account and associated cloud data, including support options and local-device limitations.",
+      "lastmod": "2026-10-31",
+      "issues": []
+    },
+    {
+      "url": "https://yapthing.com/ai-chat-assistant/",
+      "title": "AI Chat Assistant for Research, Writing and Study | YapThing",
+      "description": "Try YapThing AI chat for source-backed research, writing help, learning and work planning. Explore its features and limitations.",
+      "lastmod": "2026-10-31",
+      "issues": []
+    },
+    {
+      "url": "https://yapthing.com/ai-writing-assistant/",
+      "title": "AI Writing Assistant for Emails and Messages | YapThing",
+      "description": "Draft and improve emails, messages and work writing with YapThing. Try the AI writing workspace in your browser.",
+      "lastmod": "2026-10-31",
+      "issues": []
+    },
+    {
+      "url": "https://yapthing.com/ai-research-assistant/",
+      "title": "AI Research Assistant with Sources | YapThing",
+      "description": "Research questions, compare information and explore source links with the YapThing AI research workspace.",
+      "lastmod": "2026-10-31",
+      "issues": []
+    },
+    {
+      "url": "https://yapthing.com/ai-work-productivity/",
+      "title": "AI Productivity Assistant for Work and Life | YapThing",
+      "description": "Plan tasks, organize projects, brainstorm ideas and draft professional work with YapThing AI productivity workspaces.",
+      "lastmod": "2026-10-31",
+      "issues": []
+    },
+    {
+      "url": "https://yapthing.com/medical-education/",
+      "title": "AI Medical Education Assistant for Doctors and Students | YapThing",
+      "description": "Explore anatomy, physiology, clinical reasoning and medical literature with YapThing medical education tools for doctors and students.",
+      "lastmod": "2026-10-31",
+      "issues": []
+    },
+    {
+      "url": "https://yapthing.com/engineering-ai/",
+      "title": "AI Engineering Assistant for Learning and Projects | YapThing",
+      "description": "Learn engineering concepts, explore calculations and structure technical project plans with YapThing.",
+      "lastmod": "2026-10-31",
+      "issues": []
+    },
+    {
+      "url": "https://yapthing.com/design-ai/",
+      "title": "AI Design Assistant for Spaces and Creative Projects | YapThing",
+      "description": "Brainstorm layouts, design concepts and creative projects with YapThing AI.",
+      "lastmod": "2026-10-31",
+      "issues": []
+    },
+    {
+      "url": "https://yapthing.com/student-ai/",
+      "title": "AI Study Assistant for Students and Lifelong Learners | YapThing",
+      "description": "Study with explanations, quizzes and guided practice across school, college and professional subjects.",
+      "lastmod": "2026-10-31",
+      "issues": []
+    },
+    {
+      "url": "https://yapthing.com/professionals-ai/",
+      "title": "AI Assistant for Professionals and Business | YapThing",
+      "description": "Draft documents, research questions and organize projects for different professional fields with YapThing.",
+      "lastmod": "2026-10-31",
+      "issues": []
+    },
+    {
+      "url": "https://yapthing.com/everyday-ai/",
+      "title": "Everyday AI Assistant for Daily Life | YapThing",
+      "description": "Use YapThing to plan, write, learn, brainstorm and handle everyday questions in one simple chat.",
+      "lastmod": "2026-10-31",
+      "issues": []
+    },
+    {
+      "url": "https://yapthing.com/yapthing-alternative/",
+      "title": "Choosing an AI Assistant: What to Compare | YapThing",
+      "description": "Compare what to look for in an AI chat assistant, including research sources, writing, study help and transparent limitations.",
+      "lastmod": "2026-10-31",
+      "issues": []
+    }
+  ],
+  "proposals": [
+    {
+      "id": "topic-1",
+      "topic": "Research with sources",
+      "path": "/guides/research-with-sources/",
+      "intent": "Informational",
+      "proposal": "Expand an example showing how to verify linked citations and identify unsupported claims.",
+      "cta": "/ai-research-assistant/",
+      "status": "review",
+      "requiresHumanApproval": true
+    },
+    {
+      "id": "topic-2",
+      "topic": "Writing and communication",
+      "path": "/ai-writing-assistant/",
+      "intent": "Educational",
+      "proposal": "Prepare a concise sample for improving an email while keeping the writer’s voice.",
+      "cta": "/chat/",
+      "status": "review",
+      "requiresHumanApproval": true
+    },
+    {
+      "id": "topic-3",
+      "topic": "Getting started with YapThing",
+      "path": "/guides/",
+      "intent": "Onboarding",
+      "proposal": "Create a reviewed five-minute getting-started guide using only features verified on the web.",
+      "cta": "/chat/",
+      "status": "review",
+      "requiresHumanApproval": true
+    },
+    {
+      "id": "topic-4",
+      "topic": "Projects and Work",
+      "path": "/ai-work-productivity/",
+      "intent": "Product education",
+      "proposal": "Explain the difference between chat, projects and authorized Work actions with current limitations.",
+      "cta": "/plans/",
+      "status": "review",
+      "requiresHumanApproval": true
+    },
+    {
+      "id": "topic-5",
+      "topic": "Privacy and Incognito",
+      "path": "/privacy/",
+      "intent": "Trust",
+      "proposal": "Clarify device storage, account sync, provider processing and the limits of Incognito.",
+      "cta": "/chat/",
+      "status": "review",
+      "requiresHumanApproval": true
+    },
+    {
+      "id": "topic-6",
+      "topic": "Plans and usage",
+      "path": "/plans/",
+      "intent": "Commercial",
+      "proposal": "Review plan and credit explanations against current verified billing before drafting comparison content.",
+      "cta": "/plans/",
+      "status": "review",
+      "requiresHumanApproval": true
+    }
+  ],
+  "disclaimers": [
+    "No auto-generated visitor or ranking metrics",
+    "No mass posting, unsolicited email or fake endorsements",
+    "Indexing and search placement are not guaranteed"
+  ]
+}

@@ -1,0 +1,66 @@
+name: SEO and marketing maintenance
+
+on:
+  schedule:
+    - cron: '23 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: seo-marketing-maintenance
+  cancel-in-progress: false
+
+jobs:
+  maintain:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out published website
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 2
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Update existing metadata, structured data and sitemap
+        run: node scripts/search-build.cjs
+      - name: Generate factual marketing review queue
+        run: node scripts/seo-marketing-queue.cjs
+      - name: Verify generated metadata
+        run: |
+          node scripts/search-build.cjs --check
+          node tests/search-health.cjs
+          node tests/seo-marketing-automation.cjs
+      - name: Create review summary
+        if: always()
+        run: |
+          echo "## YapThing SEO maintenance" >> "$GITHUB_STEP_SUMMARY"
+          echo "This job generates metadata and a review queue; it does not auto-publish articles, advertisements, social posts, or promise indexing." >> "$GITHUB_STEP_SUMMARY"
+          echo "Review marketing queue at seo/marketing-queue.json and changes in the commit history." >> "$GITHUB_STEP_SUMMARY"
+          git status --short >> "$GITHUB_STEP_SUMMARY"
+      - name: Save generated marketing planning report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-marketing-review
+          path: |
+            seo/marketing-queue.json
+            sitemap.xml
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Commit only actual changes in metadata or marketing queue
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- index.html '**/index.html' search-manifest.json sitemap.xml seo/marketing-queue.json
+          if git diff --cached --quiet; then
+            echo "No changes needed; metadata is current."
+            exit 0
+          fi
+          git commit -m "chore(seo): refresh metadata, sitemap and marketing review queue"
+          git pull --rebase origin main
+          git push origin HEAD:main
