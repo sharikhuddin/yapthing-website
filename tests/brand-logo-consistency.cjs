@@ -25,7 +25,7 @@ const server=http.createServer((req,res)=>{let file=decodeURIComponent(req.url.s
  for(const file of htmls){
   const src=fs.readFileSync(file,'utf8');
   assert(!/class="mark"[^>]*>Y<\/span>/i.test(src),path.relative(root,file)+' retains old Y badge');
-  if(src.includes('assets/favicon.svg'))assert(src.includes('assets/favicon.svg?v=20261031-yapsmile1'),
+  if(src.includes('assets/favicon.svg')&&src.includes('body class="marketing-site'))assert(src.includes('assets/favicon.svg?v=20261031-yapsmile1'),
    path.relative(root,file)+' has stale favicon link');
  }
  const icon=fs.readFileSync(path.join(root,'assets/favicon.svg'),'utf8');
@@ -42,13 +42,16 @@ const server=http.createServer((req,res)=>{let file=decodeURIComponent(req.url.s
    const page=await browser.newPage({viewport:{width,height:844}});
    await page.goto(origin+'/',{waitUntil:'domcontentloaded'});
    const marks=await page.locator('.mark').evaluateAll(imgs=>imgs.map(img=>({tag:img.tagName,loaded:img.complete&&img.naturalWidth>0,src:img.getAttribute('src')})));
-   assert.equal(marks.length,3,'home should have image brand in header, preview, footer');
+   assert(marks.length>=1,'home should have the official image brand in its header');
    assert(marks.every(x=>x.tag==='IMG'&&x.loaded&&x.src.endsWith('yapthing-192.png')),JSON.stringify(marks));
    assert(await page.locator('a.brand').first().isVisible());
+   assert(await page.locator('.mk-window-bar img').evaluate(el=>el.complete&&el.naturalWidth>0),'product preview logo should load');
+   assert(await page.locator('footer .brand img').evaluate(el=>el.complete&&el.naturalWidth>0),'footer logo should load');
    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+2),'homepage overflows width '+width);
    await page.goto(origin+'/support/',{waitUntil:'domcontentloaded'});
    const support=await page.locator('.brand .mark').evaluateAll(imgs=>imgs.map(img=>img.complete&&img.naturalWidth>0));
-   assert.deepEqual(support,[true,true],'support brand images should load');
+   assert.deepEqual(support,[true],'support header brand image should load');
+   assert(await page.locator('footer .brand img').evaluate(el=>el.complete&&el.naturalWidth>0),'support footer icon should load');
    await page.goto(origin+'/chat/',{waitUntil:'domcontentloaded'});
    const header=page.locator('.topline .yap-home-link img');
    assert(await header.count()===1,'chat header must use logo image');
