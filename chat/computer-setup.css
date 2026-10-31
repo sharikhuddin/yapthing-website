@@ -1,0 +1,27 @@
+/* Guided computer pairing: readable in desktop PWA, chat, and on phones. */
+#yap-computer-setup{position:fixed;border:1px solid var(--border,#d5e1d8);border-radius:19px;max-width:min(710px,calc(100vw - 22px));width:100%;max-height:min(92dvh,920px);overflow:auto;background:var(--panel,#fff);color:var(--fg,#223d2b);padding:0;box-shadow:0 28px 80px #10251b5e}
+#yap-computer-setup::backdrop{background:#091e1ab5}
+#yap-computer-setup .ycs-head{padding:22px 24px 18px;display:flex;justify-content:space-between;gap:14px;border-bottom:1px solid var(--border,#dce8de)}
+#yap-computer-setup .ycs-head small{font:750 10px system-ui;letter-spacing:.12em;color:var(--accent,#346449)}
+#yap-computer-setup h2{font:750 26px/1.2 system-ui;letter-spacing:-.04em;margin:5px 0 8px}
+#yap-computer-setup h3{font:700 16px system-ui;margin:0 0 8px}
+#yap-computer-setup p{font:13px/1.6 system-ui;opacity:.83;margin:5px 0 11px}
+#yap-computer-setup button{cursor:pointer;font:650 13px system-ui;border:1px solid var(--border,#cfded2);background:var(--btn,#f5f8f3);color:var(--fg,#2a4d38);border-radius:10px;min-height:39px;padding:9px 14px}
+#yap-computer-setup button:disabled{cursor:wait;opacity:.5}
+#yap-computer-setup .ycs-head button{border:0;background:transparent;font:24px/1 system-ui;min-height:32px;padding:0 7px}
+#yap-computer-setup .ycs-steps{display:flex;gap:9px;flex-wrap:wrap;padding:15px 24px;background:var(--bubble,#eef5ec)}
+#yap-computer-setup .ycs-steps span{font:700 12px system-ui;border-radius:99px;padding:8px 11px;background:var(--panel,#fff);color:var(--fg,#234331)}
+#yap-computer-setup section{padding:18px 24px 15px;border-bottom:1px solid var(--border,#dce5df);margin:0}
+#yap-computer-setup a{color:var(--accent,#2b7050)}
+#yap-computer-setup .ycs-command{display:flex;gap:8px;align-items:center;padding:8px;background:var(--bubble,#f3f8f3);border:1px solid var(--border,#e1e8e1);border-radius:12px;margin:12px 0}
+#yap-computer-setup .ycs-command code{flex:1;min-width:0;white-space:pre-wrap;overflow-wrap:anywhere;font:600 12px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace}
+#yap-computer-setup .ycs-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#yap-computer-setup #ycs-state{font:13px/1.55 system-ui;margin:12px 0;padding:11px 13px;border-radius:10px;border:1px solid var(--border,#dce7de);background:var(--bubble,#f0f5f1)}
+#yap-computer-setup .ycs-device{padding:8px 10px;margin:6px 0;background:var(--bubble,#f2f7f1);border-radius:10px}
+#yap-computer-setup .ycs-trouble{display:flex;gap:7px;flex-wrap:wrap;margin:11px 0}
+#yap-computer-setup .ycs-trouble button{min-height:34px;padding:7px 11px;font-size:12px}
+#yap-computer-setup #ycs-help{margin:8px 0 14px;border-left:3px solid var(--accent,#517f5c);padding:6px 11px}
+#yap-computer-setup .ycs-privacy{padding:10px 24px 19px;font-size:11px;opacity:.75}
+#yap-computer-setup .ycs-manual{width:calc(100% - 48px);margin:0 24px 18px;min-height:75px}
+#yap-tool-menu .ycs-trigger{display:block;width:100%;min-height:43px;text-align:left;border:1px solid var(--border);border-radius:10px;background:transparent;color:var(--fg);padding:8px 12px}
+@media(max-width:540px){#yap-computer-setup .ycs-head,#yap-computer-setup section{padding-inline:15px}#yap-computer-setup .ycs-steps{padding-inline:15px}#yap-computer-setup h2{font-size:23px}#yap-computer-setup .ycs-privacy{padding-inline:15px}}

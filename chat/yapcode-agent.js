@@ -200,7 +200,7 @@
   try{
    fresh();
    if(name==='close'){dialog.close();return;}
-   if(name==='work'){dialog.close();hub.open();return;}
+   if(name==='work'){dialog.close();if(window.YapComputerSetup)window.YapComputerSetup.open();else hub.open();return;}
    if(name==='devices'){
     if(!owner())throw Error('Sign in to YapThing first.');
     const data=await work().request('devices');const select=$('device'),remember=select.value;
