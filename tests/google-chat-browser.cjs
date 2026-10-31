@@ -13,12 +13,13 @@ try{for(const width of [390,1280]){
  return r.abort();});
  await page.goto('http://127.0.0.1:'+server.address().port+'/chat/');await page.waitForFunction(()=>!!window.YapPhotoVision);fixturePng=await page.evaluate(()=>{const c=document.createElement('canvas');c.width=16;c.height=16;c.getContext('2d').fillRect(0,0,16,16);return c.toDataURL('image/png').split(',')[1];});
  await page.evaluate(()=>{Object.assign(window.YapWebAccount,{getUserId:()=> '12345678-1234-1234-1234-123456789012',getToken:async()=> 'test-token',getQuota:()=>({remaining:50,limit:100}),status:async()=>{},authFetch:(url,options)=>fetch(url,options)});});
- assert.equal(await page.evaluate(()=>window.YapResponseModes.current().id),'balance');
+ assert.equal(await page.evaluate(()=>window.YapResponseModes.current().id),'auto');
  const choose=async(name)=>{await page.locator('#yap-response-modes>summary').click();await page.locator('.yap-mode-panel button').filter({hasText:name}).click();};
  const submit=async(prompt)=>{const count=calls.length;await page.locator('#prompt').fill(prompt);await page.locator('#send').click();try{await page.waitForFunction(n=>document.querySelector('#messages').textContent.includes('Test reply '+n),count+1,{timeout:10000});}catch(e){console.log('DEBUG',prompt,calls,await page.locator('#messages').innerText(),errors);throw e;}};
- await submit('Write a friendly welcome message');assert(calls.at(-1).url.endsWith('ios-chat'));assert.equal(calls.at(-1).body.responseMode,'balance');
+ await submit('Write a friendly welcome message');assert(calls.at(-1).url.endsWith('ios-chat'));assert.equal(calls.at(-1).body.responseMode,'auto');
+ await choose('Yap Swift');await submit('Hello!');assert.equal(calls.at(-1).body.responseMode,'swift');
  await choose('Yap Depth');await submit('Explain how a bicycle works');assert.equal(calls.at(-1).body.responseMode,'depth');
- await choose('Yap Balance');await submit('Find the latest science news');assert(calls.at(-1).url.endsWith('google-grounded-search'));assert.equal(calls.at(-1).body.responseMode,'balance');assert(await page.locator('.yap-sources a').count());
+ await choose('Yap Balance');await submit('Find the latest science news');assert(calls.at(-1).url.endsWith('search-web'));assert.equal(calls.at(-1).body.responseMode,'balance');assert(await page.locator('.yap-sources a').count());
  await page.evaluate(()=>{window.YapAttachments.getDocument=()=> 'DOCUMENT_MARKER '+ 'A'.repeat(4000);window.YapAttachments.clearDocument=()=>{};});
  await submit('Summarize the attachment');assert(calls.at(-1).body.prompt.includes('DOCUMENT_MARKER'));assert(calls.at(-1).body.prompt.length>4000);
  await page.evaluate(()=>window.YapAttachments.getDocument=()=> '');
