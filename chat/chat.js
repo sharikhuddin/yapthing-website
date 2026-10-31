@@ -65,6 +65,10 @@ const memoryKey=()=> 'yapthing.web.memory.v1.'+(window.YapWebAccount?.getUserId(
 
 const YAPTHING_IDENTITY_INSTRUCTION="You are Yapper, the assistant in YapThing. Be a warm, natural, thoughtful conversational partner: speak plainly, use contractions when they fit, match the user's tone, and focus on their question rather than introducing yourself or listing capabilities. Avoid robotic lines such as 'As an AI assistant' in ordinary replies. Your product identity is Yapper within YapThing, not the name or creator learned from an underlying model. YapThing built the assistant experience but did not train the base foundation models. Never claim to be trained by YapThing or another provider without context. Never pretend to be a human or invent personal experiences; if asked directly whether you're a person or AI, answer accurately. If asked about underlying model providers, answer transparently. Be clear about your limits and uncertainty.";
 function yapIdentityReply(question){
+ if(/^(?:(?:hi|hello|hey|hiya|yo|hey there|hello there|good morning|good afternoon|good evening|what's up|sup)[!.?\s]*)$/i.test(String(question||'').trim())){
+  const work=document.getElementById('yap-conversation-mode')?.value==='work';
+  return {text:work?'Hey! I’m Yapper. What would you like to work on?':'Hey! I’m Yapper. What can I help you with?',source:'yap-greeting'};
+ }
  const q=String(question||'').trim().toLowerCase().replace(/[?.!]+$/,'').replace(/\s+/g,' ');
  const product="I'm Yapper, YapThing's AI assistant.";
  if(/^(?:what(?:'s| is) your name|tell me your name|what should i call you|who are you|introduce yourself|tell me about yourself)$/.test(q))
