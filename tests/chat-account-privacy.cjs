@@ -27,7 +27,8 @@ const document={
  createElement:()=>new Element(),
  createTextNode:s=>({textContent:s}),
  querySelectorAll:()=>[],
- querySelector:()=>new Element()
+ querySelector:()=>new Element(),
+ addEventListener:()=>{}
 };
 const listeners=new Map(),requests=[];
 let sess=null;
@@ -92,5 +93,9 @@ vm.runInNewContext(fs.readFileSync('chat/account-sync.js','utf8'),env,{filename:
  assert.equal(window.YapWebChat.importLegacy(),1,'manual legacy import must work');
  assert.equal(window.YapWebChat.snapshot().length,2);
  assert(!JSON.stringify(window.YapWebChat.snapshot()).includes('B unique message'));
+ window.YapChatCloud={deleteThread:async()=>true};
+ const toDelete=window.YapWebChat.listChats()[0].id;
+ assert.equal(await window.YapWebChat.deleteChat(toDelete),true);
+ assert(!window.YapWebChat.listChats().some(c=>c.id===toDelete),'deleted chat is removed locally');
  console.log('PASS website account privacy: logout, guest, A/B isolation, same-account restore and explicit legacy import');
 })().catch(e=>{console.error(e);process.exitCode=1});

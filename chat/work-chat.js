@@ -54,7 +54,34 @@
  async function openProjectChat(projectId,chatId){changingChat=true;try{selected=projectId;models=[];lastDraft=null;lastDiff=null;clear();if(!chatAPI()?.openChat?.(chatId))throw Error('This chat is no longer available on this device.');mode=native?(window.YapAssistant.getSpace()==='work'?'work':'chat'):mode;save();}finally{changingChat=false;}closeNavigation();}
  async function newProjectChat(id){changingChat=true;try{selected=id;models=[];lastDraft=null;lastDiff=null;clear();chatAPI()?.newChat?.(id);save();}finally{changingChat=false;}closeNavigation();}
  async function chooseProject(id){const saved=projectChats(id);if(saved.length)await openProjectChat(id,saved[0].id);else await newProjectChat(id);}
- function drawProjects(){projectRows.replaceChildren();for(const p of projects){const folder=element('details'),summary=element('summary',p.name),threads=projectChats(p.id);folder.className='yap-project-folder';folder.open=p.id===selected;summary.title=p.name;if(p.id===selected)summary.setAttribute('aria-current','true');folder.append(summary,button('＋ New chat',()=>newProjectChat(p.id)));for(const c of threads){const row=button((c.name&&c.name!=='YapThing'?c.name:c.preview)||'New chat',()=>openProjectChat(p.id,c.id));row.className='yap-project-chat';row.title=c.preview||'New chat';if(c.id===conversation())row.setAttribute('aria-current','page');folder.append(row);}if(!threads.length)folder.append(element('p','No chats yet.','yap-menu-empty'));projectRows.append(folder);}if(!projects.length)projectRows.append(element('p','Keep related chats together.','yap-menu-empty'));projectLabel.textContent=projects.find(p=>p.id===selected)?.name||'';projectLabel.hidden=!selected;drawMovePicker();}
+ async function deleteProject(id){
+  const item=projects.find(p=>p.id===id),actor=owner();
+  if(!item)return;
+  if(!confirm('Delete project "'+item.name+'"? Chats will be kept in General chats.'))return;
+  if(!item.localOnly){
+   if(native){
+    const response=await api().request('delete_project',{id});
+    if(!response.deleted)throw Error('Could not remove this project from your account.');
+   }else{
+    const auth=window.YapWebAccount;
+    if(!auth?.getUserId?.())throw Error('Sign in to remove this synced project.');
+    const url='https://uemjkfvcadggyvhbqqyp.supabase.co/rest/v1/yap_work_projects?user_id=eq.'+
+      encodeURIComponent(actor)+'&id=eq.'+encodeURIComponent(id);
+    const result=await auth.authFetch(url,{method:'DELETE',
+       headers:{'prefer':'return=representation'},signal:AbortSignal.timeout(12000)});
+    if(!result.ok)throw Error('Could not remove this project from your account.');
+    const rows=await result.json();
+    if(!Array.isArray(rows)||rows.length!==1)throw Error('Project removal was not confirmed.');
+   }
+  }
+  if(actor!==owner())throw Error('Account changed before project deletion completed.');
+  chatAPI()?.detachProject?.(id);
+  projects=projects.filter(p=>p.id!==id);
+  if(selected===id)selected='';
+  save();
+  clear();
+ }
+ function drawProjects(){projectRows.replaceChildren();for(const p of projects){const folder=element('details'),summary=element('summary',p.name),threads=projectChats(p.id);folder.className='yap-project-folder';folder.open=p.id===selected;summary.title=p.name;if(p.id===selected)summary.setAttribute('aria-current','true');const remove=button('×',()=>deleteProject(p.id));remove.className='yap-delete-project';remove.title='Delete project';remove.setAttribute('aria-label','Delete project '+p.name);folder.append(summary,remove,button('＋ New chat',()=>newProjectChat(p.id)));for(const c of threads){const row=button((c.name&&c.name!=='YapThing'?c.name:c.preview)||'New chat',()=>openProjectChat(p.id,c.id));row.className='yap-project-chat';row.title=c.preview||'New chat';if(c.id===conversation())row.setAttribute('aria-current','page');const wrap=element('div',null,'yap-chat-entry');wrap.append(row);const del=button('×',()=>chatAPI()?.deleteChat?.(c.id));del.className='yap-delete-item';del.title='Delete chat';del.setAttribute('aria-label','Delete chat');wrap.append(del);folder.append(wrap);}if(!threads.length)folder.append(element('p','No chats yet.','yap-menu-empty'));projectRows.append(folder);}if(!projects.length)projectRows.append(element('p','Keep related chats together.','yap-menu-empty'));projectLabel.textContent=projects.find(p=>p.id===selected)?.name||'';projectLabel.hidden=!selected;drawMovePicker();}
  const projectLabel=element('span',null,'yap-project-caption');projectLabel.setAttribute('aria-label','Current project');controls.prepend(projectLabel);
  const movePicker=element('select');movePicker.setAttribute('aria-label','Move current chat to project');function drawMovePicker(){movePicker.replaceChildren();const general=element('option','General chats');general.value='';movePicker.append(general);for(const p of projects){const o=element('option',p.name);o.value=p.id;movePicker.append(o);}movePicker.value=chatAPI()?.getProjectId?.()||'';}
  movePicker.onchange=()=>run(async()=>{if(!conversation())throw Error('Start a chat before moving it.');changingChat=true;try{if(!chatAPI()?.setProjectId?.(movePicker.value))throw Error('This chat could not be moved.');selected=movePicker.value;save();}finally{changingChat=false;}closeNavigation();});

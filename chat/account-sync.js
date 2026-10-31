@@ -31,6 +31,7 @@
   $('account-signup').hidden=signed;
   $('account-signout').hidden=!signed;
   $('cloud-save').disabled=!signed;
+  $('account-panel').querySelector('.account-sync-controls').hidden=!signed;
   const legacy=(()=>{try{
    const chats=JSON.parse(localStorage.getItem('yapthing.web.preview.v1')||'[]');
    return Array.isArray(chats)&&chats.some(c=>Array.isArray(c.messages)&&c.messages.some(m=>m.role==='user'));
@@ -40,13 +41,24 @@
    $('cloud-quota').textContent='';
    $('chat-sync-status').textContent='Signed out — previous conversations are hidden.';
   }
-  note(signed?'Signed in. Conversations stay private to this account and sync across connected devices.':
-    'Signed out. Sign in to see your account history or start a new private guest chat.');
+  note(signed?'Signed in as '+String(session?.user?.email||'your account').slice(0,100):
+    'Sign in to restore your chats and projects.');
  }
  $('account-toggle').onclick=()=>{
   $('account-panel').hidden=!$('account-panel').hidden;
+  $('account-toggle').setAttribute('aria-expanded',String(!$('account-panel').hidden));
   if(!$('account-panel').hidden&&uid())status();
  };
+ document.addEventListener('click',event=>{
+  if(!$('account-panel').hidden&&!$('account-panel').contains(event.target)&&
+     !$('account-toggle').contains(event.target)){
+   $('account-panel').hidden=true;
+   $('account-toggle').setAttribute('aria-expanded','false');
+  }
+ });
+ document.addEventListener('keydown',event=>{
+  if(event.key==='Escape'){$('account-panel').hidden=true;$('account-toggle').setAttribute('aria-expanded','false');}
+ });
  $('account-form').onsubmit=async e=>{
   e.preventDefault();note('Signing in…');
   try{

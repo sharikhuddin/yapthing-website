@@ -5,10 +5,10 @@ if(!top||!actions)return;
 const menu=document.createElement('details');menu.id='yap-desktop-menu';
 const toggle=document.createElement('summary');toggle.textContent='☰';toggle.setAttribute('aria-label','Toggle sidebar');toggle.setAttribute('aria-controls','yap-tool-menu');menu.append(toggle);
 const drawer=document.createElement('nav');drawer.id='yap-tool-menu';drawer.setAttribute('aria-label','Chat sidebar');
-const brand=document.createElement('a');brand.className='yap-sidebar-brand';brand.href='/';brand.setAttribute('aria-label','YapThing home');const logo=document.createElement('img');logo.src='yapthing-icon.svg';logo.alt='';brand.append(logo,document.createTextNode('YapThing'));drawer.append(brand);const home=document.querySelector('.yap-home-link');if(home){const mark=logo.cloneNode();home.prepend(mark);}
+const label=document.createElement('span');label.className='yap-sidebar-caption';label.textContent='WORKSPACE';drawer.append(label);
 const close=document.createElement('button');close.type='button';close.className='yap-sidebar-close';close.textContent='Close sidebar';close.onclick=()=>{menu.open=false;toggle.focus();};drawer.append(close);
 const aside=document.querySelector('body>main>aside'),history=aside?.querySelector('#history'),fresh=aside?.querySelector('#new');
-if(fresh){fresh.textContent='+ New chat';drawer.append(fresh);}
+if(fresh){fresh.textContent='＋ New chat';drawer.append(fresh);}
 if(history){const chats=document.createElement('section');chats.className='yap-recent-navigation';const heading=document.createElement('h3');heading.textContent='Recent chats';chats.append(heading,history);drawer.append(chats);}
 if(aside)aside.hidden=true;
 const settings=document.createElement('details');settings.id='yap-menu-settings';const summary=document.createElement('summary');summary.textContent='Settings';settings.append(summary,actions);

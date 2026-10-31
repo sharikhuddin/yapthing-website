@@ -52,7 +52,7 @@ const a='11111111-1111-4111-8111-111111111111',b='22222222-2222-4222-8222-222222
   await page.locator('#yap-desktop-menu > summary').click();
   await page.evaluate(id=>window.YapSession.set({access_token:'fake-user-a',user:{id,email:'a@example.com'},expires_at:Date.now()/1000+3500}),a);
   await page.evaluate(()=>window.YapWebChat.add('ALPHA ACCOUNT CONFIDENTIAL TEXT','user'));
-  assert.equal(await page.locator('#history button').count(),1);
+  assert.equal(await page.locator('#history .yap-chat-entry > button:first-child').count(),1);
   assert((await page.locator('#messages').innerText()).includes('ALPHA ACCOUNT'));
   assert(await page.locator('#account-toggle').isVisible(),'account control must be visible without opening the menu');
   await page.locator('#account-toggle').click();
@@ -70,6 +70,7 @@ const a='11111111-1111-4111-8111-111111111111',b='22222222-2222-4222-8222-222222
   await page.setViewportSize({width:390,height:844});
   await page.locator('#yap-attachment-menu > summary').click();
   assert(await page.locator('#yap-attachment-menu > div').isVisible(),'mobile attachment dropdown is visible');
+  assert.equal(await page.locator('#yap-tool-menu img').count(),0,'sidebar should have no logo');
   const rect=await page.locator('#yap-attachment-menu > div').boundingBox();
   assert(rect&&rect.x>=-2&&rect.x+rect.width<=392,'mobile dropdown fits viewport');
   console.log('PASS Chrome browser: logout hides chat, no A/B leakage, account switching, crisp desktop and mobile menus');

@@ -13,7 +13,7 @@
  let timer=null;
  const say=value=>{if(note)note.textContent=value};
  const resource='rest/v1/yap_shared_chat_threads';
- const urlFor=id=>BASE+'/'+resource+'?select=thread_id,title,messages,updated_at&user_id=eq.'+
+ const urlFor=id=>BASE+'/'+resource+'?select=thread_id,title,messages,updated_at,deleted_at&user_id=eq.'+
   encodeURIComponent(id)+'&order=updated_at.desc&limit=80';
  const validUUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
  const normalize=m=>{
@@ -45,7 +45,8 @@
    if(generation!==serial||current!==userId())return;
    const byId=new Map(remote.filter(r=>validUUID.test(r.thread_id||''))
      .map(r=>[r.thread_id.toLowerCase(),r]));
-   window.YapWebChat?.mergeCloud(remote);
+   window.YapWebChat?.applyCloudDeletions?.(remote);
+   window.YapWebChat?.mergeCloud(remote.filter(r=>!r.deleted_at));
    const local=window.YapWebChat?.snapshot()||[];
    let uploaded=0;
    for(const thread of local.slice(0,80)){
@@ -55,6 +56,7 @@
     const messages=normalize(thread.messages);
     if(!messages.length)continue;
     const prior=byId.get(id);
+    if(prior?.deleted_at)continue;
     const identical=prior&&hash(prior.messages)===hash(messages);
     if(identical)continue;
     // Don't overwrite remote content that is longer or was updated more recently.
@@ -102,6 +104,23 @@
   if(document.visibilityState==='visible'&&actor&&Date.now()-lastRun>7000)syncNow();
  });
  setInterval(()=>{if(actor&&document.visibilityState==='visible'&&Date.now()-lastRun>25000)syncNow()},30000);
- window.YapChatCloud={syncNow,refreshAccount:reset};
+ async function deleteThread(id){
+  const current=userId();
+  if(!current||current!==actor||!validUUID.test(id))throw Error('Sign in to manage cloud conversations.');
+  const url=BASE+'/'+resource+'?user_id=eq.'+encodeURIComponent(current)+
+    '&thread_id=eq.'+encodeURIComponent(id);
+  const response=await window.YapSession.authFetch(url,{
+    method:'PATCH',
+    headers:{'content-type':'application/json','prefer':'return=representation'},
+    body:JSON.stringify({deleted_at:new Date().toISOString(),messages:[],
+      title:'Deleted conversation',updated_at:new Date().toISOString()}),
+    signal:AbortSignal.timeout(timeout)
+  });
+  if(!response.ok)throw Error('Could not remove this chat from your cloud history.');
+  const rows=await response.json();
+  if(current!==userId())throw Error('Your account changed.');
+  if(!Array.isArray(rows)||rows.length>1)throw Error('Chat was not found in your cloud history.');
+ }
+ window.YapChatCloud={syncNow,refreshAccount:reset,deleteThread};
  if(actor)queueMicrotask(()=>syncNow());
 })();
