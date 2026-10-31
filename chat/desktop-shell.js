@@ -1,8 +1,28 @@
 'use strict';
-(()=>{const top=document.querySelector('.topline'),actions=document.querySelector('.top-actions');if(!top||!actions)return;
-const menu=document.createElement('details');menu.id='yap-desktop-menu';const toggle=document.createElement('summary');toggle.textContent='☰';toggle.setAttribute('aria-label','Open YapThing menu');menu.append(toggle);
-const drawer=document.createElement('div');drawer.id='yap-tool-menu';const aside=document.querySelector('body>main>aside'),history=aside?.querySelector('#history'),fresh=aside?.querySelector('#new');if(fresh){fresh.textContent='＋ New chat';drawer.append(fresh);}if(history){const chats=document.createElement('section');chats.className='yap-recent-navigation';const heading=document.createElement('h3');heading.textContent='Recent chats';chats.append(heading,history);drawer.append(chats);}if(aside)aside.hidden=true;
-const settings=document.createElement('details');settings.id='yap-menu-settings';const summary=document.createElement('summary');summary.textContent='Settings';settings.append(summary,actions);const study=document.getElementById('yap-study-controls');if(study)settings.append(study);drawer.append(settings);menu.append(drawer);top.prepend(menu);
+(()=>{
+const top=document.querySelector('.topline'),actions=document.querySelector('.top-actions');
+if(!top||!actions)return;
+const menu=document.createElement('details');menu.id='yap-desktop-menu';
+const toggle=document.createElement('summary');toggle.textContent='☰';toggle.setAttribute('aria-label','Toggle sidebar');toggle.setAttribute('aria-controls','yap-tool-menu');menu.append(toggle);
+const drawer=document.createElement('nav');drawer.id='yap-tool-menu';drawer.setAttribute('aria-label','Chat sidebar');
+const brand=document.createElement('a');brand.className='yap-sidebar-brand';brand.href='/';brand.setAttribute('aria-label','YapThing home');const logo=document.createElement('img');logo.src='yapthing-icon.svg';logo.alt='';brand.append(logo,document.createTextNode('YapThing'));drawer.append(brand);const home=document.querySelector('.yap-home-link');if(home){const mark=logo.cloneNode();home.prepend(mark);}
+const close=document.createElement('button');close.type='button';close.className='yap-sidebar-close';close.textContent='Close sidebar';close.onclick=()=>{menu.open=false;toggle.focus();};drawer.append(close);
+const aside=document.querySelector('body>main>aside'),history=aside?.querySelector('#history'),fresh=aside?.querySelector('#new');
+if(fresh){fresh.textContent='+ New chat';drawer.append(fresh);}
+if(history){const chats=document.createElement('section');chats.className='yap-recent-navigation';const heading=document.createElement('h3');heading.textContent='Recent chats';chats.append(heading,history);drawer.append(chats);}
+if(aside)aside.hidden=true;
+const settings=document.createElement('details');settings.id='yap-menu-settings';const summary=document.createElement('summary');summary.textContent='Settings';settings.append(summary,actions);
+const study=document.getElementById('yap-study-controls');if(study)settings.append(study);
+drawer.append(settings);menu.append(drawer);top.prepend(menu);
 const plans=actions.querySelector('a[href="../plans/"]');if(plans)plans.textContent='Plan & usage';
-document.addEventListener('click',e=>{if(!menu.contains(e.target))menu.open=false;});drawer.addEventListener('click',e=>{if(!e.target.closest('.yap-project-navigation')&&e.target.closest('button,a')&&(!settings.contains(e.target)||e.target.closest('#account-toggle,a')))menu.open=false;});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&menu.open){menu.open=false;toggle.focus();}});
+const mobile=window.matchMedia('(max-width:700px)');
+const key='yapthing-sidebar-open';
+let remembered=false;try{remembered=localStorage.getItem(key)==='true';}catch{}
+menu.open=!mobile.matches&&remembered;
+function sync(){const open=menu.open;document.body.classList.toggle('yap-sidebar-open',open);toggle.setAttribute('aria-expanded',String(open));try{if(!mobile.matches)localStorage.setItem(key,String(open));}catch{}}
+menu.addEventListener('toggle',sync);sync();
+document.addEventListener('click',e=>{if(mobile.matches&&!menu.contains(e.target))menu.open=false;});
+drawer.addEventListener('click',e=>{if(mobile.matches&&!e.target.closest('.yap-project-navigation')&&e.target.closest('button,a')&&(!settings.contains(e.target)||e.target.closest('#account-toggle,a')))menu.open=false;});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&menu.open){menu.open=false;toggle.focus();}});
+mobile.addEventListener('change',()=>{menu.open=false;sync();});
 })();

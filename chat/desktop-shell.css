@@ -2,3 +2,31 @@ body>main{display:block}body>main>aside[hidden]{display:none!important}.topline{
 
 
 .topline>.yap-home-link{margin-right:auto;display:inline-flex;align-items:center;min-height:44px;color:inherit;text-decoration:none;font-size:19px;font-weight:700}.yap-home-link:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+
+/* Full viewport chat with an optional persistent sidebar. */
+html,body{height:100%;overflow:hidden}
+body>main{height:100dvh;min-height:0}
+body>main>.workspace{height:100dvh;min-height:0;width:100%;transition:padding-left .18s ease}
+body>main>.workspace>.top{flex:none}
+body>main>.workspace>.messages{flex:1;min-height:0;max-width:none;width:100%;overflow:auto;overscroll-behavior:contain;padding-inline:clamp(16px,4vw,80px)!important}
+body>main>.workspace>.composer{flex:none;max-width:none;margin:0;width:100%;padding-inline:clamp(16px,4vw,80px)!important;background:var(--page);overflow:visible}
+body>main>.workspace>.composer:has(details[open]){overflow:visible}
+#yap-desktop-menu>summary{user-select:none}
+#yap-desktop-menu[open]>#yap-tool-menu{position:fixed;inset:0 auto 0 0;width:280px;height:100dvh;max-height:none;border-radius:0;border-width:0 1px 0 0;background:var(--side);box-shadow:none;overscroll-behavior:contain}
+#yap-tool-menu>.sidebar-button{margin:16px 0}
+#yap-tool-menu .yap-sidebar-close{display:block;width:100%;text-align:left;min-height:44px}
+#yap-tool-menu #history{display:block}
+body.yap-sidebar-open>.workspace{padding-left:280px}
+body.yap-sidebar-open>main>.workspace{padding-left:280px}
+#yap-tool-menu h3{font-size:13px;opacity:.75}
+@media(max-width:700px){
+ body.yap-sidebar-open>main>.workspace{padding-left:0}
+ #yap-desktop-menu[open]>#yap-tool-menu{width:min(300px,85vw);box-shadow:0 0 0 100vmax #0006}
+ body>main>.workspace>.messages{padding:16px 12px!important}
+ body>main>.workspace>.composer{padding:8px 10px max(12px,env(safe-area-inset-bottom))!important}
+}
+@media(prefers-reduced-motion:reduce){body>main>.workspace{transition:none}}
+
+.yap-sidebar-brand{display:flex;align-items:center;gap:12px;margin:0 0 18px;padding:10px;border-radius:14px;background:#dcf86d;color:#222522;text-decoration:none;font-size:22px;font-weight:800}
+.yap-sidebar-brand img{width:40px;height:40px;border-radius:10px}
+.yap-home-link img{width:32px;height:32px;margin-right:9px;border-radius:9px}
