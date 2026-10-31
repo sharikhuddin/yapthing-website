@@ -46,16 +46,22 @@ const a='11111111-1111-4111-8111-111111111111',b='22222222-2222-4222-8222-222222
   assert(!((await page.locator('#messages').innerText()).includes('PREVIOUS PRIVATE')));
   assert(await page.locator('.quick-prompts').isHidden(),'quick prompt clutter must be hidden');
   assert(await page.locator('#yap-desktop-menu').isVisible(),'main YapThing dropdown must be available');
-  await page.locator('#yap-desktop-menu > summary').click();
-  assert(await page.locator('#yap-tool-menu').isVisible(),'main dropdown should open');
+  assert(await page.locator('#yap-tool-menu').isVisible(),'desktop sidebar should open by default');
   assert.equal(await page.locator('#yap-workspace optgroup').count(),2,'advanced focus options are grouped');
-  await page.locator('#yap-desktop-menu > summary').click();
+  await page.locator('#yap-tool-menu .yap-sidebar-close').click();
   await page.evaluate(id=>window.YapSession.set({access_token:'fake-user-a',user:{id,email:'a@example.com'},expires_at:Date.now()/1000+3500}),a);
   await page.evaluate(()=>window.YapWebChat.add('ALPHA ACCOUNT CONFIDENTIAL TEXT','user'));
   assert.equal(await page.locator('#history .yap-chat-entry > button:first-child').count(),1);
   assert((await page.locator('#messages').innerText()).includes('ALPHA ACCOUNT'));
-  assert(await page.locator('#account-toggle').isVisible(),'account control must be visible without opening the menu');
+  assert(!(await page.locator('.topline > #account-toggle').count()),'account must not remain in top header');
+  await page.locator('#yap-desktop-menu > summary').click();
+  assert(await page.locator('#yap-tool-menu .yap-sidebar-footer #account-toggle').isVisible(),
+   'account with Yap icon must live in the sidebar footer');
+  assert(await page.locator('#yap-tool-menu #account-toggle img').isVisible(),
+   'account footer must show the YapThing icon');
   await page.locator('#account-toggle').click();
+  assert(await page.locator('#account-panel').isVisible(),
+   'account settings must open from the footer');
   await page.locator('#account-signout').click();
   assert.equal(await page.locator('#history button').count(),0,'logout sidebar must clear');
   assert.equal(await page.locator('#mobile-history button').count(),0,'logout mobile history must clear');
@@ -68,9 +74,21 @@ const a='11111111-1111-4111-8111-111111111111',b='22222222-2222-4222-8222-222222
   assert((await page.locator('#messages').innerText()).includes('ALPHA ACCOUNT'));
   assert(!(await page.locator('#messages').innerText()).includes('BRAVO ACCOUNT'));
   await page.setViewportSize({width:390,height:844});
+  await page.locator('#yap-desktop-menu > summary').click();
+  assert(await page.locator('#yap-tool-menu .yap-sidebar-footer #account-toggle').isVisible(),
+   'mobile sidebar must expose the bottom account control');
+  const profile=await page.locator('#account-toggle').boundingBox();
+  assert(profile&&profile.y+profile.height<=845,'mobile account row stays within viewport');
+  await page.locator('#account-toggle').click();
+  const panel=await page.locator('#account-panel').boundingBox();
+  assert(panel&&panel.x>=0&&panel.x+panel.width<=392&&panel.y>=0&&panel.y+panel.height<=845,
+   'mobile account settings popover must fit in the viewport');
+  await page.locator('#account-toggle').click();
+  assert(await page.locator('#account-panel').isHidden(),'tapping profile again must dismiss account settings');
+  await page.locator('#yap-tool-menu .yap-sidebar-close').click();
   await page.locator('#yap-attachment-menu > summary').click();
   assert(await page.locator('#yap-attachment-menu > div').isVisible(),'mobile attachment dropdown is visible');
-  assert.equal(await page.locator('#yap-tool-menu img').count(),0,'sidebar should have no logo');
+  assert.equal(await page.locator('#yap-tool-menu img').count(),1,'the only sidebar logo should be the small bottom account icon');
   const rect=await page.locator('#yap-attachment-menu > div').boundingBox();
   assert(rect&&rect.x>=-2&&rect.x+rect.width<=392,'mobile dropdown fits viewport');
   console.log('PASS Chrome browser: logout hides chat, no A/B leakage, account switching, crisp desktop and mobile menus');

@@ -37,8 +37,9 @@
  if(recents){
   recents.classList.add('yap-nav-recents');
   const heading=recents.querySelector('h3');if(heading)heading.textContent='Recents';
-  root.append(recents);
-  if(settings)root.append(settings);
+  const footer=root.querySelector('.yap-sidebar-footer');
+  if(footer)root.insertBefore(recents,footer);else root.append(recents);
+  // Account and Settings now stay together in the pinned footer.
   const history=document.getElementById('history');
   if(history)history.setAttribute('aria-label','Recent chats');
  }

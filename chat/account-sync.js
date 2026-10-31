@@ -24,7 +24,13 @@
  function render(){
   session=current();
   const signed=!!session?.access_token;
-  $('account-toggle').textContent=signed?'My account':'Sign in';
+  const trigger=$('account-toggle');
+  const identity=trigger.querySelector('.yap-account-name');
+  const meta=trigger.querySelector('.yap-account-meta');
+  if(identity){
+   identity.textContent=signed?String(session?.user?.email||'My account').slice(0,100):'Sign in';
+   if(meta)meta.textContent=signed?'Manage your account':'Use YapThing across devices';
+  }else trigger.textContent=signed?'My account':'Sign in';
   $('account-email').hidden=signed;
   $('account-password').hidden=signed;
   $('account-form').querySelector('[type=submit]').hidden=signed;
