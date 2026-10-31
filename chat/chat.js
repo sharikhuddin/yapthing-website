@@ -94,7 +94,11 @@ function yapLegacyIdentityClaim(message){
  if(/^(?:i am|i'm)\s+(?:a\s+)?large language model,?\s*trained by (?:google|openai|alibaba)/i.test(t))return true;
  return /^(?:(?:I am|I'm)\s+(?:(?:named\s+)?["']?SystematicAI\b|made by Alibaba Cloud\b|(?:an?\s+)?(?:AI assistant\s+)?(?:created|built|developed) by Alibaba Cloud\b)|My name is\s+["']?SystematicAI\b)/i.test(t);
 }
-function yapAnswerMarkup(el,m){const text=String(m.text||''),sources=Array.isArray(m.sources)?m.sources:[];el.replaceChildren();for(const part of text.split(/(```[\s\S]*?```)/g)){if(part.startsWith('```')&&part.endsWith('```')){const raw=part.slice(3,-3),nl=raw.indexOf('\n'),code=nl<0?raw:raw.slice(nl+1),lang=nl<0?'Code':raw.slice(0,nl);const wrap=document.createElement('div');wrap.style.cssText='border:1px solid #64748b;border-radius:10px;margin:10px 0;overflow:hidden';const header=document.createElement('div');header.style.cssText='display:flex;justify-content:space-between;padding:8px;background:#243044;color:white';const label=document.createElement('span');label.textContent=lang||'Code';const copy=document.createElement('button');copy.textContent='Copy code';copy.onclick=async()=>{try{await navigator.clipboard.writeText(code);copy.textContent='Copied'}catch{copy.textContent='Select text to copy'}};header.append(label,copy);const pre=document.createElement('pre');pre.style.cssText='padding:12px;overflow:auto;margin:0';const node=document.createElement('code');node.textContent=code;pre.append(node);wrap.append(header,pre);el.append(wrap)}else{let last=0;const re=/\[(\d{1,2})\]/g;let match;while((match=re.exec(part))){el.append(document.createTextNode(part.slice(last,match.index)));const src=sources[Number(match[1])-1];if(src?.url&&/^https:\/\//i.test(src.url)){const a=document.createElement('a');a.href=src.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=match[0];a.title=src.title||'Open source';el.append(a)}else el.append(document.createTextNode(match[0]));last=re.lastIndex}el.append(document.createTextNode(part.slice(last)))}}}
+function yapAnswerMarkup(el,m){
+ if(window.YapRichText?.render)window.YapRichText.render(el,m.text,{sources:m.sources});
+ else el.textContent=String(m.text||'');
+}
+
 window.addEventListener('yap-image-sync-failed',()=>{
  const el=document.getElementById('chat-sync-status');
  if(el)el.textContent='Photo saved on this device. Cloud image storage is unavailable or full.';
