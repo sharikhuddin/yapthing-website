@@ -33,11 +33,12 @@
  if(projects){projects.id='yap-nav-project-list';projects.hidden=true;nav.after(projects);}
  root.querySelector('.yap-sidebar-close')?.after(nav);
  if(newChat){newChat.classList.add('yap-nav-new');const parent=projects||nav;parent.after(newChat);newChat.textContent='+ New chat';newChat.addEventListener('click',close);}
- if(settings&&recents)recents.before(settings);
+ // Keep account settings in the quiet footer, below recent conversations.
  if(recents){
   recents.classList.add('yap-nav-recents');
   const heading=recents.querySelector('h3');if(heading)heading.textContent='Recents';
   root.append(recents);
+  if(settings)root.append(settings);
   const history=document.getElementById('history');
   if(history)history.setAttribute('aria-label','Recent chats');
  }
