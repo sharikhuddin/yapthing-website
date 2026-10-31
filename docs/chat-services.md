@@ -31,3 +31,6 @@ Frankfurter: https://frankfurter.dev/ and https://frankfurter.dev/license/
 Its blended rates are free for commercial use; individual provider terms can differ. Rates are reference data, not executable bank/trading quotes.
 Open-Meteo: https://open-meteo.com/en/pricing — free hosted access is non-commercial; not added to this commercial product.
 Gemini: https://ai.google.dev/api/generate-content — usage metadata and generation configuration.
+
+## Gemini code drafts
+Do more > Improve my project accepts one explicitly selected JS/CSS/HTML file up to 10,000 characters and a goal. Source is sent to Gemini after the user confirms. It consumes the existing cloud AI allowance, uses bounded structured output, and returns a review/download. It does not execute, install, apply or deploy generated code. Truncated or malformed drafts are rejected. The local Ollama review-branch script remains a separate optional workflow.
