@@ -1,0 +1,81 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs'),http=require('node:http'),path=require('node:path');
+const {chromium}=require('C:/Users/KhalialA/tools/YapThing-QA/node_modules/playwright');
+const root=path.resolve(__dirname,'..');
+const types={'.html':'text/html','.js':'application/javascript','.css':'text/css','.png':'image/png','.svg':'image/svg+xml','.json':'application/json'};
+const server=http.createServer((req,res)=>{
+ const rel=decodeURIComponent(req.url.split('?')[0]).replace(/^\//,'');
+ const name=rel.endsWith('/')?rel+'index.html':rel;
+ const file=path.resolve(root,name);
+ if(!file.startsWith(root+path.sep)){res.writeHead(403);return res.end()}
+ fs.readFile(file,(err,bytes)=>{if(err){res.writeHead(404);return res.end('Missing')}
+ res.writeHead(200,{'content-type':types[path.extname(file)]||'text/plain','cache-control':'no-store'});res.end(bytes)});
+});
+const addAbs=(page)=>page.route('https://uemjkfvcadggyvhbqqyp.supabase.co/**',route=>{
+ const url=route.request().url();
+ if(url.includes('yap_shared_chat_threads')||url.includes('yap_user_memory'))return route.fulfill({status:200,contentType:'application/json',body:'[]'});
+ return route.fulfill({status:204,body:''});
+});
+(async()=>{
+ await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));let browser;
+ try{
+ browser=await chromium.launch({headless:true,executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',args:['--no-sandbox','--disable-gpu']});
+ const base='http://127.0.0.1:'+server.address().port+'/chat/';
+ const context=await browser.newContext({viewport:{width:1280,height:820}});
+ const page=await context.newPage();await addAbs(page);
+ const errors=[];page.on('pageerror',error=>errors.push(error.message));
+ await page.goto(base,{waitUntil:'domcontentloaded',timeout:25000});
+ await page.waitForFunction(()=>!!window.YapWebChat,{timeout:12000});
+ assert(await page.locator('#yap-tool-menu').isVisible(),'desktop sidebar open by default');
+ assert.equal((await page.locator('#yap-tool-menu .yap-sidebar-close').innerText()).trim(),'','no visible Close sidebar label');
+ assert.equal(await page.locator('#yap-tool-menu .yap-sidebar-close').getAttribute('aria-label'),'Collapse sidebar');
+ assert(await page.locator('.yap-sidebar-resize').isVisible(),'desktop resize handle visible');
+ const grip=page.locator('.yap-sidebar-resize'),original=await page.locator('#yap-tool-menu').boundingBox();
+ assert(original.width>=275&&original.width<=310,'default desktop width');
+ await page.mouse.move(original.width-4,345);await page.mouse.down();
+ await page.mouse.move(382,345,{steps:7});await page.mouse.up();
+ const after=await page.locator('#yap-tool-menu').boundingBox();
+ assert(Math.abs(after.width-382)<14,'drag should resize: '+after.width);
+ assert(Math.abs((await page.locator('.workspace').boundingBox()).x-0)<3,'workspace must remain available');
+ const padding=await page.locator('.workspace').evaluate(el=>getComputedStyle(el).paddingLeft);
+ assert(Math.abs(parseFloat(padding)-after.width)<14,'chat area must shift with sidebar '+padding+' vs '+after.width);
+ const stored=await page.evaluate(()=>localStorage.getItem('yapthing.sidebar.width.v1'));
+ assert(Math.abs(Number(stored)-382)<14,'width should persist');
+ await page.locator('.yap-sidebar-resize').focus();await page.keyboard.press('ArrowLeft');
+ assert(Number(await page.locator('.yap-sidebar-resize').getAttribute('aria-valuenow'))<Number(stored),'keyboard should resize');
+ await page.locator('#messages').click({position:{x:Math.min(300,(await page.locator('#messages').boundingBox()).width-40),y:30}});
+ assert(await page.locator('#yap-tool-menu').isHidden(),'click in chat must close desktop sidebar');
+ await page.locator('#yap-desktop-menu > summary').click();
+ assert(await page.locator('#yap-tool-menu').isVisible(),'single menu button reopens sidebar');
+ await page.locator('#prompt').click({force:true});
+ assert(await page.locator('#yap-tool-menu').isHidden(),'click in composer should dismiss sidebar');
+ await page.locator('#yap-desktop-menu > summary').click();
+ await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>!!window.YapWebChat);
+ const retained=await page.locator('#yap-tool-menu').boundingBox();
+ assert(Math.abs(retained.width-Number(await page.evaluate(()=>localStorage.getItem('yapthing.sidebar.width.v1'))))<3,'persisted width restored on reload');
+ const mobile=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2});
+ const phone=await mobile.newPage();await addAbs(phone);phone.on('pageerror',e=>errors.push(e.message));
+ await phone.goto(base,{waitUntil:'domcontentloaded'});await phone.waitForFunction(()=>!!window.YapWebChat);
+ assert(await phone.locator('#yap-tool-menu').isHidden(),'mobile sidebar should start closed');
+ await phone.locator('#yap-desktop-menu > summary').click();
+ assert(await phone.locator('#yap-tool-menu').isVisible(),'mobile menu opens');
+ assert(await phone.locator('#yap-sidebar-backdrop').isVisible(),'mobile outside tap backdrop is visible');
+ assert(await phone.locator('.yap-sidebar-resize').isHidden(),'resize handle hidden on touch');
+ const mobileBounds=await phone.locator('#yap-tool-menu').boundingBox();
+ assert(mobileBounds.width<=335&&mobileBounds.x>=-1,'mobile drawer fits viewport');
+ await phone.locator('#yap-sidebar-backdrop').click({position:{x:360,y:400}});
+ assert(await phone.locator('#yap-tool-menu').isHidden(),'tap outside closes drawer');
+ await phone.locator('#yap-desktop-menu > summary').click();
+ const cdp=await mobile.newCDPSession(phone);
+ await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:220,y:330}]});
+ await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:105,y:330}]});
+ await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+ await phone.waitForTimeout(120);
+ assert(await phone.locator('#yap-tool-menu').isHidden(),'swipe left closes mobile drawer');
+ await phone.locator('#yap-desktop-menu > summary').click();
+ assert(await phone.locator('#yap-tool-menu').isVisible(),'menu button reopens the mobile drawer after swipe');
+ assert.deepEqual(errors,[],'no unexpected errors');
+ console.log('PASS sidebar desktop icon control, drag/keyboard resize, persisted width, chat click auto-close, mobile backdrop and swipe-left dismissal');
+ }finally{await browser?.close();await new Promise(resolve=>server.close(resolve))}
+})().catch(e=>{console.error(e.stack||e);server.close();process.exitCode=1});
