@@ -14,6 +14,9 @@ if(aside)aside.hidden=true;
 const settings=document.createElement('details');settings.id='yap-menu-settings';const summary=document.createElement('summary');summary.textContent='Settings';settings.append(summary,actions);
 const study=document.getElementById('yap-study-controls');if(study)settings.append(study);
 drawer.append(settings);menu.append(drawer);top.prepend(menu);
+// Keep account access in the header, not buried two menus deep.
+const accountButton=actions.querySelector('#account-toggle');
+if(accountButton){accountButton.classList.add('yap-account-entry');top.append(accountButton);}
 const plans=actions.querySelector('a[href="../plans/"]');if(plans)plans.textContent='Plan & usage';
 const mobile=window.matchMedia('(max-width:700px)');
 const key='yapthing-sidebar-open';

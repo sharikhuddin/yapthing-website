@@ -1,11 +1,139 @@
-/* Progressive enhancement: one quiet YapThing brand, optional specialist tools. */
-.yap-workspace-tools{border:1px solid var(--border);border-radius:12px;margin-bottom:9px;background:var(--panel);padding:0!important;display:block!important}
-.yap-workspace-tools>summary{list-style:none;cursor:pointer;padding:10px 13px;font-size:13px;font-weight:650;display:flex;gap:8px;align-items:center}
+/* YapThing compact tool surfaces; shared mobile/desktop layout. */
+.topline>.yap-account-entry{margin-left:auto;flex:0 0 auto;min-height:38px;padding:8px 13px;
+ border:1px solid var(--border);border-radius:999px;background:var(--panel);
+ color:var(--fg);font-size:13px;font-weight:650;box-shadow:0 2px 8px #00000008}
+.topline>.yap-account-entry:hover,.topline>.yap-account-entry:focus-visible{
+ background:var(--bubble);outline-offset:2px}
+@media(max-width:650px){.topline>.yap-account-entry{font-size:12px;min-height:36px;padding:7px 10px}}
+.yap-workspace-tools {
+ margin:0 0 8px!important;padding:0!important;background:var(--panel);
+ border:1px solid var(--border);border-radius:15px;
+ box-shadow:0 2px 10px #00000008;
+ display:block!important;position:relative;
+}
+.yap-workspace-tools>summary{
+ list-style:none;cursor:pointer;display:flex;align-items:center;
+ min-height:38px;gap:8px;padding:8px 12px!important;
+ font-size:13px;font-weight:670;letter-spacing:-.01em;
+}
 .yap-workspace-tools>summary::-webkit-details-marker{display:none}
-.yap-workspace-tools>summary:after{content:'⌄';margin-left:auto;opacity:.65}
+.yap-tools-summary-meta{margin-left:auto;font-weight:500;font-size:12px;opacity:.7;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.yap-workspace-tools>summary:after{content:'⌄';font-size:18px;opacity:.55}
 .yap-workspace-tools[open]>summary:after{content:'⌃'}
-.yap-tool-options{display:flex;gap:9px;align-items:center;flex-wrap:wrap;padding:0 12px 12px}
-.yap-tool-options label,.yap-tool-options small{font-size:12px}
-.yap-tool-options select{max-width:260px;min-width:0}
-.yap-workspace-tools:not([open]) .yap-tool-options{display:none}
-@media(max-width:650px){.yap-tool-options select{width:100%;max-width:none}.yap-workspace-tools>summary{padding:9px 11px}}
+.yap-workspace-tools>summary:hover,.yap-workspace-tools>summary:focus-visible{background:var(--bubble);border-radius:14px}
+.yap-tool-options{
+ padding:12px!important;border-top:1px solid var(--border);
+ gap:10px;display:grid!important;grid-template-columns:minmax(0,1fr) auto;
+ align-items:center;
+}
+.yap-tool-options label{font-size:12px;font-weight:650;grid-column:1/-1;opacity:.85}
+.yap-tool-options select{
+ min-width:0;width:100%;max-width:none;background:var(--panel);
+ color:var(--fg);border:1px solid var(--border);
+ border-radius:11px;padding:10px 32px 10px 10px;min-height:39px;font-size:13px;
+}
+.yap-tool-options button{min-height:39px;border-radius:10px;padding:8px 15px;font-size:13px}
+.yap-tool-options small{grid-column:1/-1;font-size:12px;line-height:1.35;opacity:.8}
+.yap-workspace-tools:not([open]) .yap-tool-options{display:none!important}
+.quick-prompts[hidden]{display:none!important}
+#yap-attachment-menu{position:relative;flex:0 0 auto}
+#yap-attachment-menu>summary{
+ list-style:none!important;width:42px;height:43px;
+ display:grid;place-items:center;background:var(--panel);
+ border:1px solid var(--border);border-radius:13px;
+ padding:4px!important;font-size:25px!important;
+ color:var(--accent);transition:background .15s ease,box-shadow .15s ease;
+}
+#yap-attachment-menu>summary::-webkit-details-marker{display:none}
+#yap-attachment-menu[open]>summary,
+#yap-attachment-menu>summary:focus-visible{
+ background:var(--bubble);outline:2px solid var(--accent);outline-offset:1px
+}
+#yap-attachment-menu>div{
+ position:absolute;bottom:calc(100% + 12px);left:0;
+ z-index:40;width:min(290px,calc(100vw - 32px));
+ min-width:235px!important;padding:8px!important;
+ display:grid!important;gap:3px!important;
+ max-height:min(65vh,390px);overflow:auto;
+ background:var(--panel);border:1px solid var(--border);
+ border-radius:16px!important;box-shadow:0 14px 45px #00000020;
+}
+#yap-attachment-menu>div button{
+ width:100%;text-align:left;min-height:42px;
+ border:none;background:transparent;padding:10px 12px;
+ border-radius:10px;font-size:13px;font-weight:550;
+}
+#yap-attachment-menu>div button:hover,
+#yap-attachment-menu>div button:focus-visible{
+ background:var(--bubble);outline:1px solid var(--border)
+}
+#yap-attachment-menu>div select{
+ background:var(--panel);color:var(--fg);border:1px solid var(--border);
+ border-radius:10px;font-size:13px;padding:8px;width:100%
+}
+#yap-attachment-menu:not(.yap-has-image)>div .yap-image-action-label,
+#yap-attachment-menu:not(.yap-has-image)>div #yap-image-action{display:none!important}
+#account-panel{border-radius:0 0 16px 16px;box-shadow:0 7px 24px #00000010}
+.account-sync-controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:9px}
+#chat-sync-status{opacity:.7;font-size:12px;flex-basis:100%}
+#history button,.mobile-history button{
+ border:none;border-radius:11px;background:transparent;
+ padding:10px 11px;margin:3px 0;white-space:nowrap;
+ overflow:hidden;text-overflow:ellipsis;font-size:13px;
+}
+#history button:hover,.mobile-history button:hover{background:var(--bubble)}
+#history{max-height:calc(100vh - 145px);overflow:auto}
+@media(max-width:650px){
+ .yap-workspace-tools{margin-bottom:6px!important}
+ .yap-workspace-tools>summary{padding:8px 11px!important}
+ .yap-tool-options{grid-template-columns:1fr}
+ .yap-tool-options select,.yap-tool-options button{width:100%}
+ #yap-attachment-menu>div{left:-5px;width:min(290px,calc(100vw - 28px))}
+}
+
+/* The visible desktop/sidebar dropdown (the old "workspace tools" panel is
+ * deliberately hidden by work-chat.css to avoid duplicated controls). */
+#yap-desktop-menu>summary{
+ width:44px;min-height:44px;background:var(--panel);border-radius:13px;
+ transition:background .14s ease,box-shadow .14s ease;
+}
+#yap-desktop-menu>summary:hover,#yap-desktop-menu[open]>summary{
+ background:var(--bubble);box-shadow:0 2px 10px #00000012;
+}
+#yap-tool-menu{
+ padding:12px 12px 20px!important;
+ border-color:var(--border);scrollbar-width:thin;
+}
+#yap-tool-menu .top-actions{
+ gap:3px!important;border-bottom:1px solid var(--border);
+ padding-bottom:11px;margin-bottom:12px;
+}
+#yap-tool-menu .top-actions>a,
+#yap-tool-menu .top-actions>button,
+#yap-tool-menu .top-actions>label{
+ display:flex;align-items:center;gap:10px;text-decoration:none;
+ min-height:42px!important;padding:10px 12px!important;
+ border-radius:11px;background:transparent;border:0;
+ font-size:13px;font-weight:550;color:var(--fg);margin:0!important;
+}
+#yap-tool-menu .top-actions>a:hover,
+#yap-tool-menu .top-actions>button:hover{
+ background:var(--bubble);
+}
+#yap-tool-menu .top-actions>label{font-weight:500;justify-content:space-between}
+#yap-tool-menu h3{
+ font-size:11px!important;letter-spacing:.065em;
+ font-weight:700;text-transform:uppercase;opacity:.65;
+ margin:13px 9px 7px;
+}
+#yap-tool-menu #history button{
+ display:block;min-height:38px;width:100%;text-align:left;
+ font-size:13px;line-height:1.35;border:none;
+ background:transparent;padding:9px 11px;margin:2px 0;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border-radius:10px;
+}
+#yap-tool-menu #history button:hover{background:var(--bubble)}
+#yap-tool-menu .yap-project-folder>summary{
+ border-radius:10px;font-size:13px;padding:9px 10px;
+}
+#yap-tool-menu .yap-project-folder>summary:hover{background:var(--bubble)}
