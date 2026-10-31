@@ -29,7 +29,7 @@ let queued=[];
 const runScheduled=async()=>{
  while(queued.length){const pending=queued.splice(0);for(const f of pending)f();for(let i=0;i<50;i++)await Promise.resolve();}
 };
-const ctx={window,document,URL,Date,JSON,AbortSignal,
+const ctx={window,document,URL,Date,JSON,TextEncoder,AbortSignal,
  setTimeout:f=>{queued.push(f);return queued.length},
  clearTimeout:()=>{},
  setInterval:()=>0,
