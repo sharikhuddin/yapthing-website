@@ -4,10 +4,10 @@ const fs=require('node:fs');
 const vm=require('node:vm');
 const path=require('node:path');
 const code=fs.readFileSync(path.join(__dirname,'../chat/chat.js'),'utf8');
-const start=code.indexOf('function yapLocalMessages(context){');
+const start=code.indexOf('const YAPTHING_IDENTITY_INSTRUCTION=');
 const end=code.indexOf('function yapAnswerMarkup(el,m){',start);
 assert(start>0 && end>start,'production chat must define local message normalizer');
-const build=vm.runInNewContext('('+code.slice(start,end).trim()+')');
+const build=vm.runInNewContext(code.slice(start,end)+'\nyapLocalMessages');
 function verify(label,prior){
  const result=build(prior);
  assert.equal(result[0].role,'system',label+' system at position zero');
@@ -25,10 +25,17 @@ const prior=[
  {role:'user',content:'Second question'}
 ];
 const normalized=verify('normal chat',prior);
-for(const phrase of ['Safety guidance','Personalization','Original system prompt'])
+for(const phrase of ['YapThing','Safety guidance','Personalization','Original system prompt'])
  assert(normalized[0].content.includes(phrase));
 assert(!normalized.slice(1).some(m=>m.role==='system'));
 assert.equal(normalized.length,4);
+const identity=vm.runInNewContext(code.slice(start,end)+'\nyapIdentityReply');
+assert.match(identity('What is your name?').text,/^I'm YapThing/);
+assert.match(identity('Who made you?').text,/YapThing platform/);
+assert.match(identity('Are you Gemini?').text,/cloud features use Google/);
+assert.equal(identity('Explain photosynthesis'),null,'ordinary questions must not bypass the AI model');
+assert.equal(identity('What is your name in Japanese?'),null,'do not intercept nontrivial instructions');
+assert(code.includes('(!hasPhoto&&!doc?yapIdentityReply(text):null)'),'website shortcut runs before model inference');
 assert(code.includes('messages:yapLocalMessages(context)'),'WebLLM must pass normalizer directly');
 assert(code.includes('const promptMessages=yapLocalMessages(context)'),'WASM must use normalized messages');
 const withInjected=[

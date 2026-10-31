@@ -53,6 +53,13 @@ const pause=ms=>new Promise(r=>setTimeout(r,ms));
    await call('Page.navigate',{url:'http://127.0.0.1:'+server.address().port+'/chat/'});
    for(let i=0;i<55;i++){if(await evaluate("!!window.YapWebChat && !!document.querySelector('#send')"))break;await pause(150)}
    assert(await evaluate('!!window.YapWebChat'),'YapThing chat did not initialize');
+   const originalUsage=await evaluate("localStorage.getItem('yapthing.free.daily.v1')");
+   await evaluate("(()=>{const input=document.querySelector('#prompt');input.value='What is your name?';document.querySelector('#send').disabled=false;document.querySelector('#form').requestSubmit();return true})()");
+   let identity='';
+   for(let i=0;i<30;i++){identity=await evaluate("window.YapWebChat.latest()");if(identity.includes("I'm YapThing"))break;await pause(100)}
+   assert(identity.startsWith("I'm YapThing"),'A name question must return YapThing directly, not a pretrained model name');
+   assert.equal(await evaluate("typeof window.__yapLocalCaptured"),'undefined','Identity response must bypass local model inference');
+   assert.equal(await evaluate("localStorage.getItem('yapthing.free.daily.v1')"),originalUsage,'Identity shortcut must not charge the message allowance');
    await evaluate("(()=>{document.querySelector('#prompt').value='Explain photosynthesis in simple terms';document.querySelector('#send').disabled=false;document.querySelector('#form').requestSubmit();return true})()");
    let finished=false;
    for(let i=0;i<60;i++){
