@@ -1,0 +1,39 @@
+#yapcode-open{font:inherit;font-weight:700;border-radius:10px;border:1px solid var(--border,#9ca3af);background:var(--btn,#e7f0e8);color:var(--fg,#243);padding:9px 13px;margin:5px;cursor:pointer}
+#yapcode-dialog{box-sizing:border-box;width:min(1160px,calc(100vw - 18px));max-width:1160px;height:min(94dvh,970px);max-height:94dvh;margin:auto;padding:0;overflow:auto;background:#f8faf7;border:1px solid #d4e2d5;border-radius:19px;color:#1d372b;box-shadow:0 16px 55px #11182742;font:14px/1.5 system-ui,sans-serif}
+#yapcode-dialog::backdrop{background:#101b28a6}
+#yapcode-dialog *{box-sizing:border-box}
+#yapcode-dialog [hidden]{display:none!important}
+#yapcode-dialog .yc-header{position:sticky;top:0;z-index:3;background:#fff;padding:18px 23px;border-bottom:1px solid #dbe7dd;display:flex;align-items:start;justify-content:space-between;gap:10px}
+#yapcode-dialog .yc-header h2{font-size:26px;letter-spacing:-.035em;margin:0}
+#yapcode-dialog .yc-header p{color:#64766a;margin:3px 0 0}
+#yapcode-dialog .yc-header small{font-weight:800;letter-spacing:.13em;color:#56836b}
+#yapcode-dialog .yc-version{display:inline-block;color:#577469;font-size:12px;letter-spacing:0;padding:3px 8px;border:1px solid #d6e5d7;border-radius:8px;vertical-align:middle}
+#yapcode-dialog .yc-layout{display:grid;grid-template-columns:minmax(260px,370px) minmax(0,1fr);min-height:520px}
+#yapcode-dialog .yc-settings{padding:20px;border-right:1px solid #dbe7dd;background:#f5f8f3}
+#yapcode-dialog .yc-output{padding:20px;min-width:0}
+#yapcode-dialog h3{font-size:17px;margin:18px 0 8px}
+#yapcode-dialog label{display:block;font-size:13px;font-weight:650;margin:12px 0;color:#354e3b}
+#yapcode-dialog label input,#yapcode-dialog label select,#yapcode-dialog label textarea{display:block;width:100%;margin-top:5px}
+#yapcode-dialog button,#yapcode-dialog input,#yapcode-dialog select,#yapcode-dialog textarea{font:inherit;border-radius:9px;border:1px solid #c7dacb;padding:10px;background:#fff;color:#1c392b;max-width:100%}
+#yapcode-dialog input,#yapcode-dialog select,#yapcode-dialog textarea{font-size:16px}
+#yapcode-dialog textarea{resize:vertical;min-height:75px;line-height:1.5}
+#yapcode-dialog button{cursor:pointer;background:#e8f1e8;font-weight:650;min-height:40px}
+#yapcode-dialog button:hover{background:#d7e9da}
+#yapcode-dialog button:focus-visible,#yapcode-dialog input:focus-visible,#yapcode-dialog select:focus-visible,#yapcode-dialog textarea:focus-visible{outline:3px solid #60a17b;outline-offset:2px}
+#yapcode-dialog .yc-primary{background:#235c40;color:white;border-color:#235c40}
+#yapcode-dialog .yc-primary:hover{background:#17472f}
+#yapcode-dialog .yc-note{font-size:12px;color:#5e7266;line-height:1.55}
+#yapcode-dialog .yc-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 15px}
+#yapcode-dialog .yc-actions button{flex:1 1 180px}
+#yapcode-dialog .yc-settings>button{margin-bottom:6px}
+#yapcode-dialog .yc-step{display:flex;justify-content:space-between;flex-wrap:wrap;gap:7px;color:#466f56;font-size:11px;font-weight:700;letter-spacing:.025em;border-bottom:1px solid #d9e6dc;padding-bottom:14px}
+#yapcode-dialog #yc-status{min-height:45px;background:#edf5ee;padding:10px 12px;border-radius:9px;color:#285439}
+#yapcode-dialog .yc-review{border:2px solid #a7c5ad;border-radius:14px;padding:15px;background:#f0f8ee}
+#yapcode-dialog .yc-files{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+#yapcode-dialog .yc-files button{font-size:12px;text-align:left;max-width:100%;overflow-wrap:anywhere}
+#yapcode-dialog .yc-files .yc-selected{background:#28633f;color:#fff}
+#yapcode-dialog .yc-code,#yapcode-dialog pre{font:12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+#yapcode-dialog .yc-code{min-height:290px}
+#yapcode-dialog pre{max-height:310px;overflow:auto;background:#182b23;color:#def2e2;padding:14px;border-radius:10px;border:1px solid #345643}
+#yapcode-dialog [aria-busy=true] button{opacity:.75}
+@media(max-width:740px){#yapcode-dialog{width:calc(100vw - 10px);height:calc(100dvh - 12px);max-height:calc(100dvh - 12px);border-radius:12px}#yapcode-dialog .yc-layout{display:block}#yapcode-dialog .yc-settings{border-right:0;border-bottom:1px solid #dbe7dd;padding:15px}#yapcode-dialog .yc-output{padding:15px}#yapcode-dialog .yc-header{padding:15px}#yapcode-dialog .yc-header h2{font-size:22px}#yapcode-dialog .yc-step{gap:9px}}
