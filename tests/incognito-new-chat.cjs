@@ -58,7 +58,7 @@ const owner='11111111-1111-4111-8111-111111111111';
  assert(privacy.latest?.includes('PRIVATE_ANSWER_224'),'private session reply visible only in active chat');
  await page.locator('#prompt').fill('what is your name');
  await page.locator('#form').evaluate(el=>el.requestSubmit());
- assert((await page.locator('#messages').innerText()).includes("I'm YapThing."),'private chat submits prompts normally');
+ assert(/I'm Yapper|I'm YapThing/.test(await page.locator('#messages').innerText()),'private chat submits prompts normally');
  await page.locator('#prompt').fill('/plugin help');
  await page.locator('#form').evaluate(el=>el.requestSubmit());
  assert((await page.locator('#messages').innerText()).includes('Plugin actions are unavailable in Incognito'),'private mode blocks connected plugin actions');

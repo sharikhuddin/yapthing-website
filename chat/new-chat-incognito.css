@@ -5,7 +5,7 @@
 .workspace.yap-empty-chat{justify-content:flex-start}
 .workspace.yap-empty-chat #messages{display:none!important}
 .workspace.yap-empty-chat #yap-empty-hero{display:block;flex:none;margin:auto auto 22px!important}
-.workspace.yap-empty-chat>.composer{flex:0 0 auto;max-width:850px!important;width:calc(100% - 44px)!important;margin:0 auto auto!important;padding:0 0 18px!important;box-shadow:none;background:transparent}
+.workspace.yap-empty-chat>.composer{flex:0 0 auto;max-width:none!important;width:100%!important;margin:0 auto auto!important;padding:0 clamp(16px,2vw,36px) 18px!important;box-shadow:none;background:transparent}
 .workspace.yap-empty-chat>.composer .compose-row{box-shadow:0 10px 35px #0000000d}
 .workspace.yap-empty-chat>.composer .quick-prompts{display:none!important}
 .workspace.yap-empty-chat>.composer #prompt{min-height:64px}
@@ -32,7 +32,7 @@ body.yap-incognito #yap-attachment-menu{opacity:.45;pointer-events:none}
 body.yap-incognito .yap-workspace-tools{display:none!important}
 @media(max-width:700px){
  .workspace.yap-empty-chat #yap-empty-hero{margin:auto auto 17px!important;padding:0 18px}
- .workspace.yap-empty-chat>.composer{width:calc(100% - 28px)!important;padding:0 0 16px!important}
+ .workspace.yap-empty-chat>.composer{width:100%!important;max-width:none!important;padding:0 11px 16px!important}
  .workspace.yap-empty-chat #yap-empty-hero h1{font-size:clamp(25px,7.5vw,34px)}
  .workspace.yap-empty-chat #prompt{min-height:54px}
  .yap-mode-controls #yap-incognito-toggle{min-width:42px;min-height:42px;padding:7px 9px}

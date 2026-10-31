@@ -1,5 +1,16 @@
 /* YapThing polished composer and compact assistant progress, web + mobile. */
-:root { --yap-composer-max: 840px; }
+:root { --yap-composer-max: none; }
+/* Override legacy fullscreen-shell gutters so the input uses the chat workspace. */
+body>main>.workspace>.composer,
+body>main>.workspace.yap-empty-chat>.composer {
+  box-sizing:border-box;max-width:none!important;width:100%!important;
+  padding-left:clamp(14px,2vw,36px)!important;
+  padding-right:clamp(14px,2vw,36px)!important;
+}
+@media(max-width:700px){
+  body>main>.workspace>.composer,
+  body>main>.workspace.yap-empty-chat>.composer {padding-left:11px!important;padding-right:11px!important;}
+}
 #messages > .yap-activity {
   align-self:flex-start !important; flex:0 0 auto !important;
   width:max-content !important; max-width:min(480px,92%) !important;
@@ -29,7 +40,7 @@
 #messages > .yap-working .yap-working-logo{width:25px;height:25px}
 #messages > .yap-working .yap-working-ring{width:13px;height:13px}
 @keyframes yap-progress-dots{0%,100%{opacity:.3}50%{opacity:1}}
-.composer {max-width:var(--yap-composer-max)!important;width:100%!important;padding:8px 16px max(14px,env(safe-area-inset-bottom))!important;
+.composer {max-width:var(--yap-composer-max)!important;width:100%!important;padding:8px clamp(16px,2vw,36px) max(14px,env(safe-area-inset-bottom))!important;
   background:transparent!important;box-shadow:none!important;position:relative;z-index:4;}
 .composer .compose-row.yap-compose-modes{
   position:relative;display:grid!important;

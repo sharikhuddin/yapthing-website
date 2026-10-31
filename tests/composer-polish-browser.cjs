@@ -66,7 +66,7 @@ const server=http.createServer((req,res)=>{
   await page.waitForTimeout(1950);
   assert.equal(await activity.count(),0,'progress clears after completion');
   const composer=await page.locator('.compose-row').boundingBox();
-  assert(composer.width<=900&&composer.height<230,'composer compact '+JSON.stringify(composer));
+  assert(composer.width>=width*.70&&composer.height<230,'composer fills available workspace without excessive height '+JSON.stringify(composer));
   assert.equal(errors.length,0,'uncaught JS errors: '+errors.join('; '));
   console.log('PASS polished composer '+width+'px: menu labels, supported docs, thumbnail, removal, left activity, automatic cleanup');
   await page.close();
