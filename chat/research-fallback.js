@@ -26,7 +26,17 @@ window.YapResearchFallback=(()=>{
    complete=true;return {answer,sources:sources.map(s=>({title:s.title,url:s.url})),provider:data.provider||slug,scope:String(data.scope||'').slice(0,400),searchSuggestions:typeof data.searchSuggestions==='string'?data.searchSuggestions.slice(0,15000):''};
   }finally{clearTimeout(timer);activity?.finish(complete?'Sources found':'Search unavailable',!complete)}
  }
- async function research(prompt,mode='auto'){
+ async function research(prompt,mode='auto',style='balance'){
+  if(mode==='auto'&&style==='swift')mode='google';
+  if(mode==='auto'&&style==='depth'){
+   const began=performance.now(),primary=await research(prompt,'google','balance');
+   try{
+    const secondary=await call('yap-public-research',prompt,14000);
+    const offset=primary.sources.length;
+    const extra=secondary.answer.replace(/\[(\d+)\]/g,(_,n)=>Number(n)>0&&Number(n)<=secondary.sources.length?'['+(Number(n)+offset)+']':'');
+    return {...primary,answer:primary.answer+'\n\nAdditional research:\n'+extra,sources:[...primary.sources,...secondary.sources],scope:[primary.scope,secondary.scope].filter(Boolean).join(' '),durationMs:Math.round(performance.now()-began),provider:primary.provider+' + public research'};
+   }catch{return {...primary,durationMs:Math.round(performance.now()-began),scope:(primary.scope||'')+' Additional research was unavailable; this answer uses the primary search only.'};}
+  }
   const started=performance.now();
   if(mode==='parallel'){
    const checks=await Promise.allSettled(['search-web','yap-public-research'].map(p=>call(p,prompt,14000)));
