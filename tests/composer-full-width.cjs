@@ -17,13 +17,15 @@ async function measure(page,label,ratio){
   const css=getComputedStyle(document.querySelector('.workspace'));
   const paddingLeft=parseFloat(css.paddingLeft)||0;
   const contentWidth=work.width-paddingLeft;
-  return {viewport:innerWidth,workspace:work.width,contentWidth,sidebar:paddingLeft,composerX:composer.x,composerW:composer.width,rowX:row.x,rowW:row.width,textareaW:textarea.width,scrollW:document.documentElement.scrollWidth,formMax:getComputedStyle(document.querySelector('.composer')).maxWidth};
+  return {viewport:innerWidth,workspace:work.width,contentWidth,sidebar:paddingLeft,composerX:composer.x,composerW:composer.width,composerBottom:composer.bottom,workspaceBottom:work.bottom,rowBottom:row.bottom,rowX:row.x,rowW:row.width,textareaW:textarea.width,scrollW:document.documentElement.scrollWidth,formMax:getComputedStyle(document.querySelector('.composer')).maxWidth};
  });
  assert(m.rowW>=m.contentWidth*ratio, label+' composer should use workspace width '+JSON.stringify(m));
  assert(m.textareaW>=m.rowW-125,label+' textarea should fill composer '+JSON.stringify(m));
  assert(m.rowX>=m.sidebar-3,label+' composer inside workspace '+JSON.stringify(m));
  assert(m.rowX+m.rowW<=m.viewport+3,label+' no right overflow '+JSON.stringify(m));
  assert(m.scrollW<=m.viewport+3,label+' no horizontal scroll '+JSON.stringify(m));
+ assert(Math.abs(m.composerBottom-m.workspaceBottom)<4,label+' composer must be anchored to workspace bottom '+JSON.stringify(m));
+ assert(m.workspaceBottom-m.rowBottom<58,label+' message box should sit just above bottom padding '+JSON.stringify(m));
  console.log('PASS '+label+' width '+Math.round(m.rowW)+'px / available '+Math.round(m.contentWidth)+'px');
 }
 (async()=>{
@@ -43,10 +45,13 @@ async function measure(page,label,ratio){
    await page.waitForFunction(()=>window.YapWebChat?.newChat&&window.YapComposerPolish,{timeout:12000});
    assert(await page.locator('#yap-empty-hero').isVisible(),'new-chat landing visible');
    await measure(page,'new-chat '+width,width<700?.92:.91);
+   await page.locator('#yap-incognito-toggle').click();
+   await measure(page,'new-incognito-chat '+width,width<700?.92:.91);
+   await page.locator('#yap-incognito-toggle').click();
    await page.evaluate(()=>window.YapWebChat.add('A test message','user'));
    await measure(page,'existing-chat '+width,width<700?.92:.91);
    if(width>700){
-    await page.locator('#yap-tool-menu .yap-sidebar-close').click();
+    if(await page.locator('#yap-tool-menu .yap-sidebar-close').isVisible())await page.locator('#yap-tool-menu .yap-sidebar-close').click();
     await page.waitForTimeout(280);
     await measure(page,'collapsed-sidebar '+width,.93);
     await page.locator('#yap-desktop-menu > summary').click();
