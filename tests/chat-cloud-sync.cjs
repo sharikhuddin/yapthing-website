@@ -46,6 +46,10 @@ vm.runInNewContext(fs.readFileSync('chat/chat-history-sync.js','utf8'),ctx);
  assert.equal(posts[0].body.user_id,actorA);
  assert.equal(posts[0].body.messages[0].text,'From web');
  assert.match(syncStatus.textContent,/synced/i);
+ remote.push({thread_id:local[0].id,deleted_at:new Date().toISOString(),
+   messages:[],updated_at:new Date().toISOString()});
+ evt('yap:chat-local-saved');await runScheduled();
+ assert.equal(posts.length,1,'cloud tombstone must prevent stale device re-upload');
  current=null;evt('yap:session-change');await runScheduled();
  const previous=posts.length;
  window.YapChatCloud.syncNow({manual:true});await runScheduled();

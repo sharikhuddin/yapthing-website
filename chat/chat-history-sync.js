@@ -119,7 +119,8 @@
   if(!response.ok)throw Error('Could not remove this chat from your cloud history.');
   const rows=await response.json();
   if(current!==userId())throw Error('Your account changed.');
-  if(!Array.isArray(rows)||rows.length>1)throw Error('Chat was not found in your cloud history.');
+  if(!Array.isArray(rows)||rows.length>1)throw Error('Could not verify this chat was removed.');
+  serial++; // Reject outdated sync results after a confirmed deletion.
  }
  window.YapChatCloud={syncNow,refreshAccount:reset,deleteThread};
  if(actor)queueMicrotask(()=>syncNow());
