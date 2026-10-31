@@ -1,0 +1,145 @@
+/* YapThing polished composer and compact assistant progress, web + mobile. */
+:root { --yap-composer-max: 840px; }
+#messages > .yap-activity {
+  align-self:flex-start !important; flex:0 0 auto !important;
+  width:max-content !important; max-width:min(480px,92%) !important;
+  margin:2px 0 10px 0 !important; padding:5px 3px !important;
+  border:0 !important; background:transparent !important;
+  box-shadow:none !important; border-radius:0 !important;
+  display:inline-flex !important; gap:9px !important; flex-wrap:nowrap !important;
+  font:500 12px/1.4 system-ui,sans-serif !important; color:var(--fg) !important;
+  opacity:.78;
+}
+#messages > .yap-activity .yap-activity-provider { display:none !important; }
+#messages > .yap-activity .yap-source-icon {
+  width:25px !important;height:25px !important;flex:none;border-radius:8px;
+  object-fit:cover;animation:none !important;
+}
+#messages > .yap-activity[aria-busy="true"]::after {
+  content:"";display:inline-block;align-self:center;width:18px;height:5px;
+  background:radial-gradient(circle,currentColor 55%,transparent 64%) 0 0/6px 5px repeat-x;
+  opacity:.6;animation:yap-progress-dots 1.25s ease-in-out infinite;
+}
+#messages > .yap-activity-done{opacity:.45;transition:opacity .25s ease}
+#messages > .yap-working {
+  width:max-content !important;min-height:34px!important;max-width:260px;
+  margin:2px 0 6px 0 !important;align-self:flex-start!important;
+  gap:7px !important;font-size:12px;padding:4px!important;
+}
+#messages > .yap-working .yap-working-logo{width:25px;height:25px}
+#messages > .yap-working .yap-working-ring{width:13px;height:13px}
+@keyframes yap-progress-dots{0%,100%{opacity:.3}50%{opacity:1}}
+.composer {max-width:var(--yap-composer-max)!important;width:100%!important;padding:8px 16px max(14px,env(safe-area-inset-bottom))!important;
+  background:transparent!important;box-shadow:none!important;position:relative;z-index:4;}
+.composer .compose-row.yap-compose-modes{
+  position:relative;display:grid!important;
+  grid-template-columns:44px minmax(0,1fr) auto!important;
+  grid-template-rows:auto auto 42px!important;
+  gap:4px 8px!important;
+  padding:10px 12px 10px!important;
+  background:var(--panel)!important;
+  border:1px solid var(--border)!important;
+  border-radius:23px!important;
+  box-shadow:0 6px 24px #00000012!important;
+  overflow:visible!important;
+}
+.composer .compose-row #prompt{
+  grid-column:1/-1!important;grid-row:2!important;
+  min-height:46px!important;max-height:144px!important;
+  width:100%!important;height:auto;overflow-y:auto;
+  resize:none!important;outline:0!important;box-shadow:none!important;
+  border:0!important;border-radius:9px!important;
+  padding:9px 5px!important;margin:0!important;
+  background:transparent!important;color:var(--fg);
+  font-size:15px;line-height:1.55;
+}
+.composer .compose-row #prompt:focus-visible{outline:0!important;}
+.composer .compose-row:focus-within{border-color:color-mix(in srgb,var(--accent) 55%,var(--border))!important;}
+.composer .compose-row #send{
+  grid-column:3!important;grid-row:3!important;
+  min-height:38px!important;height:38px!important;min-width:62px!important;
+  padding:6px 13px!important;border-radius:12px!important;
+  font-weight:650;font-size:13px;align-self:center;
+  background:var(--btn);color:var(--fg);
+}
+.composer .compose-row #send:disabled{animation:none!important;cursor:default;opacity:.62;}
+.composer .compose-row #yap-attachment-menu{grid-column:1!important;grid-row:3!important;align-self:center;}
+.composer .compose-row #yap-response-modes{grid-column:2!important;grid-row:3!important;align-self:center;}
+.composer #yap-attachment-menu>summary{
+  display:grid!important;place-items:center;width:38px!important;height:38px!important;
+  border-radius:12px!important;border:1px solid var(--border)!important;
+  color:var(--fg)!important;background:transparent!important;
+  padding:7px!important;list-style:none;font-size:0!important;
+}
+.composer #yap-attachment-menu>summary:hover{background:var(--bubble)!important;}
+.composer #yap-attachment-menu>summary .yap-icon{width:20px;height:20px;display:block;}
+.composer #yap-attachment-menu>div {
+  position:absolute!important;bottom:calc(100% + 12px)!important;left:-7px!important;z-index:140!important;
+  width:min(284px,calc(100vw - 32px))!important;min-width:0!important;
+  max-height:min(62dvh,360px)!important;overflow-y:auto;
+  padding:7px!important;display:grid!important;gap:2px!important;
+  background:var(--panel)!important;color:var(--fg)!important;
+  border:1px solid var(--border)!important;border-radius:17px!important;
+  box-shadow:0 16px 46px #0004!important;
+}
+.composer #yap-attachment-menu>div button.yap-attach-item {
+  width:100%;min-height:52px!important;display:flex;align-items:center;gap:11px;
+  padding:8px 10px!important;text-align:left;border:0!important;
+  border-radius:11px!important;background:transparent!important;color:var(--fg);
+}
+.composer #yap-attachment-menu>div button.yap-attach-item:hover,
+.composer #yap-attachment-menu>div button.yap-attach-item:focus-visible {
+  outline:none!important;background:var(--bubble)!important;
+}
+.yap-attach-item .yap-icon{
+  width:34px;height:34px;flex:none;border:1px solid var(--border);
+  border-radius:10px;background:var(--bubble);display:grid;place-items:center;
+}
+.yap-attach-item .yap-icon svg{height:18px;width:18px;stroke:currentColor;}
+.yap-attach-item .yap-item-copy{min-width:0;display:grid;gap:2px;}
+.yap-attach-item strong{font-size:13px;font-weight:650;white-space:nowrap;}
+.yap-attach-item small{font-size:11px;opacity:.65;line-height:1.35;white-space:nowrap;}
+.composer #yap-attachment-menu>div .yap-image-action-label{
+  margin:6px 8px 0;padding-top:11px;border-top:1px solid var(--border);
+  font-size:11px!important;font-weight:650;opacity:.7;
+}
+.composer #yap-attachment-menu>div #yap-image-action{height:39px!important;font-size:12px!important;}
+.composer #yap-services-open{margin-top:4px;border-top:1px solid var(--border)!important;border-radius:0!important;}
+#photo-preview.yap-preview-chip:not([hidden]){
+  grid-column:1/-1!important;grid-row:1!important;
+  display:inline-flex!important;width:max-content;max-width:min(325px,100%);min-height:51px;
+  gap:10px!important;margin:0 0 4px!important;padding:5px 8px!important;
+  border:1px solid var(--border)!important;border-radius:13px!important;
+  background:var(--bubble)!important;overflow:hidden!important;
+}
+#photo-preview.yap-preview-chip img#photo-thumb{
+  width:42px!important;height:42px!important;min-width:42px;max-width:42px!important;
+  object-fit:cover;border-radius:9px!important;flex:none;
+}
+#photo-preview .yap-doc-icon{display:grid;place-items:center;flex:none;width:42px;height:42px;border-radius:9px;background:var(--panel);}
+#photo-preview .yap-doc-icon svg{width:20px;height:20px;stroke:currentColor;}
+#photo-preview .yap-preview-meta{min-width:0;flex:1;display:grid;gap:3px;}
+#photo-preview #photo-name{display:block;max-width:225px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:650;}
+#photo-preview .yap-preview-type{display:block;font-size:11px;opacity:.62;}
+#photo-preview #photo-remove{
+  width:28px;height:28px;min-height:28px!important;flex:none;padding:0!important;
+  display:grid;place-items:center;border:0!important;border-radius:50%;
+  background:transparent;color:var(--fg);font-size:20px;
+}
+#photo-preview #photo-remove:hover{background:var(--panel);}
+#yap-composer-feedback:not([hidden]){display:block;font:12px/1.4 system-ui;color:var(--fg);opacity:.9;padding:8px 10px;margin:6px 0;border:1px solid var(--border);border-radius:10px;background:var(--bubble);}
+#yap-response-modes>summary{min-height:38px!important;padding:4px 11px 4px 4px!important;font-size:12px;}
+#yap-response-modes>summary img{width:26px;height:26px}
+@media (max-width:700px){
+ .composer{padding:7px 11px max(10px,env(safe-area-inset-bottom))!important;}
+ .composer .compose-row.yap-compose-modes{padding:8px 9px!important;gap:3px 6px!important;border-radius:19px!important;}
+ .composer .compose-row #prompt{min-height:42px!important;font-size:16px!important;}
+ #photo-preview.yap-preview-chip:not([hidden]){max-width:100%;padding:5px!important;}
+ #photo-preview #photo-name{max-width:180px;}
+ #yap-attachment-menu>div{left:-4px!important;}
+}
+@media (max-width:390px){
+ #yap-attachment-menu>div{width:min(275px,calc(100vw - 26px))!important;}
+ #photo-preview #photo-name{max-width:140px;}
+}
+@media(prefers-reduced-motion:reduce){#messages>.yap-activity[aria-busy="true"]::after{animation:none!important;}}

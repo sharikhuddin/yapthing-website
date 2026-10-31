@@ -30,7 +30,7 @@
  if(files){
   const photo=document.getElementById('photo-preview');
   const updatePhoto=()=>files.classList.toggle('yap-has-image',
-    !!photo&&!photo.hidden);
+    !!window.YapPhotoVision?.hasPhoto?.());
   const observer=typeof MutationObserver==='function'&&photo
    ?new MutationObserver(updatePhoto):null;
   observer?.observe(photo,{attributes:true,attributeFilter:['hidden']});

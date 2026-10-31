@@ -8,7 +8,7 @@ $('photo-input').onchange=async()=>{
  const file=$('photo-input').files?.[0];if(!file){reset();return}
  if(!['image/jpeg','image/png','image/webp'].includes(file.type)){alert('Choose a JPG, PNG or WebP image.');reset();return}
  if(file.size>8*1024*1024){alert('Image must be under 8 MB.');reset();return}
- image=file;$('send').disabled=false;previewURL&&URL.revokeObjectURL(previewURL);previewURL=URL.createObjectURL(file);
+ window.YapAttachments?.clearDocument?.();image=file;$('photo-remove').onclick=reset;$('photo-thumb').hidden=false;$('send').disabled=false;previewURL&&URL.revokeObjectURL(previewURL);previewURL=URL.createObjectURL(file);
  $('photo-thumb').src=previewURL;$('photo-name').textContent=file.name;$('photo-preview').hidden=false;
 };
 async function prepare(file){
@@ -40,7 +40,7 @@ window.YapPhotoVision={
  ask:(prompt,history,search=false)=>cloudRequest(prompt,history,null,search),
  hasPhoto:()=>!!image,
  file:()=>image,
- file:()=>image,
+ removePhoto:reset,
  analyze:async(prompt,history)=>{
   if(!image)throw Error('Attach a photo first');
   const imageBase64=await prepare(image);
