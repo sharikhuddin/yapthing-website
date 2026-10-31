@@ -4,8 +4,13 @@
  if(document.getElementById('yap-computer-setup'))return;
  const command='npx.cmd @wonderwhy-er/desktop-commander@latest remote';
  const diagnostics='node --version; npm --version; Get-Command npx.cmd';
+ const portableCommand='Invoke-WebRequest -Uri "https://yapthing.com/desktop/YapThing-Computer-NoAdmin.cmd" -OutFile "$env:USERPROFILE\\Downloads\\YapThing-Computer-NoAdmin.cmd"';
  const issues={
-  node:'Node.js or npm not recognized: install a supported Node.js LTS release from nodejs.org, close PowerShell, open a new PowerShell window, then run the version check. Do not change your execution policy.',
+  node:'Node.js or npm not recognized: choose No admin / Node missing. Download the YapThing No-Admin launcher. It can use an official verified portable Node.js ZIP in your user folder without an MSI installation. Never change your system execution policy.',
+  admin:'No administrator rights: choose No admin / Node missing. Download and inspect the .cmd launcher, then run it as your normal user. It asks before downloading official portable Node.js; it does not require elevation. Managed PC rules still apply.',
+  policy:'App blocked by organization policy: do not attempt to circumvent AppLocker, execution restrictions, antivirus, or your company policy. Ask IT to approve Node.js and Desktop Commander or continue using YapThing chat without computer access.',
+  registry:'npm download blocked: check whether your authorized network can reach registry.npmjs.org and nodejs.org over HTTPS. Ask your administrator for an approved proxy or allowlisting. Do not disable firewalls or certificate verification.',
+  checksum:'ZIP checksum mismatch: stop. Delete the failed archive and contact support. Never disable the SHA-256 verification; download only from the official nodejs.org domain.',
   browser:'Browser authorization did not open: use the verification URL and code shown in the PowerShell window. Confirm that the displayed code matches. Do not paste your device verification code into YapThing chat.',
   offline:'Computer appears offline: leave the PowerShell process open, confirm the computer is online and awake, restart the remote command if needed, then check status again.',
   missing:'Computer not listed: finish device pairing in Desktop Commander first, then authorize YapThing using Connect Account. The Desktop Commander login and YapThing authorization are separate steps.',
@@ -65,7 +70,7 @@
  }
  async function chatHelp(text){
   const message=String(text||'Help me connect my Windows computer to YapThing').slice(0,500);
-  if(window.YapWebChat?.add){window.YapWebChat.add(message,'user');const issue=/node|npx|npm/i.test(message)?issues.node:/offline|disconnected/i.test(message)?issues.offline:/browser|code|auth/i.test(message)?issues.browser:/not found|missing/i.test(message)?issues.missing:/denied|permission/i.test(message)?issues.denied:'';window.YapWebChat.add((issue||('To connect: check Node.js and npm, run '+command+' in PowerShell, complete the device-code login, then choose Connect account and Check connection.'))+' Use the troubleshooting choices in this guide for further checks. Never share passwords, pairing codes or tokens in chat.','assistant');}
+  if(window.YapWebChat?.add){window.YapWebChat.add(message,'user');const issue=/no admin|administrator|admin rights|can.t install/i.test(message)?issues.admin:/company policy|blocked by|restricted by/i.test(message)?issues.policy:/npm registry|npm blocked|proxy/i.test(message)?issues.registry:/hash|checksum/i.test(message)?issues.checksum:/node|npx|npm/i.test(message)?issues.node:/offline|disconnected/i.test(message)?issues.offline:/browser|code|auth/i.test(message)?issues.browser:/not found|missing/i.test(message)?issues.missing:/denied|permission/i.test(message)?issues.denied:'';window.YapWebChat.add((issue||('To connect: check Node.js and npm, run '+command+' in PowerShell, complete the device-code login, then choose Connect account and Check connection.'))+' Use the troubleshooting choices in this guide for further checks. Never share passwords, pairing codes or tokens in chat.','assistant');}
   else if(window.YapAssistant?.appendWorkMessage){window.YapAssistant.appendWorkMessage(message,'user');window.YapAssistant.appendWorkMessage('Run '+command+' on the computer, finish pairing, then choose Connect account and Check connection. Do not share passwords or device codes.','thing');}
   modal.showModal();
  }
@@ -95,7 +100,7 @@
  const form=document.getElementById('form')||document.getElementById('chat-form');
  form?.addEventListener('submit',e=>{
   const input=document.getElementById('prompt')||document.getElementById('message-input');const text=input?.value.trim()||'';
-  if(!/(?:connect|pair|set ?up|install|troubleshoot|fix|offline|not working|cannot connect|can.t connect|device not found|node not recognized)/i.test(text)||!/(?:computer|desktop|powershell|remote device|desktop commander|node(?:\.js)?|npx)/i.test(text))return;
+  if(!/(?:connect|pair|set ?up|install|troubleshoot|fix|offline|not working|cannot connect|can.t connect|device not found|node not recognized|no admin|administrator|blocked|checksum|node missing)/i.test(text)||!/(?:computer|desktop|powershell|remote device|desktop commander|node(?:\.js)?|npx)/i.test(text))return;
   e.preventDefault();e.stopImmediatePropagation();input.value='';
   if(window.YapWebChat?.add||window.YapAssistant?.appendWorkMessage)chatHelp(text);else open();
  },true);
