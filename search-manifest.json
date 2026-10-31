@@ -4,25 +4,25 @@
     {
       "url": "https://yapthing.com/",
       "file": "index.html",
-      "sha256": "4c0a23d8f6cefc2efa3f610f5c666754cd338a0b40a7d08458baec767636f445",
+      "sha256": "0cbcca8abe804a3b7f2224e129417b1fb9516cd06a70fa40f4ad9ae8c9d14e5d",
       "lastmod": "2026-10-31"
     },
     {
       "url": "https://yapthing.com/product/",
       "file": "product/index.html",
-      "sha256": "b6eab449617e3cc23133db9cc01a30407c749c35f1b0eb067b4ae03cc9a881c6",
+      "sha256": "f2cabe328402bc4bafceb0ed52089d08243d8c90cbec2b7faef464bd7b864bb2",
       "lastmod": "2026-10-31"
     },
     {
       "url": "https://yapthing.com/faq/",
       "file": "faq/index.html",
-      "sha256": "afda1e4398660d8ad69f5a28562227bd038579bcd9624e16a88100ebe574dff0",
+      "sha256": "fa3d398eb7da2f8137e3801ff66e52465c79c97ad82ab240cd6483b94ab1dcca",
       "lastmod": "2026-10-31"
     },
     {
       "url": "https://yapthing.com/guides/",
       "file": "guides/index.html",
-      "sha256": "7d97207e145fd2bbe59957a3264813ac07ebcdae05e1947fa7ff47d80650d175",
+      "sha256": "6362a0b8a03d84e889e45a24efd6c54d0aa5f4e088f6fdd8798957445df5eac5",
       "lastmod": "2026-10-31"
     },
     {
@@ -34,25 +34,25 @@
     {
       "url": "https://yapthing.com/about/",
       "file": "about/index.html",
-      "sha256": "202964af43d29d4b7abe0bcf52cdf382a6fad295afff402ce55ea827c6a25107",
+      "sha256": "a0ffbfeb4666850041c1c4401b15c2b354aec50813b48a41e3cd7a8b1cfe221c",
       "lastmod": "2026-10-31"
     },
     {
       "url": "https://yapthing.com/chat/",
       "file": "chat/index.html",
-      "sha256": "668b4531807229b699745b4790d75931244b25a3d08530573c6b607a63b2d3e6",
+      "sha256": "a51756815b64c830772a92099badb837fda0eaf9688d3998cbd67ae0bdff83b0",
       "lastmod": "2026-10-31"
     },
     {
       "url": "https://yapthing.com/plans/",
       "file": "plans/index.html",
-      "sha256": "c10d32a3ec82373e8823d8d17643cbb0e233d8627ad811a96a3cbb3905198029",
+      "sha256": "98c3e799761c146fe9694f65aeef1b9c4686df21550f6c7b5757ff9e999c03d4",
       "lastmod": "2026-10-31"
     },
     {
       "url": "https://yapthing.com/desktop/",
       "file": "desktop/index.html",
-      "sha256": "0131c2c91daab7ffbbd4d0354d42626671bfdaab6c14e001be39d70fd33e2826",
+      "sha256": "71644d1168154e5f8d1e5e7e9ff4c1cf8132f288b5d4b9329063030122e5e315",
       "lastmod": "2026-10-31"
     },
     {
@@ -64,85 +64,85 @@
     {
       "url": "https://yapthing.com/support/",
       "file": "support/index.html",
-      "sha256": "5db79dac3d6e9f7fb5d444d3350053daf7d5f4b1005116c88d5d54551db484f1",
+      "sha256": "e08451fdb434d65c1ed0a8e3efb93adca8c7e7c6317ae67c9f022b1b03b9be51",
       "lastmod": "2026-10-31"
     },
     {
       "url": "https://yapthing.com/privacy/",
       "file": "privacy/index.html",
-      "sha256": "a49147fb68607f024e42ea490c6b187322d849329970d26a4352feba39185bf7",
+      "sha256": "294a42763d0372b97bed55e7e6161fb5418e80eb36fe43f0f9ad9081f19265f9",
       "lastmod": "2026-10-31"
     },
     {
       "url": "https://yapthing.com/delete-account/",
       "file": "delete-account/index.html",
-      "sha256": "e67cbd42a3b9c443a374f304a0870c1eec6c93497cdeaeef5e0063b52fb9e301",
+      "sha256": "c080c7f72794791f69f4cb48002a24fc50d96261b0489679ed937d6ff6f29200",
       "lastmod": "2026-10-31"
     },
     {
       "url": "https://yapthing.com/ai-chat-assistant/",
       "file": "ai-chat-assistant/index.html",
-      "sha256": "8a644f8d7f5457d57100008a08279eb08580e9512c0fea312d494d3d3f838289",
+      "sha256": "168782da41858f4420ffd37c18fc3f54b16e327087bf4a46d4e5023ecdde847d",
       "lastmod": "2026-10-31"
     },
     {
       "url": "https://yapthing.com/ai-writing-assistant/",
       "file": "ai-writing-assistant/index.html",
-      "sha256": "d1c25f2591570878cedb72721f46d41f8575503fdd9267a5dddac85cbdad8b39",
+      "sha256": "27dfe5cefe5d5e2f6e78174633bd34760d163bee07809a44c75e96a33677832a",
       "lastmod": "2026-10-31"
     },
     {
       "url": "https://yapthing.com/ai-research-assistant/",
       "file": "ai-research-assistant/index.html",
-      "sha256": "e8e805b6b2967064a8f6339131820f27dcdcb51d047885c87668fa88be092014",
+      "sha256": "f48bf50298ce24d30fc8a92d78a9b78e44804d0e0f29c31d83414b1d52355362",
       "lastmod": "2026-10-31"
     },
     {
       "url": "https://yapthing.com/ai-work-productivity/",
       "file": "ai-work-productivity/index.html",
-      "sha256": "b807ae36601c68c18583ced1e0e6bbc3b93fb07a750a7b6f20bd9607b722827a",
+      "sha256": "9cc643824adc9044328f3103d2e7350f101aca098ccc6f69b44e119d39b7d7a5",
       "lastmod": "2026-10-31"
     },
     {
       "url": "https://yapthing.com/medical-education/",
       "file": "medical-education/index.html",
-      "sha256": "d183724e72e185635bef5712fa251ce2c63f909aa72895bee7ff5b972ad533c1",
+      "sha256": "d6a42054a276642e9eb6826f5e059d59f855535b0dae4add6df92057df7806fc",
       "lastmod": "2026-10-31"
     },
     {
       "url": "https://yapthing.com/engineering-ai/",
       "file": "engineering-ai/index.html",
-      "sha256": "146e0c4a34da4fc31586e3937294babdce56a9e4cca761c319e99fc887d5cfc4",
+      "sha256": "aa65f915b41eef1228bf7fd567267a172a738ee28f041e6121fc5836346e75dd",
       "lastmod": "2026-10-31"
     },
     {
       "url": "https://yapthing.com/design-ai/",
       "file": "design-ai/index.html",
-      "sha256": "23feedd8ce3a3920b76d3257709717658949c4223cbab46656a4dd1dd0c04407",
+      "sha256": "5f3f43854d3ba87b4348f94b4c4bc30ad4fe6e9be58dbce41b5ccf7e739c4149",
       "lastmod": "2026-10-31"
     },
     {
       "url": "https://yapthing.com/student-ai/",
       "file": "student-ai/index.html",
-      "sha256": "1ec464c2b437bf0efd3a77f3301e9516083141bdd6dcbc47eeb66edee30a4e8f",
+      "sha256": "f0b9e1e4810f1e9b8e7e241ba179c18799b6510099975a19a0e943d74da1d1f4",
       "lastmod": "2026-10-31"
     },
     {
       "url": "https://yapthing.com/professionals-ai/",
       "file": "professionals-ai/index.html",
-      "sha256": "1afb988389d49dfee72d399e6bffe3fb4c1387b22ada5643f195e60f3bcadd17",
+      "sha256": "f78294bc92a261582d589c8493d28fc0864f80efa6da1b8784d0633bacdafc19",
       "lastmod": "2026-10-31"
     },
     {
       "url": "https://yapthing.com/everyday-ai/",
       "file": "everyday-ai/index.html",
-      "sha256": "898383448634accde0e9a8e263e9962b83b6738a97424151be9132bf545f046d",
+      "sha256": "41b6ee901ec02dbe9b4dd8178193b26504543fa94ccfbf73fa8371b1aebb6f21",
       "lastmod": "2026-10-31"
     },
     {
       "url": "https://yapthing.com/yapthing-alternative/",
       "file": "yapthing-alternative/index.html",
-      "sha256": "a20543ef49ec9ebef658834599eee73e203a9e10432c051bbfdb0942a7747c15",
+      "sha256": "1b70e1ea0552122b8da19b7355ececcb2cc33d7298a164f38df0d7ad10292809",
       "lastmod": "2026-10-31"
     }
   ]

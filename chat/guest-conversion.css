@@ -1,0 +1,25 @@
+/* Guest-to-account conversion: clear, useful, non-blocking account invitation. */
+#messages .yap-join-card{
+  box-sizing:border-box;width:min(640px,calc(100% - 48px));max-width:calc(100% - 48px);
+  margin:20px 0 20px 44px;padding:20px 22px;
+  border:1px solid rgba(185,218,120,.48);border-radius:18px;
+  background:linear-gradient(135deg,rgba(169,206,101,.095),rgba(128,164,149,.025) 75%);
+  box-shadow:0 6px 22px rgba(0,0,0,.065);color:var(--fg);text-align:left;
+  transition:border-color .2s ease;
+}
+#messages .yap-join-card.yap-join-attention{border-color:#d9f778}
+#messages .yap-join-top{display:flex;gap:13px;align-items:center;margin-bottom:8px}
+#messages .yap-join-top img{border-radius:9px;flex:none}
+#messages .yap-join-eyebrow{font-size:10px;letter-spacing:.13em;line-height:1.5;font-weight:800;color:var(--muted,#93a28c)}
+#messages .yap-join-card h3{margin:1px 0 0;font-size:18px;line-height:1.25;font-weight:750;letter-spacing:-.025em;color:inherit}
+#messages .yap-join-card p{margin:10px 0;font-size:14px;line-height:1.6;color:inherit}
+#messages .yap-join-card .yap-join-limits{font-weight:650;margin-top:7px}
+#messages .yap-join-actions{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0 12px}
+#messages .yap-join-action{min-height:41px;padding:9px 15px;border-radius:12px;border:1px solid var(--border,#415046);
+  background:transparent;color:inherit;cursor:pointer;font-size:13px;font-weight:700;line-height:1.2}
+#messages .yap-join-primary{background:#d9f778;border-color:#d9f778;color:#162318}
+#messages .yap-join-action:hover{filter:brightness(.94)}
+#messages .yap-join-action:focus-visible{outline:2px solid #c4ec64;outline-offset:3px}
+#messages .yap-join-card small{font-size:11.5px;color:var(--muted,#a8b4ae);line-height:1.5;display:block}
+@media(max-width:700px){#messages .yap-join-card{margin-left:37px;width:calc(100% - 37px);max-width:calc(100% - 37px);padding:15px;border-radius:14px}#messages .yap-join-card h3{font-size:16px}#messages .yap-join-actions{gap:7px}#messages .yap-join-action{flex:1;min-width:120px}}
+@media(prefers-reduced-motion:reduce){#messages .yap-join-card{transition:none}}
