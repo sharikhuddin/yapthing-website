@@ -30,10 +30,10 @@ async function cloudRequest(prompt,history,imageBase64,search=false){
   const response=await window.YapWebAccount.authFetch('https://uemjkfvcadggyvhbqqyp.supabase.co/functions/v1/ios-chat',{
    method:'POST',headers:{'content-type':'application/json','authorization':'Bearer '+token,
     'apikey':'sb_publishable_HqcXeSMELbRgGodOzr0kCA_VwZldmBJ'},
-   body:JSON.stringify({prompt,history:history.slice(-4).map(m=>({role:m.role==='assistant'?'model':m.role,text:m.content})),...(imageBase64?{imageBase64}:{}),search:!!search})
+   body:JSON.stringify({prompt,responseMode:window.YapResponseModes?.current()?.id||'balance',preferences:window.YapChatServices?.preferences()||{},history:history.filter(m=>m.role==='user'||m.role==='assistant').slice(-8).map(m=>({role:m.role==='assistant'?'model':m.role,text:m.content})),...(imageBase64?{imageBase64}:{}),search:!!search})
   });
   const result=await response.json().catch(()=>({}));
-  if(!response.ok)throw Error(result.error||result.message||'YapThing Cloud unavailable ('+response.status+')');
+  if(!response.ok){const e=Error(result.error||result.message||'YapThing Cloud unavailable ('+response.status+')');e.code=result.code;e.status=response.status;throw e;}
   return result;
 }
 window.YapPhotoVision={
