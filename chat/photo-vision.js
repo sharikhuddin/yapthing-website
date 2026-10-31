@@ -39,6 +39,8 @@ async function cloudRequest(prompt,history,imageBase64,search=false){
 window.YapPhotoVision={
  ask:(prompt,history,search=false)=>cloudRequest(prompt,history,null,search),
  hasPhoto:()=>!!image,
+ file:()=>image,
+ file:()=>image,
  analyze:async(prompt,history)=>{
   if(!image)throw Error('Attach a photo first');
   const imageBase64=await prepare(image);

@@ -19,7 +19,7 @@
  const normalize=m=>{
   const result=Array.isArray(m)?m.filter(x=>x&&typeof x.text==='string'&&
    ['user','assistant','model','thing'].includes(x.role))
-   .slice(-65).map(x=>({role:x.role==='user'?'user':'assistant',text:x.text.slice(0,2000)})):[];
+   .slice(-65).map(x=>({role:x.role==='user'?'user':'assistant',text:x.text.slice(0,2000),...(window.YapImageStore?.validPath(x.imagePath)?{imagePath:x.imagePath}:{})})):[];
   // Supabase limits chat-thread JSON to 80KB. Keep newest text turns rather
   // than failing every subsequent sync on a long conversation.
   const bytes=part=>new TextEncoder().encode(JSON.stringify(part)).length;
