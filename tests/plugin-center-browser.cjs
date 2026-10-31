@@ -26,7 +26,7 @@ const server=http.createServer((req,res)=>{try{const name=new URL(req.url,'http:
   assert.equal(await page.locator('#yap-connect-center .pc-card').count(),1);
   await page.locator('#pc-search').fill('');
   await page.getByRole('button',{name:'Coming soon',exact:true}).first().click();
-  assert.equal(await page.locator('#yap-connect-center .pc-card').count(),13);
+  assert.equal(await page.locator('#yap-connect-center .pc-card').count(),12);
   const rect=await page.locator('#yap-connect-center').boundingBox();assert(rect&&rect.width<=width+1,'Plugin area wider than viewport');
   assert.deepEqual(errors,[]);
   console.log('PASS web plugin center and live-state mock '+width+'px');

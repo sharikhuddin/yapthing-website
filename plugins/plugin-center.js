@@ -9,7 +9,7 @@
   {id:'github-public',name:'GitHub Public',short:'GH',group:'Developer',desc:'Explore public repositories without connecting an account.',detail:'Public repository search works without account authorization. Private repositories require a separate verified connection.',kind:'public',url:'https://github.com/search?q=',param:true},
   {id:'wikipedia',name:'Wikipedia',short:'W',group:'Research',desc:'Find public encyclopedia articles and sources.',detail:'Public Wikipedia search. No private account access or OAuth needed.',kind:'public',url:'https://en.wikipedia.org/w/index.php?search=',param:true},
   {id:'crossref',name:'Crossref',short:'CR',group:'Research',desc:'Search scholarly publication metadata and citations.',detail:'Public publication search. Full-text articles are not guaranteed.',kind:'public',url:'https://search.crossref.org/?q=',param:true},
-  {id:'google-drive',name:'Google Drive',short:'D',group:'Files',desc:'Find files you choose to share.',kind:'planned',detail:'Google file-picker and delegated OAuth permissions are required before private files can be accessed.'},
+  {id:'google-drive',name:'Google Drive',short:'D',group:'Files',desc:'Connect Google Drive, create notes and view files available to YapThing.',kind:'oauth',detail:'Uses Google Drive drive.file access: only files created or explicitly authorized for YapThing, not your entire Drive. You can disconnect at any time.'},
   {id:'google-sheets',name:'Google Sheets',short:'S',group:'Files',desc:'Work with selected spreadsheets.',kind:'planned',detail:'A verified Google Sheets authorization and scoped access are required.'},
   {id:'dropbox',name:'Dropbox',short:'Db',group:'Files',desc:'Search permitted cloud files.',kind:'planned',detail:'Dropbox OAuth and scoped file access are not yet available in this version.'},
   {id:'onedrive',name:'OneDrive',short:'1D',group:'Files',desc:'Access Microsoft cloud files.',kind:'planned',detail:'Requires Microsoft delegated account authorization.'},
@@ -42,6 +42,10 @@
  main.replaceChildren(center);document.body.append(dialog);
  const info=msg=>{feedback.textContent=msg;feedback.hidden=!msg;};
  const state={filter:'All',providers:new Map(),signedIn:false,loading:false};
+ const params=new URLSearchParams(location.search);
+ const driveResult=params.get('drive');
+ const requestedConnect=params.get('connect');
+ let deepLinkHandled=false;
  const statusOf=app=>{
   if(app.kind==='public')return {label:'Ready to use',cls:'ready',action:'Search'};
   if(app.kind==='local')return {label:'Local setup',cls:'ready',action:'Pair computer'};
@@ -67,9 +71,11 @@
    const response=await api.list();
    if(!Array.isArray(response.providers))throw Error('Connection status is unavailable.');
    state.providers=new Map(response.providers.filter(p=>typeof p.id==='string').map(p=>[p.id,p]));
-   info('');
+   info(driveResult?driveResult==='connected'?'Google Drive authorization completed. Confirm the Connected status below.':'Google Drive authorization did not complete: '+driveResult.replace(/[^a-z_-]/g,' ').slice(0,65):'');
   }catch(e){state.providers.clear();info('Connection status could not be verified: '+String(e.message||e));}
-  finally{state.loading=false;refresh.disabled=false;refresh.textContent='Refresh connections';render();}
+  finally{state.loading=false;refresh.disabled=false;refresh.textContent='Refresh connections';render();
+   if(!deepLinkHandled&&requestedConnect){deepLinkHandled=true;const app=apps.find(x=>x.id===requestedConnect&&x.kind==='oauth');if(app)details(app);}
+  }
  }
  async function connect(app){
   if(!state.signedIn){window.location.assign('../chat/');return;}
@@ -103,6 +109,65 @@
    target.textContent=(Array.isArray(body.messages)?body.messages:[]).slice(0,10).map(m=>String(m.subject||'No subject').slice(0,120)+' — '+String(m.from||'').slice(0,120)+'\n'+String(m.snippet||'').slice(0,240)).join('\n\n')||'No recent messages.';
   }catch(e){target.textContent='Gmail could not be read: '+String(e.message||e);}
  }
+ async function gmailCompose(target){
+  const to=prompt('Recipient email address:');if(!to)return;
+  const subject=prompt('Email subject:');if(!subject)return;
+  const body=prompt('Email message (plain text):');if(!body)return;
+  if(!confirm('Send Gmail to '+to+'?\n\nSubject: '+subject+'\n\n'+body.slice(0,700)))return;
+  target.textContent='Sending email after your confirmation…';
+  try{
+   const token=await api.getToken();
+   const r=await fetch('https://uemjkfvcadggyvhbqqyp.supabase.co/functions/v1/yap-gmail-actions',{
+    method:'POST',headers:{authorization:'Bearer '+token,apikey:'sb_publishable_HqcXeSMELbRgGodOzr0kCA_VwZldmBJ','content-type':'application/json'},
+    body:JSON.stringify({action:'send',to,subject,body,confirm:true}),signal:AbortSignal.timeout(24000)
+   });
+   const data=await r.json().catch(()=>({}));if(!r.ok)throw Error(data.error||'Gmail send failed');
+   target.textContent='Email sent through connected Gmail. Message ID: '+String(data.id||'confirmed').slice(0,120);
+  }catch(e){target.textContent='Email not sent: '+String(e.message||e);}
+ }
+ function driveDetails(extra,actions,app){
+  const client=window.YapDriveClient;
+  const box=document.createElement('div');box.className='pc-result';box.setAttribute('role','status');
+  const list=document.createElement('div');list.className='pc-drive-list';
+  const preview=document.createElement('div');preview.className='pc-drive-preview';preview.setAttribute('aria-live','polite');
+  const name=document.createElement('input');name.className='pc-query';name.placeholder='Note name (e.g., Project notes)';
+  const body=document.createElement('textarea');body.className='pc-query';body.rows=4;body.placeholder='Write a note to save to your Google Drive…';
+  body.maxLength=14000;
+  const save=createButton('Save note to Drive',async()=>{
+   if(!name.value.trim()||!body.value.trim()){box.textContent='Enter a note name and some text.';return}
+   if(!confirm('Create "'+name.value.trim()+'" in your connected Google Drive?'))return;
+   save.disabled=true;box.textContent='Saving to Google Drive…';
+   try{const result=await client.create(name.value.trim(),body.value,true);box.textContent='Created '+result.name+' in your Google Drive.';body.value='';await load();}
+   catch(e){box.textContent='Could not create file: '+String(e.message||e);}
+   finally{save.disabled=false}
+  });
+  const refresh=createButton('Browse YapThing files',()=>load());
+  const guidance=document.createElement('p');guidance.textContent='This connection currently lists files available to YapThing under Google’s drive.file permission. It cannot browse all existing files in your Drive. You can create a note below.';
+  async function load(){
+   box.textContent='Loading authorized Drive files…';list.replaceChildren();preview.replaceChildren();
+   try{
+    const data=await client.list(),files=Array.isArray(data.files)?data.files:[];
+    box.textContent=files.length?files.length+' authorized file(s) available to YapThing.': 'No files authorized for YapThing yet. Create a note below to test this connection.';
+    for(const file of files){
+     const item=document.createElement('div');item.className='pc-drive-row';
+     const label=document.createElement('span');label.textContent=String(file.name||'Untitled').slice(0,130);
+     const view=createButton('Read',async()=>{
+      preview.textContent='Opening '+String(file.name||'file')+'…';
+      try{const result=await client.read(file.id);preview.textContent=String(result.name||'')+'\n\n'+String(result.text||'').slice(0,16000)+(result.truncated?'\n\n[Preview truncated]':'');}
+      catch(e){preview.textContent='Could not preview file: '+String(e.message||e);}
+     },false);
+     item.append(label,view);list.append(item);
+    }
+   }catch(e){box.textContent='Google Drive unavailable: '+String(e.message||e);}
+  }
+  extra.append(guidance,box,list,preview,name,body,save);
+  actions.append(refresh,createButton('Choose existing Drive files',async()=>{
+   box.textContent='Opening Google’s secure file picker…';
+   try{const data=await api.pick('google-drive');if(!data.authorization_url)throw Error('Picker was not returned by Google authorization');window.location.assign(allowedAuth(data.authorization_url));}
+   catch(e){box.textContent='Could not launch Google file selection: '+String(e.message||e);}
+  }),createButton('Disconnect',()=>connect(app),false));
+  load();
+ }
  function details(app){
   const status=statusOf(app);dialog.querySelector('#pc-name').textContent=app.name;
   dialog.querySelector('#pc-details').textContent=app.detail;
@@ -121,7 +186,9 @@
    const p=state.providers.get(app.id);
    if(p?.status==='connected'){
     const inbox=document.createElement('div');inbox.className='pc-result';inbox.setAttribute('role','status');extra.append(inbox);
-    actions.append(createButton('Read recent inbox',()=>gmailInbox(inbox)),createButton('Disconnect',()=>connect(app),false));
+    if(app.id==='gmail')actions.append(createButton('Read recent inbox',()=>gmailInbox(inbox)),createButton('Compose email',()=>gmailCompose(inbox)),createButton('Disconnect',()=>connect(app),false));
+    else if(app.id==='google-drive')driveDetails(extra,actions,app);
+    else actions.append(createButton('Disconnect',()=>connect(app),false));
    }else if(p?.connect_available){actions.append(createButton('Authorize with Google',()=>connect(app)));}
    else actions.append(createButton(state.signedIn?'View setup information':'Sign in to connect',()=>state.signedIn?info('This provider is not available for OAuth yet.'):window.location.assign('../chat/')));
   }else {

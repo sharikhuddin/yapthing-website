@@ -43,6 +43,15 @@ body:has(#yap-connect-center) main{max-width:1040px;margin:0 auto;padding:38px c
 #pc-dialog .pc-dialog-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
 #pc-dialog button:not(.pc-close){min-height:41px;padding:9px 15px;border:1px solid #c5d9c9;border-radius:10px;background:#e8f2df;font-weight:650;color:#244d34}
 #pc-dialog .pc-query{width:100%;min-height:44px;border:1px solid #cfded1;border-radius:10px;padding:11px;font:inherit;margin-top:8px}
+
+#pc-dialog .pc-drive-list{display:grid;gap:6px;margin:12px 0}
+#pc-dialog .pc-drive-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 11px;border:1px solid #dce7dd;border-radius:11px;background:#f7faf5}
+#pc-dialog .pc-drive-row span{font-size:13px;min-width:0;overflow-wrap:anywhere}
+#pc-dialog .pc-drive-preview{max-height:260px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;line-height:1.5}
+#pc-dialog .pc-query{box-sizing:border-box}
+#pc-dialog textarea.pc-query{display:block;resize:vertical;margin-bottom:10px;background:#fff}
+#pc-dialog .pc-drive-list button{flex:none}
+
 #pc-dialog .pc-result{max-height:220px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;padding:10px 12px;border-radius:10px;background:#f5f8f4;font-size:13px}
 @media(max-width:650px){body:has(#yap-connect-center) main{padding-top:25px}#yap-connect-center .pc-intro{align-items:start;flex-direction:column}#yap-connect-center .pc-grid{grid-template-columns:minmax(0,1fr)}#yap-connect-center .pc-card{padding:15px}#yap-connect-center .pc-toolbar{margin-bottom:13px}}
 @media(prefers-reduced-motion:reduce){#yap-connect-center .pc-card{transition:none}}
