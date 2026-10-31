@@ -1,0 +1,32 @@
+const {chromium}=require('playwright'),http=require('http'),fs=require('fs'),path=require('path'),assert=require('assert/strict');
+const root=path.resolve(__dirname,'..'),png='iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=';
+const server=http.createServer((req,res)=>{try{let p=path.join(root,new URL(req.url,'http://local').pathname);if(fs.statSync(p).isDirectory())p=path.join(p,'index.html');res.setHeader('Content-Type',p.endsWith('.js')?'text/javascript':p.endsWith('.css')?'text/css':p.endsWith('.svg')?'image/svg+xml':'text/html');res.end(fs.readFileSync(p));}catch{res.writeHead(404).end();}});
+(async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
+try{for(const width of [390,1280]){
+ const context=await browser.newContext({reducedMotion:'reduce',viewport:{width,height:844}}),page=await context.newPage(),calls=[],errors=[];
+ let fixturePng=png;
+ page.on('pageerror',e=>errors.push(e.message));
+ await page.route('**/*',r=>{const url=r.request().url();if(url.startsWith('http://127.0.0.1'))return r.continue();
+ if(url.endsWith('/yap-work'))return r.fulfill({json:{projects:[],connections:[],remaining:100}});
+ if(url.includes('/functions/v1/')){const body=r.request().postDataJSON();calls.push({url,body});const answer='Test reply '+calls.length;
+ return r.fulfill({json:url.endsWith('yap-image-edit')?{imageBase64:fixturePng,mimeType:'image/png'}:{answer,sources:[{title:'Test source',url:'https://example.org/reference'}],results:[{title:'Test source',url:'https://example.org/reference'}],provider:'Google Search',scope:''}});}
+ return r.abort();});
+ await page.goto('http://127.0.0.1:'+server.address().port+'/chat/');await page.waitForFunction(()=>!!window.YapPhotoVision);fixturePng=await page.evaluate(()=>{const c=document.createElement('canvas');c.width=16;c.height=16;c.getContext('2d').fillRect(0,0,16,16);return c.toDataURL('image/png').split(',')[1];});
+ await page.evaluate(()=>{Object.assign(window.YapWebAccount,{getUserId:()=> '12345678-1234-1234-1234-123456789012',getToken:async()=> 'test-token',getQuota:()=>({remaining:50,limit:100}),status:async()=>{},authFetch:(url,options)=>fetch(url,options)});});
+ assert.equal(await page.evaluate(()=>window.YapResponseModes.current().id),'balance');
+ const choose=async(name)=>{await page.locator('#yap-response-modes>summary').click();await page.locator('.yap-mode-panel button').filter({hasText:name}).click();};
+ const submit=async(prompt)=>{const count=calls.length;await page.locator('#prompt').fill(prompt);await page.locator('#send').click();try{await page.waitForFunction(n=>document.querySelector('#messages').textContent.includes('Test reply '+n),count+1,{timeout:10000});}catch(e){console.log('DEBUG',prompt,calls,await page.locator('#messages').innerText(),errors);throw e;}};
+ await submit('Write a friendly welcome message');assert(calls.at(-1).url.endsWith('ios-chat'));assert.equal(calls.at(-1).body.responseMode,'balance');
+ await choose('Yap Depth');await submit('Explain how a bicycle works');assert.equal(calls.at(-1).body.responseMode,'depth');
+ await choose('Yap Balance');await submit('Find the latest science news');assert(calls.at(-1).url.endsWith('google-grounded-search'));assert.equal(calls.at(-1).body.responseMode,'balance');assert(await page.locator('.yap-sources a').count());
+ await page.evaluate(()=>{window.YapAttachments.getDocument=()=> 'DOCUMENT_MARKER '+ 'A'.repeat(4000);window.YapAttachments.clearDocument=()=>{};});
+ await submit('Summarize the attachment');assert(calls.at(-1).body.prompt.includes('DOCUMENT_MARKER'));assert(calls.at(-1).body.prompt.length>4000);
+ await page.evaluate(()=>window.YapAttachments.getDocument=()=> '');
+ await page.locator('#photo-input').setInputFiles({name:'test.png',mimeType:'image/png',buffer:Buffer.from(fixturePng,'base64')});
+ await submit('Describe the attached picture');assert(calls.at(-1).body.imageBase64.startsWith('/9j/'));
+ await page.evaluate(()=>document.querySelector('#yap-workspace').value='medical-education');
+ await submit('Explain the function of the heart');assert(calls.at(-1).url.endsWith('medical-education'));assert.equal(calls.at(-1).body.responseMode,'balance');
+ await page.evaluate(()=>document.querySelector('#yap-workspace').value='general');
+ await page.locator('#photo-input').setInputFiles({name:'test.png',mimeType:'image/png',buffer:Buffer.from(fixturePng,'base64')});await page.locator('#prompt').fill('Make the picture blue');await page.evaluate(()=>document.querySelector('#edit-run').click());await page.waitForFunction(()=>!document.querySelector('#edit-result').hidden);assert(calls.at(-1).url.endsWith('yap-image-edit'));
+ assert.deepEqual(errors,[]);console.log('PASS simulated chat, picker, search citations, document content, photo analysis, education and photo editing',width);await context.close();
+}}finally{await browser.close();}})().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>server.close());

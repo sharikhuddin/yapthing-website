@@ -21,7 +21,7 @@ generate.onclick=async()=>{
  const content=await source.text();if(content.length>10000||!content.trim())throw Error('Choose a file between 1 and 10,000 characters.');
  const token=await window.YapWebAccount.getToken();if(uid!==window.YapWebAccount?.getUserId())throw Error('Your account changed.');
  status.textContent='Gemini is preparing your draft…';
- const response=await fetch('https://uemjkfvcadggyvhbqqyp.supabase.co/functions/v1/yap-improvement-draft',{method:'POST',headers:{authorization:'Bearer '+token,apikey:'sb_publishable_HqcXeSMELbRgGodOzr0kCA_VwZldmBJ','content-type':'application/json'},body:JSON.stringify({goal:goal.value.trim(),file:{name:source.name,content}}),signal:controller.signal});
+ const response=await fetch('https://uemjkfvcadggyvhbqqyp.supabase.co/functions/v1/yap-improvement-draft',{method:'POST',headers:{authorization:'Bearer '+token,apikey:'sb_publishable_HqcXeSMELbRgGodOzr0kCA_VwZldmBJ','content-type':'application/json'},body:JSON.stringify({goal:goal.value.trim(),responseMode:window.YapResponseModes?.current()?.id||'balance',file:{name:source.name,content}}),signal:controller.signal});
  const data=await response.json().catch(()=>({}));if(uid!==window.YapWebAccount?.getUserId()||controller.signal.aborted)return;if(!response.ok)throw Error(data.error||'Code drafting is unavailable.');
  if(typeof data.content!=='string'||typeof data.name!=='string')throw Error('The draft could not be validated.');
  result=data;original=content;output.hidden=false;output.append(el('h3','Proposed improvement'),el('p',data.summary),el('p','Generated draft. No tests have run.'));

@@ -20,6 +20,7 @@ const key='yapthing-sidebar-open';
 let remembered=false;try{remembered=localStorage.getItem(key)==='true';}catch{}
 menu.open=!mobile.matches&&remembered;
 function sync(){const open=menu.open;document.body.classList.toggle('yap-sidebar-open',open);toggle.setAttribute('aria-expanded',String(open));try{if(!mobile.matches)localStorage.setItem(key,String(open));}catch{}}
+toggle.addEventListener('click',event=>{event.preventDefault();menu.open=!menu.open;sync();});
 menu.addEventListener('toggle',sync);sync();
 document.addEventListener('click',e=>{if(mobile.matches&&!menu.contains(e.target))menu.open=false;});
 drawer.addEventListener('click',e=>{if(mobile.matches&&!e.target.closest('.yap-project-navigation')&&e.target.closest('button,a')&&(!settings.contains(e.target)||e.target.closest('#account-toggle,a')))menu.open=false;});
