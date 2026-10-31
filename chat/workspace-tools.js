@@ -14,7 +14,7 @@
   'student-study':{hint:'Study guides, exam practice and step-by-step explanations.',prompt:'Be my patient study tutor. Ask my subject and level, explain the concept clearly, then quiz me and provide feedback. Topic: '},
   design:{hint:'Plan spaces and conceptual site layouts anywhere.',prompt:'Help me plan a conceptual building or site layout. Ask for location, dimensions, orientation, local authority and intended use. Verify applicable rules with official sources and do not invent zoning, setbacks or approvals. Project: '},
   photo:{hint:'Attach a photo, describe the changes, then choose Edit with AI.',prompt:'Edit the attached photo while keeping important details consistent. Make these changes: '},
-  research:{hint:'Choose Google, Brave or Parallel Sources for current information.',prompt:'Research this topic using reliable sources, compare evidence and explain what is confirmed versus uncertain: '},
+  research:{hint:'Yap Search finds current information and links to original sources.',prompt:'Research this topic using reliable sources, compare evidence and explain what is confirmed versus uncertain: '},
   writing:{hint:'Write, edit and translate.',prompt:'Help me write a polished message or document for this audience and purpose: '},
   career:{hint:'Resumes, interviews and job research.',prompt:'Help me with this career goal. Do not invent my experience: '},
   data:{hint:'Data analysis and practical insights.',prompt:'Analyze this data or question, explaining assumptions and calculations: '},

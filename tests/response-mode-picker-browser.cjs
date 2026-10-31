@@ -30,13 +30,15 @@ async function main(){
     const selected=await evaluate("(()=>{const b=[...document.querySelectorAll('.yap-mode-panel button')].find(el=>el.querySelector('strong')?.textContent==="+JSON.stringify(name)+");b.click();return window.YapResponseModes.current().id})()");
     assert.equal(selected,id);
   }
-  // Verify the model reported by the server appears alongside the selected Yap mode.
+  // Verify the model identifier received from the API remains internal while YapThing is shown.
   const invoked=await evaluate("(()=>{window.YapWebAccount.getUserId=()=> '12345678-1234-1234-1234-123456789012';window.YapWebAccount.getQuota=()=>({remaining:40,limit:100});window.YapWebAccount.status=async()=>{};window.YapPhotoVision.ask=async()=>({answer:'Model fixture answer',model:'gemini-3.1-flash-lite',sources:[]});const el=document.querySelector('#prompt');el.value='Hello';document.querySelector('#send').disabled=false;document.querySelector('#form').requestSubmit();return true})()");
   assert(invoked);
   let label='';
-  for(let i=0;i<40;i++){label=await evaluate("document.querySelector('.yap-response-meta')?.textContent||''");if(label.includes('Gemini 3.1 Flash-Lite'))break;await pause(125)}
-  assert(label.includes('Gemini 3.1 Flash-Lite'), 'Cloud answer should show the actual model name: '+label);
-  console.log('PASS Chrome picker Auto default, five YapThing modes, and server-returned model display');
+  for(let i=0;i<40;i++){label=await evaluate("document.querySelector('.yap-response-meta')?.textContent||''");if(label.includes('Yap Auto'))break;await pause(125)}
+  assert(label.includes('Yap Auto')&&!/Gemini|Flash-Lite|Google/i.test(label),'Replies must show YapThing-branded metadata only: '+label);
+  const pickerText=await evaluate("document.querySelector('.yap-mode-panel').textContent");
+  assert(!/Gemini|Google|Brave/i.test(pickerText),'Mode picker must use YapThing branding');
+  console.log('PASS Chrome picker Auto default, five YapThing modes, and branded reply labels');
  }finally{ws.close()}
 }
 main().then(()=>{chrome.kill();process.exit(0)},e=>{console.error(e);chrome.kill();process.exit(1)});

@@ -24,7 +24,7 @@ window.YapResearchFallback=(()=>{
    const sources=[...new Map((Array.isArray(data.results)?data.results:[]).flatMap(s=>{try{const u=new URL(s.url);if(u.protocol!=='https:'||u.username||u.password||/^(?:localhost|.*\.local|.*\.internal|127\.|10\.|192\.168\.|169\.254\.|172\.(?:1[6-9]|2\d|3[01])\.|0\.|\[)/i.test(u.hostname))return [];u.hash='';return [{title:String(s.title||u.hostname).slice(0,140),url:u.href,summary:String(s.summary||'').slice(0,450)}]}catch{return []}}).map(s=>[s.url,s])).values()].slice(0,9);
    if(!sources.length)throw Error('Search returned no verifiable source links.');
    const answer=typeof data.answer==='string'&&data.answer.trim()?data.answer.trim():'Search snippets (not independently verified full pages):\n\n'+sources.map((s,i)=>'['+(i+1)+'] '+s.title+'\n'+s.summary).join('\n\n');
-   complete=true;return {answer,sources:sources.map(s=>({title:s.title,url:s.url})),provider:data.provider||slug,scope:String(data.scope||'').slice(0,400),searchSuggestions:typeof data.searchSuggestions==='string'?data.searchSuggestions.slice(0,15000):''};
+   complete=true;return {answer,sources:sources.map(s=>({title:s.title,url:s.url})),provider:slug==='google-grounded-search'?'Yap Verify':slug==='search-web'?'Yap Search':'Yap Library',scope:String(data.scope||'').slice(0,400),searchSuggestions:typeof data.searchSuggestions==='string'?data.searchSuggestions.slice(0,15000):''};
   }finally{clearTimeout(timer);activity?.finish(complete?'Sources found':'Search unavailable',!complete)}
  }
  async function research(prompt,mode='auto',style='balance'){

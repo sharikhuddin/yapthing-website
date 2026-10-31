@@ -40,7 +40,7 @@
     {
       "url": "https://yapthing.com/chat/",
       "file": "chat/index.html",
-      "sha256": "4cc2a36e38f26bc98e62f30549882f28119a35cb0e5560b678e4347d5fc99e94",
+      "sha256": "4cae4ecac999b00fc70a14b5175b6655703716a4fdd30f8ee865ae3f7c82304e",
       "lastmod": "2026-10-31"
     },
     {
@@ -70,8 +70,8 @@
     {
       "url": "https://yapthing.com/privacy/",
       "file": "privacy/index.html",
-      "sha256": "c9e3327a1a512e65c894c1ff558eb9175be43fea5bab9674a60844fd53fdad65",
-      "lastmod": "2026-10-30"
+      "sha256": "5d306ec4f0d95494c49e9e6a80647b41ca4655a9b6da2b160df09cf2dd3e5b53",
+      "lastmod": "2026-10-31"
     },
     {
       "url": "https://yapthing.com/delete-account/",
