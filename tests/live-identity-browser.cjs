@@ -20,10 +20,12 @@ async function run(){
  const ev=async expression=>{const v=await call('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(v.exceptionDetails)throw Error(JSON.stringify(v.exceptionDetails));return v.result.value};
  try{
   await call('Page.enable');
-  await call('Page.navigate',{url:'https://yapthing.com/chat/?test=identity-20261031'});
+  await call('Network.enable');
+  await call('Network.setCacheDisabled',{cacheDisabled:true});
+  await call('Page.navigate',{url:'https://yapthing.com/chat/?test=identity-'+Date.now()});
   for(let i=0;i<80;i++){if(await ev("!!window.YapWebChat && !!document.querySelector('#form')"))break;await pause(180)}
   assert(await ev('!!window.YapWebChat'),'Public live website did not initialize');
-  assert(await ev("!!document.querySelector('script[src*=\"yap-identity1\"]')"),'Public HTML does not reference corrected identity script');
+  assert(await ev("!!document.querySelector('script[src*=\"yap-identity2\"]')"),'Public HTML does not reference corrected identity script');
   const send=async question=>{
    await ev("(()=>{const el=document.querySelector('#prompt');el.value="+JSON.stringify(question)+";document.querySelector('#form').requestSubmit();return true})()");
    for(let i=0;i<45;i++){const r=await ev("window.YapWebChat.latest?.()||''");if(r.startsWith("I'm YapThing"))return r;await pause(100)}
