@@ -5,7 +5,7 @@
  const feedback=document.getElementById('billing-feedback');
  const planEl=document.getElementById('account-plan');
  const balanceEl=document.getElementById('credit-balance');
- const buttons=[...document.querySelectorAll('[data-plan],[data-pack]'),document.getElementById('manage-billing')].filter(Boolean);
+ const buttons=[...document.querySelectorAll('[data-plan],[data-pack],[data-storage]'),document.getElementById('manage-billing')].filter(Boolean);
  let plan='free',billingBusy=false;
  const session=()=>{
   try{return JSON.parse(localStorage.getItem('yapthing.web.session.v1')||'null')?.access_token||''}
@@ -64,6 +64,7 @@
    const payload={action};
    if(action==='checkout')payload.plan=selection;
    if(action==='topup')payload.pack=selection;
+   if(action==='storage')payload.tier=selection;
    const r=await window.YapSession.authFetch(base+'yap-stripe-checkout',{
     method:'POST',headers:{authorization:'Bearer '+token,'content-type':'application/json'},
     body:JSON.stringify(payload)
@@ -88,6 +89,9 @@
    return billing('checkout',next);
   });
  }
+ for(const b of document.querySelectorAll('[data-storage]')){
+  b.addEventListener('click',()=>billing('storage',b.dataset.storage));
+ }
  for(const b of document.querySelectorAll('[data-pack]')){
   b.addEventListener('click',()=>billing('topup',b.dataset.pack));
  }
@@ -97,5 +101,6 @@
  if(q.get('checkout')==='cancel')feedback.textContent='Checkout canceled. Your plan and credits were not changed.';
  if(q.get('credits')==='pending')feedback.textContent='Payment is being confirmed. Purchased credits appear in your account once Stripe verifies payment.';
  if(q.get('upgrade')==='pending')feedback.textContent='Subscription upgrade is pending payment confirmation. Check your billing portal.';
+ if(q.get('storage')==='pending')feedback.textContent='Storage purchase returned. Extra space activates only after verified Stripe subscription confirmation. Check your private vault usage above.';
  update();
 })();
