@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
 const source=fs.readFileSync(path.join(__dirname,'../chat/research-fallback.js'),'utf8');
 function app(replies,token='session'){
@@ -17,7 +17,8 @@ const links={results:[{title:'Official source',url:'https://example.com/report#c
  let releaseToken;const revoked=app([]);let revision=0;revoked.api;const root={YapLocation:{revision:()=>revision},YapWebAccount:{getToken:()=>new Promise(r=>releaseToken=r)}};let dispatched=0;vm.runInNewContext(source,{window:root,fetch:async()=>{dispatched++;throw Error('not expected')},AbortController,setTimeout,clearTimeout,performance,URL,Map,Promise});const flight=root.YapResearchFallback.research('Weather near me');revision++;releaseToken('session');await assert.rejects(()=>flight,/Location context changed/);assert.equal(dispatched,0);
  assert(a.api.shouldSearch('What is the price of salt?'));assert(a.api.shouldSearch('Weather in Karachi'));assert(a.api.shouldSearch('Restaurants nearby'));assert(!a.api.shouldSearch('Tell me a joke'));
  const limit=app([{body:links}]);await limit.api.research('x'.repeat(500),'google');assert.equal(JSON.parse(limit.calls[0].options.body).query.length,180);
- assert(a.api.shouldSearch('How can I manage anxiety?'));assert(a.api.shouldSearch('What does education research show?'));assert.equal(a.api.topicFor('I feel anxious'),'mental-health');assert(a.api.supportAnswer('I want to kill myself'));assert.equal(a.api.supportAnswer('I do not want to kill myself'),null);assert.equal(a.api.supportAnswer('Research suicide prevention'),null);const health=app([{status:503},{body:links}]);await assert.rejects(()=>health.api.research('How to manage anxiety?'),/unavailable/);assert.equal(health.calls.length,1,'health does not silently downgrade to generic reference indexes');
+ assert(!a.api.shouldSearch('How can I manage anxiety?'));assert(a.api.shouldSearch('What does education research show?'));assert.equal(a.api.topicFor('I feel anxious'),'mental-health');assert(a.api.supportAnswer('I want to kill myself'));assert.equal(a.api.supportAnswer('I do not want to kill myself'),null);assert.equal(a.api.supportAnswer('Research suicide prevention'),null);const health=app([{status:503},{body:links}]);await assert.rejects(()=>health.api.research('How to manage anxiety?'),/unavailable/);assert.equal(health.calls.length,1,'health does not silently downgrade to generic reference indexes');
  const config=app([{status:503,body:{error:'Google Search model configuration is unavailable. Contact support.'}}]);await assert.rejects(()=>config.api.research('what is mental health'),/model configuration/);
  console.log('PASS sequential fallback, explicit providers, guest/auth/quota boundaries, private-source rejection, deduplication, snippets and query limits.');
 })().catch(e=>{console.error(e);process.exitCode=1});
+
