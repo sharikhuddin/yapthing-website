@@ -93,3 +93,25 @@ body:has(.admin-workspace)>#notice{max-width:none!important;margin:0;padding:8px
 .admin-geo-count{font-variant-numeric:tabular-nums;text-align:right;color:#b8d4c7;font-weight:700}
 .admin-view #registration-geo p{max-width:78ch}
 @media(max-width:440px){.admin-geo-row{grid-template-columns:minmax(75px,125px) minmax(60px,1fr) 40px;gap:7px;font-size:12px}}
+
+
+/* Explicit email-to-UUID lookup; never expose results outside authorized admin panel. */
+.admin-uuid-card{margin:20px 0 26px;border:1px solid #365f58;border-radius:17px;background:linear-gradient(140deg,#173932,#132a33);padding:22px}
+.admin-uuid-head h3{margin:4px 0 8px!important;font-size:20px!important;letter-spacing:-.035em}
+.admin-uuid-head p:not(.eyebrow){margin:0;color:#b0c9c7;font-size:13px;line-height:1.55}
+.admin-uuid-form{margin:16px 0 0}
+.admin-uuid-form label,.admin-uuid-result>label{display:block;font-size:12px;font-weight:750;color:#d6eee6;margin:0 0 8px}
+.admin-uuid-input-row{display:flex;align-items:stretch;gap:11px}
+.admin-uuid-input-row input{flex:1 1 auto;min-width:0;min-height:44px;padding:10px 13px;margin:0;border-radius:10px;background:#0f272d;border:1px solid #52756b;color:#f8fffb;font-size:14px}
+.admin-uuid-input-row input:focus{outline:2px solid #9edca6;outline-offset:1px}
+.admin-uuid-input-row button{margin:0;flex:none;min-height:44px;border-radius:10px;padding:10px 18px;font-weight:700;background:#c2edaa;color:#18362e;border-color:#c2edaa}
+.admin-uuid-input-row button:hover:not(:disabled){background:#d7fbbd}
+.admin-uuid-input-row button:disabled{opacity:.6}
+.admin-uuid-status{margin:14px 0 0;font-size:13px;line-height:1.5;color:#c0d5d0}
+.admin-uuid-result:not([hidden]){display:grid;gap:8px;margin-top:16px;padding:18px;border-radius:12px;background:#0e272a;border:1px solid #315b50}
+.admin-uuid-result input{width:100%;box-sizing:border-box;margin:0;min-width:0;background:#173539;color:#eafff3;border:1px solid #39675d;border-radius:8px;font:600 14px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.02em;min-height:42px;padding:10px}
+.admin-uuid-matched{color:#a6d6bd;font-size:12px;overflow-wrap:anywhere;margin:0}
+.admin-uuid-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:5px}
+.admin-uuid-actions button{margin:0;min-height:40px;font-weight:700;border-radius:9px;background:#285846;border-color:#407b5d}
+.admin-uuid-actions .admin-uuid-secondary{background:#1c3942;border-color:#4e6c6d}
+@media(max-width:560px){.admin-uuid-card{padding:17px}.admin-uuid-input-row{flex-direction:column;gap:8px}.admin-uuid-input-row button{width:100%}.admin-uuid-actions button{flex:1 1 130px}}
