@@ -1,6 +1,8 @@
 # YapDocs + YapImage — cost-first implementation contract
 
-Status: **first routing module and unit tests committed on a feature branch; not wired to production**.
+Status: **limited local composer release**. The attachment menu provides an editable plain-text draft with real DOCX and PDF downloads generated on-device, without an API call. PDF accepts basic English characters only and rejects unsupported characters; Word preserves Unicode. No image, formatting, or signature preservation is provided. The routing module remains an inactive reference; its proposed quotas are not enforced or advertised as entitlements. The backend, extraction, paid-image routing, and native-app rollout described below are future work and are excluded from this release.
+
+Validation: routing unit tests, desktop and mobile-viewport Chrome export/download tests, connected-chat regression tests, and required static-site metadata checks. Real Android/iOS device testing and full authenticated extraction/billing acceptance remain outstanding.
 
 ## Existing architecture discovered
 - Website: static GitHub Pages frontend, with Supabase Edge Functions for authenticated cloud operations.
