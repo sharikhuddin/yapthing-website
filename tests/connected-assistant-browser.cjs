@@ -67,6 +67,11 @@ const plan=(tools=[],answer='')=>({answer:JSON.stringify({tools,answer})});
   await page.getByRole('button',{name:'Approve save',exact:true}).click();await page.getByText('Saved notes.md in Demo project.',{exact:true}).waitFor();assert.equal(writes,1);
 
 
+  // A follow-up focused edit uses the real file content and hash from the prior read.
+  await send('read file notes.md');await idle();
+  models=[plan([{tool:'computer.replace',args:{path:'notes.md',find:'Original local file',replace:'Focused follow-up edit'}}])];
+  const beforeFollowup=writes;await send('Fix that code file with a focused edit.');await idle();assert.equal(writes,beforeFollowup);await page.getByRole('button',{name:'Approve save',exact:true}).click();await page.getByText('Saved notes.md in Demo project.',{exact:true}).nth(1).waitFor();assert.equal(writes,beforeFollowup+1);
+
   // One bounded permission allows a real edit/check/repair cycle, then a separate PR review.
   const beforeLoopWrites=writes,beforeLoopChecks=checks;failNextCheck=true;
   models=[
@@ -124,7 +129,7 @@ const plan=(tools=[],answer='')=>({answer:JSON.stringify({tools,answer})});
   await page.evaluate(()=>{window.YapWorkChat.currentProject=()=>null;});
   const planned=requests.filter(x=>x[0]==='model').length;await send('read file README.md');await idle();await page.getByRole('button',{name:'Continue request',exact:true}).waitFor();assert.equal(requests.filter(x=>x[0]==='model').length,planned);
   await page.evaluate(()=>{window.YapWorkChat.currentProject=()=>({id:'new-project',name:'New project',root:'C:/New',deviceId:'pc'});});
-  await page.getByRole('button',{name:'Continue request',exact:true}).click();await idle();await page.getByText(/Original local file/).waitFor();
+  await page.getByRole('button',{name:'Continue request',exact:true}).click();await idle();await page.getByText(/Original local file/).last().waitFor();
 
   // Email snippets can be combined with Drive, but creating the note needs approval.
   models=[plan([{tool:'gmail.inbox',args:{}}]),plan([{tool:'drive.create',args:{name:'Project summary',text:'The project is ready for review.'}}])];
