@@ -35,6 +35,7 @@
   $('account-password').hidden=signed;
   $('account-form').querySelector('[type=submit]').hidden=signed;
   $('account-signup').hidden=signed;
+  $('account-forgot-password').hidden=signed;
   $('account-signout').hidden=!signed;
   $('cloud-save').disabled=!signed;
   $('account-panel').querySelector('.account-sync-controls').hidden=!signed;
@@ -75,6 +76,27 @@
    setSession(session);
    await status();
   }catch(e){note(e.message)}
+ };
+ const forgotButton=$('account-forgot-password');
+ if(forgotButton)forgotButton.onclick=async()=>{
+  const email=$('account-email').value.trim().slice(0,254);
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+   note('Enter your account email above, then select Forgot password.');
+   $('account-email').focus();return;
+  }
+  forgotButton.disabled=true;
+  note('Requesting a password reset link…');
+  try{
+   const response=await fetch(BASE+'/auth/v1/recover?redirect_to='+encodeURIComponent('https://yapthing.com/reset-password/'),{
+    method:'POST',headers:{apikey:KEY,'content-type':'application/json'},
+    body:JSON.stringify({email}),signal:AbortSignal.timeout(15000),cache:'no-store'
+   });
+   // Do not reveal whether an email is registered. Supabase also applies email rate limits.
+   if(response.status===429){note('Too many requests. Please try again later.');return;}
+   if(!response.ok){note('Unable to request a reset link right now. Please try again.');return;}
+   note('If an account uses that email, a password reset link is on its way. Check your inbox and spam folder.');
+  }catch{note('Connection unavailable. Please try again.');}
+  finally{forgotButton.disabled=false;}
  };
  $('account-signup').onclick=async()=>{
   note('Creating account…');

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#111b18">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex,nofollow">
+<title>Reset your password | YapThing</title>
+<link rel="icon" href="/assets/favicon.svg">
+<link rel="stylesheet" href="/reset-password/reset-password.css?v=20261101-1">
+<script src="/reset-password/reset-password.js?v=20261101-1" defer></script>
+</head>
+<body>
+<header class="site-header">
+ <a class="brand" href="/" aria-label="YapThing homepage"><img src="/assets/yapthing-192.png" alt="" width="38" height="38"><strong>YapThing</strong></a>
+ <a class="back" href="/chat/">Back to chat</a>
+</header>
+<main class="reset-layout">
+ <section class="reset-card" aria-labelledby="reset-title">
+  <div class="brand-kicker">YAPTHING ACCOUNT SECURITY</div>
+  <h1 id="reset-title">Set a new password.</h1>
+  <p class="intro">Secure your YapSpace and get back to your conversations.</p>
+  <p id="reset-status" role="status" aria-live="polite">Checking your password reset link…</p>
+  <form id="reset-form" hidden autocomplete="off">
+   <label for="new-password">New password</label>
+   <input id="new-password" name="new-password" type="password" minlength="12" maxlength="128" autocomplete="new-password" required placeholder="At least 12 characters">
+   <label for="confirm-password">Confirm new password</label>
+   <input id="confirm-password" name="confirm-password" type="password" minlength="12" maxlength="128" autocomplete="new-password" required placeholder="Re-enter password">
+   <button id="reset-submit" type="submit">Save new password</button>
+  </form>
+  <a class="return-link" href="/chat/" id="return-to-chat">Return to YapThing</a>
+ </section>
+</main>
+<footer>For account support, email <a href="mailto:support@yapthing.com">support@yapthing.com</a>.</footer>
+</body>
+</html>
