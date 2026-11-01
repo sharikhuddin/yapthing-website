@@ -7,7 +7,7 @@ The website now has one main chat experience and a Tools button in the composer.
 - Ask normally: “Find my YapThing repository on GitHub and check my computer.”
 - A bounded planner can combine GitHub, Supabase project metadata, authorized Google Drive files, explicitly requested Gmail snippets, and files in the selected computer project.
 - Common list/read/check requests use deterministic adapters without an extra planning call.
-- The response is grounded in the returned tool results. A failed connection stays a failed source, with a connection link.
+- The response is grounded in the returned tool results. A failed connection stays a failed source, with a connection link. If the response service cannot finish after successful reads, the verified source facts are still shown.
 - Computer file saves, project checks, and new Drive notes create an inline review. Execution begins only after the user approves.
 - Selecting a computer folder is needed only for computer file tasks. A visible Continue request control resumes after project setup.
 - Code drafts can use the existing YapThing response service. The conversational flow does not require installing Ollama.

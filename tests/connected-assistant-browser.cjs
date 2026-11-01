@@ -97,6 +97,10 @@ const plan=(tools=[],answer='')=>({answer:JSON.stringify({tools,answer})});
   models=[plan([{tool:'gmail.inbox',args:{}}]),plan([],'I did not access email for this repository request.')];
   await send('Compare my GitHub repositories with my Supabase projects.');await idle();assert.equal(mailReads,mailBefore);
 
+  // A malformed final model response still exposes verified reads, with no mutation.
+  models=[plan([{tool:'github.repositories',args:{}},{tool:'supabase.projects',args:{}}]),{answer:'This is not a structured tool plan.'}];
+  const previousWrites=writes;await send('Compare my GitHub repositories with my Supabase projects.');await idle();await page.getByText(/I retrieved these results, but couldn’t finish the combined answer/).waitFor();assert.equal(writes,previousWrites);
+
   // Definitions stay in ordinary chat rather than querying private connections.
   const devBefore=requests.filter(x=>x[0]==='developer').length;
   models=[{answer:'GitHub hosts code repositories. This is a general explanation.'}];

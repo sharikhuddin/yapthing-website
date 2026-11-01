@@ -208,6 +208,18 @@
    const text=projectResume.text;projectResume=null;resumeBox.hidden=true;resumeBox.replaceChildren();void submit(text);
   }),button('Dismiss',()=>{projectResume=null;resumeBox.hidden=true;resumeBox.replaceChildren();}));resumeBox.hidden=false;
  }
+ function collectedFacts(run){
+  return run.entries.filter(e=>e.result).map(e=>{
+   const provider=e.tool.split('.')[0],name=({github:'GitHub',supabase:'Supabase',drive:'Google Drive',gmail:'Gmail',computer:'Computer'})[provider];let body='';
+   try{
+    if(['github','supabase','computer'].includes(provider))body=formatQuick(e,e.result);
+    else if(e.tool==='drive.files')body=(e.result.files||[]).map(f=>f.name).join('\n')||'No available files.';
+    else if(e.tool==='drive.read')body=String(e.result.name||'')+'\n'+String(e.result.text||'');
+    else if(e.tool==='gmail.inbox')body=(e.result.messages||[]).map(m=>m.subject+'\n'+m.snippet).join('\n\n')||'No recent messages.';
+   }catch{body=preview(e.result,1600);}
+   return name+'\n'+body.slice(0,1800)+(body.length>1800?'\n[Excerpt truncated]':'');
+  }).join('\n\n').slice(0,10000);
+ }
  async function submit(text,{repeat=false}={}){
   if(active)return true;
   if(String(text).length>3000){say('For connected apps, keep this request under 3,000 characters or split it into two steps.');return true;}
@@ -240,7 +252,7 @@
     }
    }
   }catch(error){if(!run.canceled&&same(state)){
-   if(error.code==='PROJECT_REQUIRED')offerProject(run);else{say('I couldn’t finish this request: '+String(error.message||error).slice(0,360));const p=fastPlan(text);if(p){const box=el('div');box.className='yca-progress';box.append(connectionHelp(p.tool));attach(box);}}
+   if(error.code==='PROJECT_REQUIRED')offerProject(run);else{const facts=collectedFacts(run);say(facts?'I retrieved these results, but couldn’t finish the combined answer: '+String(error.message||error).slice(0,200)+'\n\n'+facts+'\n\nAny proposed save or project check still needs your approval.':'I couldn’t finish this request: '+String(error.message||error).slice(0,360));if(facts)remember(run);const p=fastPlan(text);if(p){const box=el('div');box.className='yca-progress';box.append(connectionHelp(p.tool));attach(box);}}
   }}finally{run.node.remove();if(active===run){active=null;input.disabled=false;$('send').disabled=false;input.focus();}}
   return true;
  }
