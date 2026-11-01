@@ -8,7 +8,7 @@ const plan=(tools=[],answer='')=>({answer:JSON.stringify({tools,answer})});
  const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
  try{for(const width of [390,1280]){
   const ctx=await browser.newContext({viewport:{width,height:900}}),page=await ctx.newPage();page.setDefaultTimeout(5000);
-  let models=[],requests=[],jobs=new Map(),writes=0,checks=0,mailReads=0,driveSaves=0,held=null,hold=false,failGitHub=false;
+  let models=[],requests=[],jobs=new Map(),writes=0,checks=0,mailReads=0,driveSaves=0,held=null,hold=false,failGitHub=false,failNextCheck=false,uncertainNextWrite=false;
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.route('**/*',r=>r.request().url().startsWith('http://127.0.0.1')?r.continue():r.abort());
   await page.route('**/functions/v1/ios-chat',async route=>{
@@ -30,7 +30,7 @@ const plan=(tools=[],answer='')=>({answer:JSON.stringify({tools,answer})});
    if(b.action==='projects')out={projects:[]};
    if(b.action==='quote'){const job={id:b.request_id,approval_hash:'hash',status:'quoted',payload:b.task,cost:b.task.kind==='write'?2:b.task.kind==='check'?1:0};jobs.set(job.id,job);out={job};}
    if(b.action==='cancel')out={job:{...jobs.get(b.id),status:'canceled'}};
-   if(b.action==='approve'){const j=jobs.get(b.id);assert(j);let data={};if(j.payload.kind==='read')data={path:j.payload.path,content:'Original local file',sha256:'a'.repeat(64)};if(j.payload.kind==='inspect')data={entries:[{name:'README.md',type:'file'}]};if(j.payload.kind==='write'){writes++;assert.equal(j.payload.expectedSha,'a'.repeat(64));data={path:j.payload.path,sha256:'b'.repeat(64)};}if(j.payload.kind==='check'){checks++;data={output:'TESTS_OK'};}out={job:{...j,status:'completed',result:{ok:true,data}}};}
+   if(b.action==='approve'){const j=jobs.get(b.id);assert(j);let data={};if(j.payload.kind==='read')data={path:j.payload.path,content:'Original local file',sha256:'a'.repeat(64)};if(j.payload.kind==='inspect')data={entries:[{name:'README.md',type:'file'}]};if(j.payload.kind==='write'){writes++;if(uncertainNextWrite){uncertainNextWrite=false;return route.fulfill({json:{job:{...j,status:'uncertain',result:{ok:false,error:'Result uncertain: check Work status'}}}});}assert(['a'.repeat(64),'b'.repeat(64)].includes(j.payload.expectedSha));data={path:j.payload.path,sha256:'b'.repeat(64)};}if(j.payload.kind==='check'){checks++;if(failNextCheck){failNextCheck=false;return route.fulfill({json:{job:{...j,status:'failed',result:{ok:false,error:'Assertion failed: expected repaired code'}}}});}data={output:'TESTS_OK'};}if(j.payload.kind==='github_context')data={repository:'example/demo',head:'c'.repeat(40),branch:'main',status:' M notes.md'};if(j.payload.kind==='github_diff')data={head:'c'.repeat(40),status:' M notes.md',diff:'Reviewed actual diff',files:[{path:'notes.md',sha256:'b'.repeat(64)}]};if(j.payload.kind==='github_pr')data={url:'https://github.com/example/demo/pull/1'};if(j.payload.kind==='powershell')data={output:'POWERSHELL_OK'};if(j.payload.kind==='browse')data={url:j.payload.url,title:'Public docs',text:'PUBLIC_PAGE_OK'};out={job:{...j,status:'completed',result:{ok:true,data}}};}
    return route.fulfill({json:out});
   });
   await page.route('**/functions/v1/yap-gmail-messages',route=>{mailReads++;return route.fulfill({json:{messages:[{subject:'Project update',from:'colleague@example.com',snippet:'The mock project is ready for review.'}]}});});
@@ -66,10 +66,45 @@ const plan=(tools=[],answer='')=>({answer:JSON.stringify({tools,answer})});
   models=editing();await send('Read GitHub example/demo README.md and my computer notes.md, then save a combined summary to notes.md.');await idle();
   await page.getByRole('button',{name:'Approve save',exact:true}).click();await page.getByText('Saved notes.md in Demo project.',{exact:true}).waitFor();assert.equal(writes,1);
 
+
+  // One bounded permission allows a real edit/check/repair cycle, then a separate PR review.
+  const beforeLoopWrites=writes,beforeLoopChecks=checks;failNextCheck=true;
+  models=[
+   plan([{tool:'computer.repository',args:{}},{tool:'computer.read',args:{path:'notes.md'}}]),
+   plan([{tool:'computer.coding_session',args:{summary:'Repair notes and verify with npm test.',paths:['notes.md'],checks:['npm_test']}}]),
+   plan([{tool:'computer.write',args:{path:'notes.md',content:'First attempt'}}]),
+   plan([{tool:'computer.check',args:{check:'npm_test'}}]),
+   plan([{tool:'computer.replace',args:{path:'notes.md',find:'First attempt',replace:'Repaired code'}}]),
+   plan([{tool:'computer.check',args:{check:'npm_test'}}]),
+   plan([{tool:'computer.diff',args:{paths:['notes.md']}}]),
+   plan([{tool:'computer.pull_request',args:{title:'Repair notes safely',body:'Repairs notes. Validation: npm test.'}}])
+  ];
+  await send('Fix this project code, run tests and submit a draft pull request.');await idle();
+  await page.getByRole('button',{name:'Start coding task',exact:true}).waitFor();assert.equal(writes,beforeLoopWrites);assert.equal(checks,beforeLoopChecks);
+  await page.getByRole('button',{name:'Start coding task',exact:true}).click();await idle();
+  await page.getByRole('button',{name:'Create draft pull request',exact:true}).waitFor();assert.equal(writes,beforeLoopWrites+2);assert.equal(checks,beforeLoopChecks+2);
+  assert(!requests.some(x=>x[0]==='work'&&x[1].action==='approve'&&jobs.get(x[1].id)?.payload.kind==='github_pr'));
+  await page.getByRole('button',{name:'Create draft pull request',exact:true}).click();await page.getByText('Draft pull request created: https://github.com/example/demo/pull/1',{exact:true}).waitFor();
+  const submitted=requests.filter(x=>x[0]==='work'&&x[1].task?.kind==='github_pr').at(-1)[1].task;assert.equal(submitted.repository,'example/demo');assert.equal(submitted.expectedHead,'c'.repeat(40));assert.equal(submitted.files[0].sha256,'b'.repeat(64));
+  // A model cannot broaden the user's approved file scope.
+  models=[plan([{tool:'computer.coding_session',args:{summary:'Edit one file.',paths:['notes.md'],checks:[]}}]),plan([{tool:'computer.write',args:{path:'other.md',content:'Out of scope'}}])];
+  const scopedWrites=writes;await send('Fix this project code.');await idle();await page.getByRole('button',{name:'Start coding task',exact:true}).click();await idle();await page.getByText(/outside the approved task scope/).waitFor();assert.equal(writes,scopedWrites);
+
+  // An uncertain process outcome terminates the loop, without repeating a write.
+  models=[plan([{tool:'computer.read',args:{path:'notes.md'}}]),plan([{tool:'computer.coding_session',args:{summary:'One approved edit.',paths:['notes.md'],checks:[]}}]),plan([{tool:'computer.write',args:{path:'notes.md',content:'A single attempt'}}])];
+  await send('Fix this project code.');await idle();uncertainNextWrite=true;const uncertainWrites=writes;
+  await page.getByRole('button',{name:'Start coding task',exact:true}).click();await idle();await page.getByText(/The task stopped: Result uncertain/).waitFor();assert.equal(writes,uncertainWrites+1);assert.equal(models.length,0);
+
+  // PowerShell and page visits always require a fresh exact-action approval.
+  models=[plan([{tool:'computer.powershell',args:{command:'Get-Location',reason:'Check the selected working folder.'}}])];
+  const commandCount=()=>requests.filter(x=>x[0]==='work'&&x[1].action==='approve'&&jobs.get(x[1].id)?.payload.kind==='powershell').length;
+  await send('Use PowerShell to show my project location.');await idle();assert.equal(commandCount(),0);await page.getByRole('button',{name:'Run command',exact:true}).click();await page.getByText(/POWERSHELL_OK/).waitFor();assert.equal(commandCount(),1);
+  models=[plan([{tool:'computer.browse',args:{url:'https://example.com/docs'}}])];await send('Browse https://example.com/docs on my computer.');await idle();await page.getByRole('button',{name:'Read page',exact:true}).waitFor();assert(!requests.some(x=>x[0]==='work'&&x[1].action==='approve'&&jobs.get(x[1].id)?.payload.kind==='browse'));await page.getByRole('button',{name:'Read page',exact:true}).click();await page.getByText(/PUBLIC_PAGE_OK/).waitFor();
+
   // A simple request needs no planning/model call or mode switch.
   const count=requests.filter(x=>x[0]==='model').length;
-  await send('run tests');await idle();await page.getByRole('button',{name:'Run check',exact:true}).waitFor();assert.equal(checks,0);
-  await page.getByRole('button',{name:'Run check',exact:true}).click();await page.getByText(/TESTS_OK/).waitFor();assert.equal(checks,1);
+  await send('run tests');await idle();await page.getByRole('button',{name:'Run check',exact:true}).waitFor();assert.equal(checks,beforeLoopChecks+2);
+  await page.getByRole('button',{name:'Run check',exact:true}).click();await page.getByText(/TESTS_OK/).waitFor();assert.equal(checks,beforeLoopChecks+3);
   assert.equal(requests.filter(x=>x[0]==='model').length,count);
   await send('Can you look for a repoistory on GitHub?');await idle();await page.getByText('example/demo (private)',{exact:false}).waitFor();
   assert.equal(requests.filter(x=>x[0]==='model').length,count);
