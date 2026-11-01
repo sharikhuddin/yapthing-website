@@ -135,7 +135,7 @@
   let data;try{data=JSON.parse(text);}catch{throw Error('I couldn’t prepare reliable tool steps. Try a smaller request, such as “list my GitHub repositories and check my computer.”');}
   if(!data||typeof data!=='object'||!Array.isArray(data.tools)||data.tools.length>4||typeof data.answer!=='string'||data.answer.length>14000)throw Error('The proposed tool steps could not be verified.');
   for(const step of data.tools){if(!step||!Object.hasOwn(catalog,step.tool)||!step.args||typeof step.args!=='object'||Array.isArray(step.args))throw Error('That tool is not available in YapThing.');}
-  const changes=data.tools.filter(s=>mutating.has(s.tool));if(changes.length&&(changes.length!==1||data.tools.length!==1)&&!(approved&&data.tools.every(s=>['computer.write','computer.replace','computer.check'].includes(s.tool))))throw Error('Review one change at a time. Read the needed files before proposing an edit.');
+  const changes=data.tools.filter(s=>mutating.has(s.tool)),sessionBatch=changes.filter(s=>s.tool==='computer.coding_session').length===1&&changes.every(s=>['computer.coding_session','computer.write','computer.replace','computer.check'].includes(s.tool));if(changes.length>1&&!sessionBatch&&!(approved&&changes.every(s=>['computer.write','computer.replace','computer.check'].includes(s.tool))))throw Error('Review one change at a time. Read the needed files before proposing an edit.');
   return data;
  }
  const textArg=(args,key,max=300)=>{const v=args[key];if(typeof v!=='string'||!v.trim()||v.length>max)throw Error('A valid '+key.replaceAll('_',' ')+' is needed.');return v;};
@@ -212,11 +212,17 @@
    const queued=run.queue.shift();
    const response=queued?null:await window.YapPhotoVision.ask(planningPrompt(run,run.round),[],false,{responseMode:'balance',purpose:'coding_plan'});ensure(run);
    const plan=queued?{answer:'',tools:[queued]}:parsePlan(response.answer,{approved:!!run.permission});
-   if(run.permission&&plan.tools.length>1&&plan.tools.every(s=>['computer.write','computer.replace','computer.check'].includes(s.tool))){run.queue.push(...plan.tools.slice(1));plan.tools=plan.tools.slice(0,1);}
+   if(run.permission&&plan.tools.length>1&&plan.tools.some(s=>mutating.has(s.tool))&&plan.tools.filter(s=>mutating.has(s.tool)).every(s=>['computer.write','computer.replace','computer.check'].includes(s.tool))){run.queue.push(...plan.tools.slice(1));plan.tools=plan.tools.slice(0,1);}
+   if(!run.permission&&plan.tools.some(s=>s.tool==='computer.coding_session')){const deferred=plan.tools.filter(s=>['computer.write','computer.replace','computer.check'].includes(s.tool));run.queue.push(...deferred);plan.tools=plan.tools.filter(s=>!deferred.includes(s));}
    if(!plan.tools.length){if(!plan.answer.trim())throw Error('No answer was returned.');say(plan.answer);remember(run);return;}
    if(run.round===11)throw Error('This task reached its planning limit. Review the completed steps before continuing.');
    if(plan.tools.some(s=>mutating.has(s.tool))){
-    const step=plan.tools[0];
+    const step=plan.tools.find(s=>mutating.has(s.tool));
+    // Reads can safely prepare a single review, even if the model grouped them together.
+    for(const readStep of plan.tools.filter(s=>!mutating.has(s.tool))){
+     try{const result=await execute(run,readStep);run.entries.push({tool:readStep.tool,args:readStep.args,result});}
+     catch(error){ensure(run);if(error.uncertain)throw error;if(error.code==='PROJECT_REQUIRED'){offerProject(run);return;}run.entries.push({tool:readStep.tool,args:readStep.args,error:String(error.message||error).slice(0,1800)});}
+    }
     if(run.permission&&['computer.write','computer.replace','computer.check'].includes(step.tool)){
      const a=step.args,isWrite=['computer.write','computer.replace'].includes(step.tool),name=isWrite?relative(a.path):a.check;
      if(isWrite?!run.permission.paths.includes(name):!run.permission.checks.includes(name))throw Error('The proposed action is outside the approved task scope. Start a new request to change that scope.');
