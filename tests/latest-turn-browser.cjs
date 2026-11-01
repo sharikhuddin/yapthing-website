@@ -20,6 +20,8 @@ const server=http.createServer((req,res)=>{try{const pathname=new URL(req.url,'h
    assert.doesNotMatch(result,/API authentication/i);
   }else{
    await page.evaluate(()=>{
+    window.YapWebAccount.getUserId=()=> '11111111-1111-4111-8111-111111111111';
+    window.dispatchEvent(new Event('yap:session-change'));
     window.YapWebChat.newChat();window.YapWebChat.add('Explain API authentication','user');
     window.YapWebChat.add('API authentication verifies identity before granting access.','assistant');
    });

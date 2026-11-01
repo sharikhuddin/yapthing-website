@@ -14,6 +14,8 @@ const server=http.createServer((req,res)=>{try{const url=new URL(req.url,'http:/
   });
   await page.goto('http://127.0.0.1:'+server.address().port+'/chat/',{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>!!window.YapWebChat&&!!window.YapChatServices,{timeout:20000});
+  // Identity conversation is for a signed-in user; guest accounts now receive one preview only.
+  await page.evaluate(()=>{window.YapWebAccount.getUserId=()=> '11111111-1111-4111-8111-111111111111';window.dispatchEvent(new Event('yap:session-change'));});
   const ask=async q=>{
    await page.locator('#prompt').fill(q);
    await page.evaluate(()=>document.querySelector('#form').requestSubmit());

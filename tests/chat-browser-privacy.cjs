@@ -29,7 +29,7 @@ const a='11111111-1111-4111-8111-111111111111',b='22222222-2222-4222-8222-222222
    const u=route.request().url();
    if(u.includes('/functions/v1/yap-quota-status'))
     return route.fulfill({status:200,contentType:'application/json',
-     body:JSON.stringify({features:{cloud_chat:{limit:20,remaining:20}},prepaid:{credits:0}})});
+     body:JSON.stringify({features:{cloud_chat:{limit:5,remaining:5}},prepaid:{credits:0}})});
    if(u.includes('/rest/v1/yap_shared_chat_threads'))
     return route.fulfill({status:200,contentType:'application/json',body:'[]'});
    if(u.includes('/rest/v1/yap_user_memory'))
