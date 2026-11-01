@@ -1,0 +1,10 @@
+/* YapThing in-chat brand: use the same lime/charcoal smile as the official app icon. */
+#messages .message.yap-assistant-reply{position:relative;margin-left:42px;max-width:min(740px,calc(100% - 42px))}
+#messages .message.yap-assistant-reply>.yap-assistant-avatar{position:absolute;left:-42px;top:7px;display:block;box-sizing:border-box;width:32px;height:32px;border-radius:10px;object-fit:cover;box-shadow:0 0 0 1px rgba(34,37,34,.12);background:#dcf86d}
+#messages .yap-working-logo{background:#dcf86d}
+#messages .yap-working-ring{border-top-color:#dcf86d}
+html[data-theme="original"] #messages .yap-working-ring{border-top-color:#245b37}
+@media(max-width:700px){
+ #messages .message.yap-assistant-reply{margin-left:37px;max-width:calc(100% - 37px)}
+ #messages .message.yap-assistant-reply>.yap-assistant-avatar{left:-37px;top:5px;width:29px;height:29px;border-radius:9px}
+}
