@@ -66,7 +66,8 @@
   if(chat()?.isIncognito?.()){dialog.querySelector('[data-apps]').textContent='Private tools are off in Incognito. Use a normal chat to connect apps or computer files.';dialog.querySelector('[data-project]').replaceChildren();if(!dialog.open)dialog.showModal();return;}
   dialog.querySelector('[data-apps]').textContent='Checking your connections…';
   const p=currentProject(),projectBox=dialog.querySelector('[data-project]'),actor=account();projectBox.replaceChildren();
-  projectBox.append(el('h3','Computer project'));
+  projectBox.append(el('h3','Code with your computer'),el('p','Choose a project, then ask what to build or fix. YapThing can inspect code, make approved edits, run tests and prepare a reviewed draft pull request.'));
+  projectBox.append(button('Set up or troubleshoot this computer',()=>{dialog.close();window.YapComputerSetup?.open?.();}));
   const saved=window.YapWorkChat?.listProjects?.()||[];if(p&&!saved.some(item=>item.id===p.id))saved.push(p);
   if(saved.length){
    const label=el('label','Project to use for computer files'),select=el('select');select.id='yca-project-picker';label.htmlFor=select.id;
@@ -90,19 +91,21 @@
  }
  toolsButton.onclick=openTools;
  const oldPlugin=$('yap-plugin-pick');if(oldPlugin){oldPlugin.textContent='Connected apps';oldPlugin.onclick=()=>{const menu=$('yap-attachment-menu');if(menu)menu.open=false;openTools();};}
- for(const text of ['Find my YapThing repository on GitHub and check my computer.','Compare my GitHub repositories with my Supabase projects.','Read README.md in this project and save a short summary as notes.md.']){
+ for(const text of ['Find my YapThing repository on GitHub and check my computer.','Compare my GitHub repositories with my Supabase projects.','Fix the bug in this project, run tests, and prepare a draft pull request.']){
   dialog.querySelector('[data-examples]').append(button(text,()=>{dialog.close();input.value=text;input.dispatchEvent(new Event('input',{bubbles:true}));input.focus();}));
  }
+ function isComputerSetupRequest(text){if(/\b(project|script|website|program|code|app|repository)\b/i.test(text)&&!(/\b(connect|pair|connector|no admin|administrator|offline|checksum|node missing|not recognized)\b|cannot overwrite.*home/i.test(text)))return false;return /\b(no admin|administrator rights|checksum|node not recognized|node missing|npx not recognized|npm not recognized)\b|cannot overwrite.*home/i.test(text)||/\b(connect|pair|set ?up|troubleshoot)\b.*\b(computer|desktop commander)\b/i.test(text)||/\b(computer|desktop commander)\b.*\b(offline|cannot connect|not working)\b/i.test(text);}
  function shouldHandle(text){
   const t=String(text||'').trim();if(!t||t.startsWith('/')||window.YapPhotoVision?.hasPhoto?.())return false;
   if(chat()?.isIncognito?.()&&!/\b(github|supabase|gmail|google drive|computer|this project|my files|connected apps?)\b/i.test(t))return false;
+  if(isComputerSetupRequest(t))return true;
   if(window.YapResearchFallback?.supportAnswer?.(t))return false;
   if(/^(?:what (?:is|are)|how (?:does|do)|explain)\b/i.test(t)&&/\b(github|supabase|ollama|google drive)\b/i.test(t)&&!/\b(my|our|this project|connected)\b/i.test(t))return false;
   const app=/\b(github|supabase|google drive|gmail|my emails?|my inbox|desktop commander|my computer|this computer|connected apps?|my repos?|my repositories|project files?|this project)\b|github\.com\//i.test(t);
   const task=/\b(find|look|list|show|search|read|open|summari[sz]e|compare|check|run|save|write|create|change|edit|fix|build|debug|review|connect|use|help|tests?|repositor(?:y|ies))\b/i.test(t);
   const fileTask=(!!currentProject()?.root||/\b(my computer|this project|the file|read file|open file|list files|run tests|check tests)\b/i.test(t))&&/\b(read|open|save|write|edit|fix|run|check|list|build|debug)\b/i.test(t)&&/\b(files?|scripts?|code|tests?|checks?|app|folder|project|readme)\b|\.[a-z]{1,5}\b/i.test(t);
   const computerTask=/\b(powershell|terminal|browse|browsing|pull request)\b/i.test(t);
-  const codingTask=/\b(build|code|implement|debug|refactor|fix|create|make|write|review|explain)\b/i.test(t)&&/\b(app|script|website|component|program|automation|code)\b/i.test(t);
+  const codingTask=/\b(build|code|implement|debug|refactor|fix|create|make|write|review|explain|set\s*up)\b/i.test(t)&&/\b(app|script|website|component|program|automation|code|project)\b/i.test(t);
   return app&&task||fileTask||codingTask||computerTask||!!memo&&same(memo.state)&&(/\b(that|those|these|both|them|it|results)\b/i.test(t)&&/\b(summarize|compare|save|use|read|check|fix|explain|what about)\b/i.test(t)||/^(?:summarize|compare)(?: please)?[.!?]?$/i.test(t));
  }
  function fastPlan(text){
@@ -335,6 +338,8 @@
   if(String(text).length>3000){say('For connected apps, keep this request under 3,000 characters or split it into two steps.');return true;}
   removePending();if(!repeat)say(text,'user');
   if(chat()?.isIncognito?.()){say('Connected apps are unavailable in Incognito. Start a normal chat to use them.');return true;}
+  const setupRequest=isComputerSetupRequest(text);
+  if(setupRequest&&window.YapComputerSetup?.help){input.value='';void window.YapComputerSetup.help(text,{includeUser:false});return true;}
   if(!account()){say('Sign in to YapThing to use your connected apps.');return true;}
   if(/^(?:(?:can|could|would) (?:you|yapthing) |please |help me )?(?:connect|link)(?: (?:to|with))? (?:my |a |the )?(?:computer|github|supabase|google drive)(?: account)?[.!?]?$/i.test(String(text).trim())){input.value='';void openTools();return true;}
   const state=identity(),node=el('div');node.className='yca-progress';node.setAttribute('role','status');node.setAttribute('aria-live','polite');

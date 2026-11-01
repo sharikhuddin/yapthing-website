@@ -3,7 +3,7 @@
 (()=>{
  const modal=document.getElementById('yap-computer-setup');
  if(!modal||document.getElementById('ycs-noadmin'))return;
- const download='https://yapthing.com/desktop/YapThing-Computer-NoAdmin.cmd';
+ const download='https://yapthing.com/desktop/YapThing-Computer-NoAdmin.cmd?v=20261101-portable2';
  const copyCommand='Invoke-WebRequest -Uri "'+download+'" -OutFile "$env:USERPROFILE\\Downloads\\YapThing-Computer-NoAdmin.cmd"';
  const first=modal.querySelector('section');
  if(!first)return;
@@ -16,7 +16,7 @@
  const detail=document.createElement('div');detail.className='ycs-portable';detail.hidden=true;
  const text=document.createElement('p');
  text.textContent='No administrator account? This optional launcher can use an official verified Node.js 24 LTS ZIP in your user folder. It requests consent before downloading and does not install an MSI, alter system PATH, or change Windows execution policy.';
- const link=document.createElement('a');link.href='/desktop/YapThing-Computer-NoAdmin.cmd';link.download='YapThing-Computer-NoAdmin.cmd';link.textContent='Download no-admin launcher (.cmd)';
+ const link=document.createElement('a');link.href='/desktop/YapThing-Computer-NoAdmin.cmd?v=20261101-portable2';link.download='YapThing-Computer-NoAdmin.cmd';link.textContent='Download no-admin launcher (.cmd)';
  const expl=document.createElement('p');expl.textContent='Inspect the file before running it. To download it with PowerShell instead, copy this command. It downloads the file but does not execute it:';
  const row=document.createElement('div');row.className='ycs-command';
  const snippet=document.createElement('code');snippet.textContent=copyCommand;
@@ -38,6 +38,7 @@
  const issues=modal.querySelector('#ycs-trouble'),help=modal.querySelector('#ycs-help');
  if(issues&&help){
   const choices=[
+   ['Cannot overwrite HOME','This is a launcher bug, not a permissions problem. Download the updated no-admin launcher using the link above and run that fresh copy. Keep checksum verification enabled.'],
    ['No administrator rights','Use No admin / Node missing. Download and inspect the Windows launcher; it offers a user-folder Node.js ZIP, not an MSI. If the device is managed, follow organization policy.'],
    ['PowerShell script blocked','The optional launcher is a .cmd file and does not request an execution-policy change. If .cmd files are prohibited, do not evade the restriction. Request IT approval.'],
    ['Node.js ZIP download failed','Check your authorized connection to nodejs.org, storage space and company proxy. Do not disable antivirus or TLS verification. Contact IT for a permitted download.'],

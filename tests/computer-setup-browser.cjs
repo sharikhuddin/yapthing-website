@@ -7,7 +7,7 @@ const server=http.createServer((req,res)=>{try{const url=new URL(req.url,'http:/
  const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
  try{for(const width of [390,1280]){
   const ctx=await browser.newContext({viewport:{width,height:820},permissions:['clipboard-read','clipboard-write']});
-  const page=await ctx.newPage(),errors=[];
+  const page=await ctx.newPage(),errors=[];page.setDefaultTimeout(5000);
   page.on('pageerror',e=>errors.push(e.message));
   await page.route('**/*',r=>r.request().url().startsWith('http://127.0.0.1')?r.continue():r.abort());
   await page.goto('http://127.0.0.1:'+server.address().port+'/chat/',{waitUntil:'domcontentloaded'});
@@ -29,6 +29,10 @@ const server=http.createServer((req,res)=>{try{const url=new URL(req.url,'http:/
   await modal.getByRole('button',{name:'Check connection'}).click();
   await modal.getByText(/1 computer online/).waitFor();
   await modal.getByText(/My desktop — Online/).waitFor();
+  await modal.getByRole('button',{name:'Choose project and start coding'}).click();
+  assert.equal(await page.locator('#yap-connected-apps').isVisible(),true);
+  await page.getByRole('button',{name:'Close connected apps',exact:true}).click();
+  await page.evaluate(()=>window.YapComputerSetup.open());
   await modal.getByRole('button',{name:'Computer offline'}).click();
   await modal.getByText(/leave the PowerShell process open/).waitFor();
   const rect=await modal.boundingBox();assert(rect&&rect.width<=width);

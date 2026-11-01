@@ -18,7 +18,7 @@ const server=http.createServer((req,res)=>{try{const uri=new URL(req.url,'http:/
    assert.equal(await modal.locator('#ycs-portable').count(),0);
    const portable=page.locator('#ycs-noadmin .ycs-portable');
    assert.equal(await portable.isVisible(),true);
-   assert.equal(await portable.locator('a[download]').getAttribute('href'),'/desktop/YapThing-Computer-NoAdmin.cmd');
+   assert.equal(await portable.locator('a[download]').getAttribute('href'),'/desktop/YapThing-Computer-NoAdmin.cmd?v=20261101-portable2');
    await portable.getByRole('button',{name:'Copy download command'}).click();
    const copied=await page.evaluate(()=>navigator.clipboard.readText());
    assert(copied.includes('Invoke-WebRequest')&&copied.includes('YapThing-Computer-NoAdmin.cmd'));

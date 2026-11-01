@@ -13,7 +13,7 @@ await page.goto('http://127.0.0.1:'+server.address().port+'/chat/');
 await page.waitForFunction(()=>!!window.YapWorkChat&&!!window.YapComputerSetup);
 await page.evaluate(()=>{window.YapWebAccount.getUserId=()=>'user-test';window.YapWebAccount.getToken=async()=> 'token';window.YapWebAccount.authFetch=window.fetch.bind(window);});
 const send=async text=>{await page.locator('#prompt').fill(text);await page.locator('#form').evaluate(f=>f.requestSubmit());};
-await send('Can YapThing connect to my computer?');await page.locator('#yap-connected-apps').waitFor({state:'visible'});await page.getByRole('button',{name:'Close connected apps'}).click();
+await send('Can YapThing connect to my computer?');await page.locator('#yap-computer-setup').waitFor({state:'visible'});await page.getByRole('button',{name:'Close computer setup'}).click();
 await send('/projects');const editor=page.locator('.yap-project-editor');await editor.waitFor({state:'visible'});
 await editor.getByLabel('Project name',{exact:true}).fill('MCP test');await editor.getByText('Computer and files (optional)',{exact:true}).click();
 await editor.getByLabel('Project folder on your computer',{exact:true}).fill('C:/TestProject');await editor.getByRole('button',{name:'Find computers',exact:true}).click();await editor.getByRole('combobox',{name:'Project computer',exact:true}).selectOption('device');await editor.getByRole('button',{name:'Create project',exact:true}).click();

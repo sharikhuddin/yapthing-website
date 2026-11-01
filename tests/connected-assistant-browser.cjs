@@ -160,6 +160,10 @@ const plan=(tools=[],answer='')=>({answer:JSON.stringify({tools,answer})});
   await page.evaluate(()=>window.YapCode.open('Write a Python script that prints Hello.'));
   await page.getByRole('button',{name:'Use Gemini coding in chat',exact:true}).click();await idle();await page.getByText('Gemini coding draft from the YapCoding panel.',{exact:true}).waitFor();assert.equal(await page.locator('#yapcode-dialog').isVisible(),false);
 
+  // Project setup is a coding request, while computer connection setup has its own guide.
+  models=[plan([],'Project setup can continue in the coding task flow.')];
+  await send('Set up a Python project on my computer.');await idle();await page.getByText('Project setup can continue in the coding task flow.',{exact:true}).waitFor();assert.equal(await page.locator('#yap-computer-setup').isVisible(),false);
+
   // Definitions stay in ordinary chat rather than querying private connections.
   const devBefore=requests.filter(x=>x[0]==='developer').length;
   models=[{answer:'GitHub hosts code repositories. This is a general explanation.'}];
