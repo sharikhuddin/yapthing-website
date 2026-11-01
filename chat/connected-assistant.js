@@ -135,7 +135,7 @@
   let data;try{data=JSON.parse(text);}catch{throw Error('I couldn’t prepare reliable tool steps. Try a smaller request, such as “list my GitHub repositories and check my computer.”');}
   if(!data||typeof data!=='object'||!Array.isArray(data.tools)||data.tools.length>4||typeof data.answer!=='string'||data.answer.length>14000)throw Error('The proposed tool steps could not be verified.');
   for(const step of data.tools){if(!step||!Object.hasOwn(catalog,step.tool)||!step.args||typeof step.args!=='object'||Array.isArray(step.args))throw Error('That tool is not available in YapThing.');}
-  const changes=data.tools.filter(s=>mutating.has(s.tool));if(changes.length&&(changes.length!==1||data.tools.length!==1)&&!(approved&&data.tools.every(s=>['computer.write','computer.replace','computer.check'].includes(s.tool))))throw Error('Review one change at a time. Read the needed files before proposing an edit.');
+  const changes=data.tools.filter(s=>mutating.has(s.tool)),sessionBatch=changes.filter(s=>s.tool==='computer.coding_session').length===1&&changes.every(s=>['computer.coding_session','computer.write','computer.replace','computer.check'].includes(s.tool));if(changes.length>1&&!sessionBatch&&!(approved&&changes.every(s=>['computer.write','computer.replace','computer.check'].includes(s.tool))))throw Error('Review one change at a time. Read the needed files before proposing an edit.');
   return data;
  }
  const textArg=(args,key,max=300)=>{const v=args[key];if(typeof v!=='string'||!v.trim()||v.length>max)throw Error('A valid '+key.replaceAll('_',' ')+' is needed.');return v;};
@@ -212,18 +212,27 @@
    const queued=run.queue.shift();
    const response=queued?null:await window.YapPhotoVision.ask(planningPrompt(run,run.round),[],false,{responseMode:'balance',purpose:'coding_plan'});ensure(run);
    const plan=queued?{answer:'',tools:[queued]}:parsePlan(response.answer,{approved:!!run.permission});
-   if(run.permission&&plan.tools.length>1&&plan.tools.every(s=>['computer.write','computer.replace','computer.check'].includes(s.tool))){run.queue.push(...plan.tools.slice(1));plan.tools=plan.tools.slice(0,1);}
+   if(run.permission&&plan.tools.length>1&&plan.tools.some(s=>mutating.has(s.tool))&&plan.tools.filter(s=>mutating.has(s.tool)).every(s=>['computer.write','computer.replace','computer.check'].includes(s.tool))){run.queue.push(...plan.tools.slice(1));plan.tools=plan.tools.slice(0,1);}
+   if(!run.permission&&plan.tools.some(s=>s.tool==='computer.coding_session')){const deferred=plan.tools.filter(s=>['computer.write','computer.replace','computer.check'].includes(s.tool));run.queue.push(...deferred);plan.tools=plan.tools.filter(s=>!deferred.includes(s));}
    if(!plan.tools.length){if(!plan.answer.trim())throw Error('No answer was returned.');say(plan.answer);remember(run);return;}
    if(run.round===11)throw Error('This task reached its planning limit. Review the completed steps before continuing.');
    if(plan.tools.some(s=>mutating.has(s.tool))){
-    const step=plan.tools[0];
+    const step=plan.tools.find(s=>mutating.has(s.tool));
+    // Reads can safely prepare a single review, even if the model grouped them together.
+    for(const readStep of plan.tools.filter(s=>!mutating.has(s.tool))){
+     try{const result=await execute(run,readStep);run.entries.push({tool:readStep.tool,args:readStep.args,result});}
+     catch(error){ensure(run);if(error.uncertain)throw error;if(error.code==='PROJECT_REQUIRED'){offerProject(run);return;}run.entries.push({tool:readStep.tool,args:readStep.args,error:String(error.message||error).slice(0,1800)});}
+    }
     if(run.permission&&['computer.write','computer.replace','computer.check'].includes(step.tool)){
      const a=step.args,isWrite=['computer.write','computer.replace'].includes(step.tool),name=isWrite?relative(a.path):a.check;
      if(isWrite?!run.permission.paths.includes(name):!run.permission.checks.includes(name))throw Error('The proposed action is outside the approved task scope. Start a new request to change that scope.');
      if(isWrite?++run.permission.saves>8:++run.permission.runs>3)throw Error('The approved edit or check limit was reached. Review results before continuing.');
-     if(step.tool==='computer.replace')a.content=replacement(run,a);
-     if(isWrite&&(typeof a.content!=='string'||a.content.length>(step.tool==='computer.replace'?65536:12000)))throw Error('The proposed file exceeds the edit limit.');
-     const task=isWrite?{kind:'write',path:name,content:a.content,expectedSha:run.reads.get(name)||'missing'}:{kind:'check',check:name};
+     let task;
+     try{
+      if(step.tool==='computer.replace')a.content=replacement(run,a);
+      if(isWrite&&(typeof a.content!=='string'||a.content.length>(step.tool==='computer.replace'?65536:12000)))throw Error('The proposed file exceeds the edit limit.');
+      task=isWrite?{kind:'write',path:name,content:a.content,expectedSha:run.reads.get(name)||'missing'}:{kind:'check',check:name};
+     }catch(error){run.queue=[];if(++run.validationErrors>2)throw error;run.entries.push({tool:'planner.validation',args:{tool:step.tool,path:name},error:String(error.message||error)+'. Correct the missing arguments, reread if needed, or use a complete computer.write for a small file. No computer action was run.'});continue;}
      status(isWrite?'Saving approved file '+name+'…':'Running approved check '+name+'…');
      try{const result=await workTask(run,task);if(isWrite){run.reads.set(name,result.sha256);run.files.set(name,a.content);run.changed.add(name);}run.entries.push({tool:step.tool,args:isWrite?{path:name}:{check:name},result});say(isWrite?'Saved '+name+'.':'Check completed: '+name+'.\n'+String(result.output||''));}
      catch(error){ensure(run);if(error.uncertain||/credit|limit reached|20-action/i.test(error.message))throw error;run.queue=[];run.entries.push({tool:step.tool,args:{path:isWrite?name:undefined,check:isWrite?undefined:name},error:String(error.message||error)});say('The '+(isWrite?'save':'check')+' failed: '+String(error.message||error));}
@@ -330,8 +339,8 @@
   if(/^(?:(?:can|could|would) (?:you|yapthing) |please |help me )?(?:connect|link)(?: (?:to|with))? (?:my |a |the )?(?:computer|github|supabase|google drive)(?: account)?[.!?]?$/i.test(String(text).trim())){input.value='';void openTools();return true;}
   const state=identity(),node=el('div');node.className='yca-progress';node.setAttribute('role','status');node.setAttribute('aria-live','polite');
   const label=el('span','Choosing the right tools…');label.dataset.label='';node.append(label,button('Stop',()=>{cancelActive();say('Stopped. Any action already approved must be checked in Work status before retrying.');}));
-  const run={state,revision,text:String(text),entries:[],reads:new Map(),files:new Map(),operations:0,round:0,queue:[],changed:new Set(),document:window.YapAttachments?.getDocument?.()||'',node,canceled:false,allowedMail:/\b(gmail|emails?|inbox|mail)\b/i.test(text)||!!memo&&same(memo.state)&&memo.entries.some(e=>e.tool==='gmail.inbox')&&/\b(that|those|these|it|them|both|results)\b/i.test(text)};active=run;
-  if(memo&&same(memo.state))for(const entry of memo.entries){if(entry.tool==='computer.read'&&entry.args?.path&&entry.result?.sha256)run.reads.set(entry.args.path,entry.result.sha256);}
+  const run={state,revision,text:String(text),entries:[],reads:new Map(),files:new Map(),operations:0,round:0,queue:[],validationErrors:0,changed:new Set(),document:window.YapAttachments?.getDocument?.()||'',node,canceled:false,allowedMail:/\b(gmail|emails?|inbox|mail)\b/i.test(text)||!!memo&&same(memo.state)&&memo.entries.some(e=>e.tool==='gmail.inbox')&&/\b(that|those|these|it|them|both|results)\b/i.test(text)};active=run;
+  if(memo&&same(memo.state))for(const entry of memo.entries){if(entry.tool==='computer.read'&&entry.args?.path&&entry.result?.sha256){run.reads.set(entry.args.path,entry.result.sha256);if(typeof entry.result.content==='string')run.files.set(entry.args.path,entry.result.content);}}
   input.value='';input.disabled=true;$('send').disabled=true;attach(node);
   try{
    if(/^\s*(?:(?:can|could|would) you |please )?(?:deploy|merge|delete|remove|publish)\b/i.test(text)&&/\bgithub\b/i.test(text)){say('I can inspect code, make approved changes, run checks and prepare a draft pull request. Merging and deployment need a separate release review. Nothing was changed.');return true;}

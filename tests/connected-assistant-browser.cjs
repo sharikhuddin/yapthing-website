@@ -67,11 +67,15 @@ const plan=(tools=[],answer='')=>({answer:JSON.stringify({tools,answer})});
   await page.getByRole('button',{name:'Approve save',exact:true}).click();await page.getByText('Saved notes.md in Demo project.',{exact:true}).waitFor();assert.equal(writes,1);
 
 
+  // A follow-up focused edit uses the real file content and hash from the prior read.
+  await send('read file notes.md');await idle();
+  models=[plan([{tool:'computer.replace',args:{path:'notes.md',find:'Original local file',replace:'Focused follow-up edit'}}])];
+  const beforeFollowup=writes;await send('Fix that code file with a focused edit.');await idle();assert.equal(writes,beforeFollowup);await page.getByRole('button',{name:'Approve save',exact:true}).click();await page.getByText('Saved notes.md in Demo project.',{exact:true}).nth(1).waitFor();assert.equal(writes,beforeFollowup+1);
+
   // One bounded permission allows a real edit/check/repair cycle, then a separate PR review.
   const beforeLoopWrites=writes,beforeLoopChecks=checks;failNextCheck=true;
   models=[
-   plan([{tool:'computer.repository',args:{}},{tool:'computer.read',args:{path:'notes.md'}}]),
-   plan([{tool:'computer.coding_session',args:{summary:'Repair notes and verify with npm test.',paths:['notes.md'],checks:['npm_test']}}]),
+   plan([{tool:'computer.repository',args:{}},{tool:'computer.read',args:{path:'notes.md'}},{tool:'computer.coding_session',args:{summary:'Repair notes and verify with npm test.',paths:['notes.md'],checks:['npm_test']}}]),
    plan([{tool:'computer.write',args:{path:'notes.md',content:'First attempt'}},{tool:'computer.check',args:{check:'npm_test'}}]),
    plan([{tool:'computer.replace',args:{path:'notes.md',find:'First attempt',replace:'Repaired code'}}]),
    plan([{tool:'computer.check',args:{check:'npm_test'}}]),
@@ -94,6 +98,14 @@ const plan=(tools=[],answer='')=>({answer:JSON.stringify({tools,answer})});
   await send('Fix this project code.');await idle();uncertainNextWrite=true;const uncertainWrites=writes;
   await page.getByRole('button',{name:'Start coding task',exact:true}).click();await idle();await page.getByText(/The task stopped: Result uncertain/).waitFor();assert.equal(writes,uncertainWrites+1);assert.equal(models.length,0);
 
+  // A session grouped with future work is held until approval, then runs in order.
+  models=[plan([{tool:'computer.read',args:{path:'notes.md'}},{tool:'computer.coding_session',args:{summary:'One exact edit and check.',paths:['notes.md'],checks:['npm_test']}},{tool:'computer.write',args:{path:'notes.md',content:'Grouped approved edit'}},{tool:'computer.check',args:{check:'npm_test'}}]),plan([],'Grouped task verified.')];
+  const groupedWrites=writes,groupedChecks=checks;await send('Fix this project code and verify.');await idle();assert.equal(writes,groupedWrites);assert.equal(checks,groupedChecks);await page.getByRole('button',{name:'Start coding task',exact:true}).click();await idle();await page.getByText('Grouped task verified.',{exact:true}).waitFor();assert.equal(writes,groupedWrites+1);assert.equal(checks,groupedChecks+1);
+
+  // Missing edit arguments are corrected before any computer write is dispatched.
+  models=[plan([{tool:'computer.read',args:{path:'notes.md'}},{tool:'computer.coding_session',args:{summary:'One focused edit.',paths:['notes.md'],checks:[]}}]),plan([{tool:'computer.replace',args:{path:'notes.md',replace:'Corrected argument edit'}}]),plan([{tool:'computer.replace',args:{path:'notes.md',find:'Original local file',replace:'Corrected argument edit'}}]),plan([],'Corrected edit arguments and saved once.')];
+  const beforeCorrection=writes;await send('Fix this project code with a focused edit.');await idle();await page.getByRole('button',{name:'Start coding task',exact:true}).click();await idle();await page.getByText('Corrected edit arguments and saved once.',{exact:true}).waitFor();assert.equal(writes,beforeCorrection+1);assert(requests.filter(x=>x[0]==='model').some(x=>x[1].prompt.includes('planner.validation')));
+
   // PowerShell and page visits always require a fresh exact-action approval.
   models=[plan([{tool:'computer.powershell',args:{command:'Get-Location',reason:'Check the selected working folder.'}}])];
   const commandCount=()=>requests.filter(x=>x[0]==='work'&&x[1].action==='approve'&&jobs.get(x[1].id)?.payload.kind==='powershell').length;
@@ -101,9 +113,9 @@ const plan=(tools=[],answer='')=>({answer:JSON.stringify({tools,answer})});
   models=[plan([{tool:'computer.browse',args:{url:'https://example.com/docs'}}])];await send('Browse https://example.com/docs on my computer.');await idle();await page.getByRole('button',{name:'Read page',exact:true}).waitFor();assert(!requests.some(x=>x[0]==='work'&&x[1].action==='approve'&&jobs.get(x[1].id)?.payload.kind==='browse'));await page.getByRole('button',{name:'Read page',exact:true}).click();await page.getByText(/PUBLIC_PAGE_OK/).waitFor();
 
   // A simple request needs no planning/model call or mode switch.
-  const count=requests.filter(x=>x[0]==='model').length;
-  await send('run tests');await idle();await page.getByRole('button',{name:'Run check',exact:true}).waitFor();assert.equal(checks,beforeLoopChecks+2);
-  await page.getByRole('button',{name:'Run check',exact:true}).click();await page.getByText(/TESTS_OK/).waitFor();assert.equal(checks,beforeLoopChecks+3);
+  const count=requests.filter(x=>x[0]==='model').length,checksBeforeSimple=checks;
+  await send('run tests');await idle();await page.getByRole('button',{name:'Run check',exact:true}).waitFor();assert.equal(checks,checksBeforeSimple);
+  await page.getByRole('button',{name:'Run check',exact:true}).click();await page.getByText('The project check completed.',{exact:true}).waitFor();assert.equal(checks,checksBeforeSimple+1);
   assert.equal(requests.filter(x=>x[0]==='model').length,count);
   await send('Can you look for a repoistory on GitHub?');await idle();await page.getByText('example/demo (private)',{exact:false}).waitFor();
   assert.equal(requests.filter(x=>x[0]==='model').length,count);
@@ -121,7 +133,7 @@ const plan=(tools=[],answer='')=>({answer:JSON.stringify({tools,answer})});
   await page.evaluate(()=>{window.YapWorkChat.currentProject=()=>null;});
   const planned=requests.filter(x=>x[0]==='model').length;await send('read file README.md');await idle();await page.getByRole('button',{name:'Continue request',exact:true}).waitFor();assert.equal(requests.filter(x=>x[0]==='model').length,planned);
   await page.evaluate(()=>{window.YapWorkChat.currentProject=()=>({id:'new-project',name:'New project',root:'C:/New',deviceId:'pc'});});
-  await page.getByRole('button',{name:'Continue request',exact:true}).click();await idle();await page.getByText(/Original local file/).waitFor();
+  await page.getByRole('button',{name:'Continue request',exact:true}).click();await idle();await page.getByText(/Original local file/).last().waitFor();
 
   // Email snippets can be combined with Drive, but creating the note needs approval.
   models=[plan([{tool:'gmail.inbox',args:{}}]),plan([{tool:'drive.create',args:{name:'Project summary',text:'The project is ready for review.'}}])];
