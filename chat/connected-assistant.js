@@ -227,9 +227,12 @@
      const a=step.args,isWrite=['computer.write','computer.replace'].includes(step.tool),name=isWrite?relative(a.path):a.check;
      if(isWrite?!run.permission.paths.includes(name):!run.permission.checks.includes(name))throw Error('The proposed action is outside the approved task scope. Start a new request to change that scope.');
      if(isWrite?++run.permission.saves>8:++run.permission.runs>3)throw Error('The approved edit or check limit was reached. Review results before continuing.');
-     if(step.tool==='computer.replace')a.content=replacement(run,a);
-     if(isWrite&&(typeof a.content!=='string'||a.content.length>(step.tool==='computer.replace'?65536:12000)))throw Error('The proposed file exceeds the edit limit.');
-     const task=isWrite?{kind:'write',path:name,content:a.content,expectedSha:run.reads.get(name)||'missing'}:{kind:'check',check:name};
+     let task;
+     try{
+      if(step.tool==='computer.replace')a.content=replacement(run,a);
+      if(isWrite&&(typeof a.content!=='string'||a.content.length>(step.tool==='computer.replace'?65536:12000)))throw Error('The proposed file exceeds the edit limit.');
+      task=isWrite?{kind:'write',path:name,content:a.content,expectedSha:run.reads.get(name)||'missing'}:{kind:'check',check:name};
+     }catch(error){run.queue=[];if(++run.validationErrors>2)throw error;run.entries.push({tool:'planner.validation',args:{tool:step.tool,path:name},error:String(error.message||error)+'. Correct the missing arguments, reread if needed, or use a complete computer.write for a small file. No computer action was run.'});continue;}
      status(isWrite?'Saving approved file '+name+'…':'Running approved check '+name+'…');
      try{const result=await workTask(run,task);if(isWrite){run.reads.set(name,result.sha256);run.files.set(name,a.content);run.changed.add(name);}run.entries.push({tool:step.tool,args:isWrite?{path:name}:{check:name},result});say(isWrite?'Saved '+name+'.':'Check completed: '+name+'.\n'+String(result.output||''));}
      catch(error){ensure(run);if(error.uncertain||/credit|limit reached|20-action/i.test(error.message))throw error;run.queue=[];run.entries.push({tool:step.tool,args:{path:isWrite?name:undefined,check:isWrite?undefined:name},error:String(error.message||error)});say('The '+(isWrite?'save':'check')+' failed: '+String(error.message||error));}
@@ -336,7 +339,7 @@
   if(/^(?:(?:can|could|would) (?:you|yapthing) |please |help me )?(?:connect|link)(?: (?:to|with))? (?:my |a |the )?(?:computer|github|supabase|google drive)(?: account)?[.!?]?$/i.test(String(text).trim())){input.value='';void openTools();return true;}
   const state=identity(),node=el('div');node.className='yca-progress';node.setAttribute('role','status');node.setAttribute('aria-live','polite');
   const label=el('span','Choosing the right tools…');label.dataset.label='';node.append(label,button('Stop',()=>{cancelActive();say('Stopped. Any action already approved must be checked in Work status before retrying.');}));
-  const run={state,revision,text:String(text),entries:[],reads:new Map(),files:new Map(),operations:0,round:0,queue:[],changed:new Set(),document:window.YapAttachments?.getDocument?.()||'',node,canceled:false,allowedMail:/\b(gmail|emails?|inbox|mail)\b/i.test(text)||!!memo&&same(memo.state)&&memo.entries.some(e=>e.tool==='gmail.inbox')&&/\b(that|those|these|it|them|both|results)\b/i.test(text)};active=run;
+  const run={state,revision,text:String(text),entries:[],reads:new Map(),files:new Map(),operations:0,round:0,queue:[],validationErrors:0,changed:new Set(),document:window.YapAttachments?.getDocument?.()||'',node,canceled:false,allowedMail:/\b(gmail|emails?|inbox|mail)\b/i.test(text)||!!memo&&same(memo.state)&&memo.entries.some(e=>e.tool==='gmail.inbox')&&/\b(that|those|these|it|them|both|results)\b/i.test(text)};active=run;
   if(memo&&same(memo.state))for(const entry of memo.entries){if(entry.tool==='computer.read'&&entry.args?.path&&entry.result?.sha256){run.reads.set(entry.args.path,entry.result.sha256);if(typeof entry.result.content==='string')run.files.set(entry.args.path,entry.result.content);}}
   input.value='';input.disabled=true;$('send').disabled=true;attach(node);
   try{

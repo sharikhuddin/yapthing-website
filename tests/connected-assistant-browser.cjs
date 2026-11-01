@@ -102,6 +102,10 @@ const plan=(tools=[],answer='')=>({answer:JSON.stringify({tools,answer})});
   models=[plan([{tool:'computer.read',args:{path:'notes.md'}},{tool:'computer.coding_session',args:{summary:'One exact edit and check.',paths:['notes.md'],checks:['npm_test']}},{tool:'computer.write',args:{path:'notes.md',content:'Grouped approved edit'}},{tool:'computer.check',args:{check:'npm_test'}}]),plan([],'Grouped task verified.')];
   const groupedWrites=writes,groupedChecks=checks;await send('Fix this project code and verify.');await idle();assert.equal(writes,groupedWrites);assert.equal(checks,groupedChecks);await page.getByRole('button',{name:'Start coding task',exact:true}).click();await idle();await page.getByText('Grouped task verified.',{exact:true}).waitFor();assert.equal(writes,groupedWrites+1);assert.equal(checks,groupedChecks+1);
 
+  // Missing edit arguments are corrected before any computer write is dispatched.
+  models=[plan([{tool:'computer.read',args:{path:'notes.md'}},{tool:'computer.coding_session',args:{summary:'One focused edit.',paths:['notes.md'],checks:[]}}]),plan([{tool:'computer.replace',args:{path:'notes.md',replace:'Corrected argument edit'}}]),plan([{tool:'computer.replace',args:{path:'notes.md',find:'Original local file',replace:'Corrected argument edit'}}]),plan([],'Corrected edit arguments and saved once.')];
+  const beforeCorrection=writes;await send('Fix this project code with a focused edit.');await idle();await page.getByRole('button',{name:'Start coding task',exact:true}).click();await idle();await page.getByText('Corrected edit arguments and saved once.',{exact:true}).waitFor();assert.equal(writes,beforeCorrection+1);assert(requests.filter(x=>x[0]==='model').some(x=>x[1].prompt.includes('planner.validation')));
+
   // PowerShell and page visits always require a fresh exact-action approval.
   models=[plan([{tool:'computer.powershell',args:{command:'Get-Location',reason:'Check the selected working folder.'}}])];
   const commandCount=()=>requests.filter(x=>x[0]==='work'&&x[1].action==='approve'&&jobs.get(x[1].id)?.payload.kind==='powershell').length;
