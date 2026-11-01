@@ -40,7 +40,7 @@
     {
       "url": "https://yapthing.com/chat/",
       "file": "chat/index.html",
-      "sha256": "96f903a68d48b5b5d96d468f4788acc06189001f88db67d3a892ec396e517274",
+      "sha256": "cd9c4e116a30a0b34523f5734a9a123d1e5e9510761f14eacd12be025951443f",
       "lastmod": "2026-11-01"
     },
     {
@@ -58,8 +58,8 @@
     {
       "url": "https://yapthing.com/plugins/",
       "file": "plugins/index.html",
-      "sha256": "df1c283624ee55e27038c61bb67c5ad246377bd69633a7b8e2859a4dd97efb88",
-      "lastmod": "2026-10-31"
+      "sha256": "8de399bbe57d41a7e7bda8be8a9cf7c17fb13605e508820f270976992f0342f0",
+      "lastmod": "2026-11-01"
     },
     {
       "url": "https://yapthing.com/support/",
