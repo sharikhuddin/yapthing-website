@@ -101,24 +101,44 @@ const plan=(tools=[],answer='')=>({answer:JSON.stringify({tools,answer})});
   models=[plan([{tool:'github.repositories',args:{}},{tool:'supabase.projects',args:{}}]),{answer:'This is not a structured tool plan.'}];
   const previousWrites=writes;await send('Compare my GitHub repositories with my Supabase projects.');await idle();await page.getByText(/I retrieved these results, but couldn’t finish the combined answer/).waitFor();assert.equal(writes,previousWrites);
 
+  // The user's original coding wording no longer falls into the Ollama-only flow.
+  const localModelCalls=requests.filter(x=>x[0]==='work'&&['local_models','draft_project'].includes(x[1].task?.kind)).length;
+  models=[plan([],'What should your app do? I can draft it here and show proposed files for review.')];
+  await send('Can you help me code app');await idle();await page.getByText(/What should your app do/).waitFor();
+  assert.equal(requests.filter(x=>x[0]==='work'&&['local_models','draft_project'].includes(x[1].task?.kind)).length,localModelCalls);
+  await page.evaluate(()=>{window.YapWorkChat.currentProject=()=>null;});
+  models=[plan([],'Here is the Python draft: print("Hello")')];await send('Write a Python script that prints Hello.');await idle();await page.getByText(/Here is the Python draft/).waitFor();assert.equal(await page.getByRole('button',{name:'Continue request',exact:true}).isVisible(),false);
+
   // Definitions stay in ordinary chat rather than querying private connections.
   const devBefore=requests.filter(x=>x[0]==='developer').length;
   models=[{answer:'GitHub hosts code repositories. This is a general explanation.'}];
   await send('What is GitHub?');await page.getByText(/This is a general explanation/).waitFor();assert.equal(requests.filter(x=>x[0]==='developer').length,devBefore);
   assert.equal(requests.filter(x=>x[0]==='model').at(-1)[1].prompt,'What is GitHub?');
 
+  // Existing computer projects can be selected directly, without a new setup form.
+  await page.evaluate(()=>{
+   const p={id:'saved',name:'Saved computer project',root:'C:/Saved',deviceId:'pc'};
+   window.YapWorkChat.listProjects=()=>[p];window.YapWorkChat.selectProject=async id=>{if(id!==p.id)throw Error('Wrong project');window.YapWorkChat.currentProject=()=>p;window.dispatchEvent(new Event('yap:chats-updated'));};
+  });
+  await page.getByRole('button',{name:'Connected apps and computer',exact:true}).click();
+  await page.getByLabel('Project to use for computer files',{exact:true}).selectOption('saved');
+  await page.locator('#yap-connected-apps').waitFor({state:'hidden'});assert.equal(await page.evaluate(()=>window.YapWorkChat.currentProject().name),'Saved computer project');
+
   // An in-flight response must not execute tools after changing accounts.
   hold=true;await send('Compare my GitHub repositories with my Supabase projects.');
   await page.waitForFunction(()=>document.querySelector('#prompt').disabled);
   for(let i=0;!held&&i<30;i++)await new Promise(r=>setTimeout(r,20));
   assert(held);const before=requests.filter(x=>x[0]==='developer').length;
+  await page.getByRole('button',{name:'Connected apps and computer',exact:true}).click();
   await page.evaluate(()=>{window.YapWebAccount.getUserId=()=>'different-user';window.dispatchEvent(new Event('yap:session-change'));});
+  assert.equal(await page.locator('#yap-connected-apps').isVisible(),false);assert.equal(await page.locator('#yap-connected-apps [data-project]').innerText(),'');
   await held.fulfill({json:plan([{tool:'github.repositories',args:{}}])});hold=false;held=null;
   await idle();assert.equal(requests.filter(x=>x[0]==='developer').length,before);
 
   // Incognito makes no connected calls.
   await page.evaluate(()=>{window.YapWebChat.isIncognito=()=>true;});
   const beforeAll=requests.length;await send('List my GitHub repositories');await page.getByText('Connected apps are unavailable in Incognito. Start a normal chat to use them.',{exact:true}).waitFor();assert.equal(requests.length,beforeAll);
+  await page.getByRole('button',{name:'Connected apps and computer',exact:true}).click();await page.getByText(/Private tools are off in Incognito/).waitFor();assert.equal(requests.length,beforeAll);assert.equal(await page.evaluate(()=>window.YapConnectedAssistant.shouldHandle('Write a Python script')),false);
   assert.deepEqual(errors,[]);
   console.log('PASS conversational cross-app reads, reviewed file saves, simple checks, typos, account switch and Incognito '+width+'px');
   await ctx.close();
