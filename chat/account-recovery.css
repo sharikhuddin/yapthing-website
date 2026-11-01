@@ -1,0 +1,5 @@
+/* Password recovery control in YapThing's existing sign-in panel. */
+#account-panel #account-forgot-password{grid-column:1/-1;min-height:37px;border:0!important;background:transparent!important;box-shadow:none!important;padding:5px 4px!important;text-align:left;color:var(--accent,#d5f67b);font-size:13px;font-weight:650;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+#account-panel #account-forgot-password:hover{text-decoration-thickness:2px}
+#account-panel #account-forgot-password:focus-visible{outline:2px solid #cced71;outline-offset:3px}
+#account-panel #account-forgot-password:disabled{opacity:.55;cursor:wait}
