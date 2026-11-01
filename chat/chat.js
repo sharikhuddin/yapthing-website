@@ -232,6 +232,7 @@ const learnedPref=!hasPhoto&&!doc?window.YapChatServices?.learnExplicitStyle?.(t
  updateUsage();syncName();
 });syncName();render();updateUsage();setInterval(()=>{if(!busy)updateUsage()},60000);status('Ready when you are');magic(false)
 window.YapWebChat={
+ context:()=>currentChat()?.messages?.filter(m=>['user','assistant'].includes(m.role)&&m.text!=='YAPTHING_WORKING').slice(-6).map(m=>({role:m.role,text:m.text}))||[],
  owner:()=>owner,
  isIncognito:()=>incognito,
  setIncognito,

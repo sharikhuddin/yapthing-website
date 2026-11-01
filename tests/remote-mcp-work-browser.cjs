@@ -13,7 +13,7 @@ await page.goto('http://127.0.0.1:'+server.address().port+'/chat/');
 await page.waitForFunction(()=>!!window.YapWorkChat&&!!window.YapComputerSetup);
 await page.evaluate(()=>{window.YapWebAccount.getUserId=()=>'user-test';window.YapWebAccount.getToken=async()=> 'token';window.YapWebAccount.authFetch=window.fetch.bind(window);});
 const send=async text=>{await page.locator('#prompt').fill(text);await page.locator('#form').evaluate(f=>f.requestSubmit());};
-await send('Can YapThing connect to my computer?');await page.locator('#yap-computer-setup').waitFor({state:'visible'});await page.getByRole('button',{name:'Close computer setup'}).click();
+await send('Can YapThing connect to my computer?');await page.locator('#yap-connected-apps').waitFor({state:'visible'});await page.getByRole('button',{name:'Close connected apps'}).click();
 await send('/projects');const editor=page.locator('.yap-project-editor');await editor.waitFor({state:'visible'});
 await editor.getByLabel('Project name',{exact:true}).fill('MCP test');await editor.getByText('Computer and files (optional)',{exact:true}).click();
 await editor.getByLabel('Project folder on your computer',{exact:true}).fill('C:/TestProject');await editor.getByRole('button',{name:'Find computers',exact:true}).click();await editor.getByRole('combobox',{name:'Project computer',exact:true}).selectOption('device');await editor.getByRole('button',{name:'Create project',exact:true}).click();
@@ -21,6 +21,6 @@ await editor.waitFor({state:'detached'});await send('list files');await page.get
 await send('read file sample.txt');await page.getByText(/REMOTE_FILE_OK/).waitFor();
 const before=approvals;await send('run tests');await page.getByRole('button',{name:'Run check',exact:true}).waitFor();assert.equal(approvals,before,'terminal check ran before approval');
 await page.getByRole('button',{name:'Cancel',exact:true}).click();assert.equal(approvals,before);
-await send('run tests');await page.getByRole('button',{name:'Run check',exact:true}).click();await page.getByRole('button',{name:'Done',exact:true}).waitFor();assert.equal(approvals,before+1);
+await send('run tests');await page.getByRole('button',{name:'Run check',exact:true}).click();await page.getByText(/REMOTE_CHECK_OK/).waitFor();assert.equal(approvals,before+1);
 assert.deepEqual(errors,[]);console.log('PASS connection wording, visible project setup, file routing and terminal permission '+width+'px');await ctx.close();}
 }finally{await browser.close();}})().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>server.close());

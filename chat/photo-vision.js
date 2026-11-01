@@ -24,20 +24,20 @@ async function prepare(file){
  let binary='';for(let i=0;i<bytes.length;i+=8192)binary+=String.fromCharCode(...bytes.subarray(i,i+8192));
  return btoa(binary);
 }
-async function cloudRequest(prompt,history,imageBase64,search=false){
+async function cloudRequest(prompt,history,imageBase64,search=false,options={}){
   const token=await window.YapWebAccount?.getToken();
   if(!token)throw Error('Sign in to use YapThing Cloud.');
   const response=await window.YapWebAccount.authFetch('https://uemjkfvcadggyvhbqqyp.supabase.co/functions/v1/ios-chat',{
    method:'POST',headers:{'content-type':'application/json','authorization':'Bearer '+token,
     'apikey':'sb_publishable_HqcXeSMELbRgGodOzr0kCA_VwZldmBJ'},
-   body:JSON.stringify({prompt,responseMode:window.YapResponseModes?.current()?.id||'auto',preferences:window.YapChatServices?.preferences()||{},history:history.filter(m=>m.role==='user'||m.role==='assistant').slice(-8).map(m=>({role:m.role==='assistant'?'model':m.role,text:m.content})),...(imageBase64?{imageBase64}:{}),search:!!search})
+   body:JSON.stringify({prompt,responseMode:options.responseMode||window.YapResponseModes?.current()?.id||'auto',preferences:window.YapChatServices?.preferences()||{},history:history.filter(m=>m.role==='user'||m.role==='assistant').slice(-8).map(m=>({role:m.role==='assistant'?'model':m.role,text:m.content})),...(imageBase64?{imageBase64}:{}),search:!!search})
   });
   const result=await response.json().catch(()=>({}));
   if(!response.ok){const e=Error(result.error||result.message||'YapThing Cloud unavailable ('+response.status+')');e.code=result.code;e.status=response.status;throw e;}
   return result;
 }
 window.YapPhotoVision={
- ask:(prompt,history,search=false)=>cloudRequest(prompt,history,null,search),
+ ask:(prompt,history,search=false,options={})=>cloudRequest(prompt,history,null,search,options),
  hasPhoto:()=>!!image,
  file:()=>image,
  removePhoto:reset,

@@ -32,7 +32,7 @@
   if(code.test(q))return 'developer';
   return 'live';
  }
- function shouldSearch(q){return previous.shouldSearch(q)||study.test(q)||code.test(q);}
+ function shouldSearch(q){if(/^(?:what (?:is|are)|how does|explain)\b/i.test(String(q||''))&&/\b(github|supabase)\b/i.test(q)&&!/\b(my|our|this project|connected)\b/i.test(q))return false;return previous.shouldSearch(q)||study.test(q)||code.test(q);}
  async function research(prompt,mode='auto',style='balance'){
   if(/\b(?:github|supabase)\b|(?:github|supabase)\.com\//i.test(String(prompt||'')))throw Error('Use the connected developer tools for this request. No web or academic fallback is allowed.');
   const q=normalize(prompt),kind=route(q,mode),begin=Date.now();

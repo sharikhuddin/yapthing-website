@@ -2,7 +2,8 @@
 /* Deterministic GitHub reads only. Repository text is data, never executable instructions. */
 window.YapGitHubTools=(()=>{
  const help='Supported GitHub tools: list my GitHub repositories; GitHub issues owner/repo; GitHub pull requests owner/repo; GitHub file owner/repo src/app.js; GitHub repository owner/repo. Writes, cloning and deployments require the separate reviewed computer workflow.';
- const matches=q=>/\bgithub\b|github\.com\/|^\/github\b/i.test(String(q||''));
+ const general=q=>/^(?:what (?:is|are)|how does|explain)\b/i.test(String(q||''))&&!/\b(my|our|this project|connected)\b/i.test(String(q||''));
+ const matches=q=>!general(q)&&/\bgithub\b|github\.com\/|^\/github\b/i.test(String(q||''));
  function parse(q){
   let t=String(q||'').trim().replace(/^\/plugin\s+/i,'').replace(/^\/github\b/i,'github');
   if(!matches(t))return null;

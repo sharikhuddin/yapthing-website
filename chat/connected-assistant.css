@@ -1,0 +1,30 @@
+/* Extend YapThing's existing chat design. */
+.yap-unified-chat #yap-conversation-mode{display:none}
+#yap-connected-tools{min-height:36px;padding:6px 12px;border:1px solid var(--border,#dbe5dd);border-radius:999px;background:transparent;color:inherit;font:inherit;font-size:13px;white-space:nowrap}
+#yap-connected-apps{box-sizing:border-box;width:min(480px,calc(100vw - 28px));max-height:85dvh;overflow:auto;margin:auto;padding:22px;border:1px solid var(--border,#dbe5dd);border-radius:20px;background:var(--panel,#fff);color:var(--fg,#214732);font:15px/1.5 system-ui}
+#yap-connected-apps::backdrop{background:#14241d66}
+#yap-connected-apps h2{font-size:20px;margin:0}
+#yap-connected-apps h3{font-size:15px;margin:22px 0 5px}
+#yap-connected-apps p{margin:12px 0;color:inherit}
+#yap-connected-apps button,#yap-connected-apps a,.yca-review button,.yca-resume button{min-height:40px;padding:8px 12px;border:1px solid var(--border,#cbd9c4);border-radius:10px;color:inherit;background:var(--bubble,#edf5e6);font:inherit;cursor:pointer}
+.yca-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.yca-app-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid var(--border,#dbe5dd)}
+.yca-app-row strong,.yca-app-row small{display:block}
+.yca-app-row small,.yca-note{font-size:12px;opacity:.75}
+#yap-connected-apps [data-examples]{display:grid;gap:8px;margin-top:10px}
+#yap-connected-apps [data-examples] button{text-align:left;background:transparent}
+.yca-progress{display:flex;align-items:center;gap:12px;max-width:760px;margin:10px auto;padding:10px 16px;font-size:13px;color:var(--fg,#214732)}
+.yca-progress button{background:transparent;border:0;text-decoration:underline;color:inherit;cursor:pointer;padding:8px}
+.yca-review{box-sizing:border-box;width:100%;max-width:760px;margin:12px auto;padding:18px;border:1px solid var(--border,#cbd9c4);border-radius:16px;background:var(--panel,#f8f9f3);color:var(--fg,#214732);font:15px/1.5 system-ui}
+.yca-review h3{font-size:17px;margin:0 0 10px}
+.yca-review pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:300px;overflow:auto;font:13px/1.5 ui-monospace,Consolas,monospace}
+.yca-review details{margin:12px 0}
+.yca-review summary{cursor:pointer;min-height:36px}
+.yca-review button{margin:8px 10px 0 0}
+.yca-review button:disabled{opacity:.55;cursor:default}
+.yca-resume{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px;padding:8px 0}
+@media(max-width:600px){#yap-connected-apps{padding:18px}.yca-review{padding:14px}.yca-progress{margin:6px 0;padding:8px 10px}}
+
+.yca-composer-tools{grid-column:2!important;grid-row:3!important;display:flex;align-items:center;gap:7px;min-width:0}
+.yca-composer-tools #yap-connected-tools{flex:none;min-height:34px;padding:5px 9px;font-size:12px}
+.yca-resume[hidden]{display:none}
