@@ -28,3 +28,7 @@
 .yca-composer-tools{grid-column:2!important;grid-row:3!important;display:flex;align-items:center;gap:7px;min-width:0}
 .yca-composer-tools #yap-connected-tools{flex:none;min-height:34px;padding:5px 9px;font-size:12px}
 .yca-resume[hidden]{display:none}
+
+#yap-connected-apps [data-project] label{display:block;font-size:13px;margin:10px 0 5px}
+#yap-connected-apps [data-project] select{box-sizing:border-box;width:100%;min-height:42px;margin-bottom:10px;border:1px solid var(--border,#cbd9c4);border-radius:10px;padding:8px;background:var(--panel,#fff);color:inherit;font:inherit}
+#yap-connected-apps [data-project]>button{margin-right:8px}

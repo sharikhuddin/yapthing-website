@@ -9,7 +9,7 @@ The website now has one main chat experience and a Tools button in the composer.
 - Common list/read/check requests use deterministic adapters without an extra planning call.
 - The response is grounded in the returned tool results. A failed connection stays a failed source, with a connection link. If the response service cannot finish after successful reads, the verified source facts are still shown.
 - Computer file saves, project checks, and new Drive notes create an inline review. Execution begins only after the user approves.
-- Selecting a computer folder is needed only for computer file tasks. A visible Continue request control resumes after project setup.
+- Selecting a computer folder is needed only for computer file tasks. The Tools panel can select an existing project directly. A visible Continue request control resumes after project selection or setup. Code-only drafts do not require choosing a computer project.
 - Code drafts can use the existing YapThing response service. The conversational flow does not require installing Ollama.
 
 ## Architecture and boundaries
@@ -22,7 +22,7 @@ Planning uses the existing `ios-chat` response endpoint, at most two read rounds
 
 Only the explicit tool catalog can execute. Model output is parsed as data; unknown tool names, invalid paths, and unsupported checks are rejected. There is no generic shell, SQL, GitHub write/deploy, email send/delete/archive, or arbitrary URL adapter.
 
-Account, chat, selected-project and Incognito boundaries are checked before and after asynchronous work. Switching context invalidates in-flight results and previews. Computer writes use the SHA from a real prior read, or an expected missing file, so a proposed write cannot silently overwrite an unread existing file. Backend approval hashing, ownership and idempotency still apply.
+Account, chat, selected-project and Incognito boundaries are checked before and after asynchronous work. Switching context invalidates in-flight results and previews; it also closes and clears the account-specific Tools panel. Incognito keeps ordinary coding chat available while blocking private tool calls. Computer writes use the SHA from a real prior read, or an expected missing file, so a proposed write cannot silently overwrite an unread existing file. Backend approval hashing, ownership and idempotency still apply.
 
 Retrieved source text is untrusted context. Gmail snippets are only read for an explicit email request or a direct email follow-up. Drive authorization remains limited to files available under the existing drive.file connection.
 
