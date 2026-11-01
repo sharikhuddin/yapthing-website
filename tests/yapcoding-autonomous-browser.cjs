@@ -28,4 +28,3 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
  }
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});
-

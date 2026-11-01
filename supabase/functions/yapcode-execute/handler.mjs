@@ -73,4 +73,3 @@ export function makeHandler(env,fetchImpl=fetch){
   }
  };
 }
-
