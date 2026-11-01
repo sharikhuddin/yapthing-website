@@ -1,0 +1,111 @@
+/* YapThing reading view: editorial hierarchy, comfortable rhythm and accessible contrast.
+   Distinct YapThing lime / charcoal brand; not a copy of another product's assets. */
+#messages .message.yap-assistant-reply{
+  box-sizing:border-box; width:min(820px,calc(100% - 48px));
+  max-width:calc(100% - 48px); margin-left:44px;
+  padding:8px 6px 20px!important; border:0!important; border-radius:0!important;
+  box-shadow:none!important; background:transparent!important; white-space:normal!important;
+  color:var(--fg); font-size:15.5px; line-height:1.7; letter-spacing:normal;
+}
+#messages .message.yap-assistant-reply>.yap-assistant-avatar{left:-44px;top:11px}
+#messages .yap-prose,
+#messages .msg.thing .bubble.yap-prose{
+  overflow-wrap:anywhere;white-space:normal!important;word-break:normal;
+  font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:15.5px;line-height:1.72;letter-spacing:normal;
+}
+#messages .yap-prose>:first-child{margin-top:0!important}
+#messages .yap-prose>:last-child{margin-bottom:0!important}
+#messages .yap-prose p{margin:0 0 .95em;line-height:1.72;white-space:normal}
+#messages .yap-prose h2,#messages .yap-prose h3,#messages .yap-prose h4{
+  color:inherit;font-weight:720;line-height:1.32;letter-spacing:-.024em;
+  overflow-wrap:anywhere;white-space:normal;
+}
+#messages .yap-prose h2{font-size:clamp(20px,2vw,23px);margin:1.45em 0 .55em}
+#messages .yap-prose h3{font-size:18px;margin:1.35em 0 .52em}
+#messages .yap-prose h4{font-size:16px;margin:1.2em 0 .48em}
+#messages .yap-prose strong{font-weight:720;color:inherit}
+#messages .yap-prose em{font-style:italic}
+#messages .yap-prose a{color:var(--accent,#357b4a);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;overflow-wrap:anywhere}
+#messages .yap-prose a:hover{text-decoration-thickness:2px}
+#messages .yap-prose a:focus-visible,#messages .yap-prose button:focus-visible,
+#messages .yp-table-scroll:focus-visible{outline:2px solid var(--accent,#8dbd52);outline-offset:3px}
+#messages .yap-prose .yp-list-group{margin:.4em 0 1.1em}
+#messages .yap-prose ul,#messages .yap-prose ol{padding:0 0 0 1.6em;margin:.15em 0;list-style-position:outside}
+#messages .yap-prose ul{list-style-type:disc}
+#messages .yap-prose ol{list-style-type:decimal}
+#messages .yap-prose li{margin:.32em 0;padding-left:.24em;line-height:1.7}
+#messages .yap-prose li::marker{color:var(--muted,#6c866e)}
+#messages .yap-prose li>ul,#messages .yap-prose li>ol{margin:.45em 0}
+#messages .yap-prose .yp-li-continuation{display:inline}
+#messages .yap-prose blockquote{
+  margin:1em 0 1.2em;padding:3px 0 3px 16px;
+  border-left:3px solid #9abc60;color:var(--fg);opacity:.94;
+  background:transparent;font-style:normal;
+}
+#messages .yap-prose blockquote p{margin:.3em 0}
+#messages .yap-prose hr{height:1px;border:0;background:var(--border,#d7dfd1);margin:1.6em 0}
+#messages .yap-prose .yp-inline-code{
+  padding:.15em .38em;border-radius:5px;background:rgba(117,145,122,.16);
+  font: .88em/1.55 ui-monospace,"SFMono-Regular",Consolas,monospace;
+  overflow-wrap:anywhere;white-space:break-spaces;
+}
+#messages .yap-prose .yp-code-block{
+  margin:1.05em 0 1.3em;max-width:100%;border:1px solid #385448;
+  border-radius:13px;overflow:hidden;background:#172820;color:#e6f3e7;
+}
+#messages .yap-prose .yp-code-header{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:8px 12px;border-bottom:1px solid #375343;background:#20372b;
+  color:#cbded0;white-space:normal;
+}
+#messages .yap-prose .yp-code-language{
+  text-transform:none;font:600 12px ui-monospace,Consolas,monospace;min-width:0;
+}
+#messages .yap-prose .yp-copy{
+  background:#314f3a;color:#e8f6d8;border:1px solid #5c765b;
+  border-radius:8px;min-height:32px;padding:5px 11px;flex:none;
+  font:600 12px system-ui;cursor:pointer;
+}
+#messages .yap-prose .yp-copy:hover{background:#456847}
+#messages .yap-prose .yp-code-block pre{
+  background:transparent!important;max-width:100%;margin:0!important;
+  padding:15px 16px!important;overflow-x:auto;white-space:pre!important;
+  tab-size:2;scrollbar-width:thin;color:inherit;border:0!important;
+}
+#messages .yap-prose .yp-code-block code{
+  color:inherit;background:transparent!important;border:0;white-space:pre!important;
+  font:13px/1.65 ui-monospace,"SFMono-Regular",Consolas,monospace;
+}
+#messages .yap-prose .yp-table-scroll{
+  max-width:100%;margin:1em 0 1.3em;overflow-x:auto;overscroll-behavior-x:contain;
+  border:1px solid var(--border,#d4ddd2);border-radius:12px;scrollbar-width:thin;
+}
+#messages .yap-prose table{width:100%;min-width:max-content;border-collapse:collapse;font-size:13.5px;line-height:1.5}
+#messages .yap-prose th,#messages .yap-prose td{
+  padding:10px 14px;border-bottom:1px solid var(--border,#d7dfd1);
+  text-align:left;vertical-align:top;white-space:normal;max-width:280px;
+}
+#messages .yap-prose th{background:rgba(131,166,120,.12);font-weight:720}
+#messages .yap-prose tr:last-child td{border-bottom:0}
+#messages .yap-prose tbody tr:hover{background:rgba(131,166,120,.065)}
+/* Android chat surfaces: assistive output reads like a document, not a stack of bubbles. */
+body.yap-chat-first #messages .msg.thing .bubble.yap-prose{
+  background:transparent;border:0;box-shadow:none;border-radius:0;
+  padding:3px 2px 14px;color:inherit;width:100%;box-sizing:border-box;
+}
+body.yap-chat-first #messages .msg.thing{max-width:min(820px,96%)}
+@media(max-width:700px){
+ #messages .message.yap-assistant-reply{font-size:14.5px;line-height:1.68;
+   margin-left:37px;max-width:calc(100% - 37px);width:calc(100% - 37px);
+   padding:6px 0 17px!important}
+ #messages .message.yap-assistant-reply>.yap-assistant-avatar{left:-37px;top:6px}
+ #messages .yap-prose,#messages .msg.thing .bubble.yap-prose{font-size:14.5px;line-height:1.68}
+ #messages .yap-prose h2{font-size:19px}
+ #messages .yap-prose h3{font-size:17px}
+ #messages .yap-prose h4{font-size:15px}
+ #messages .yap-prose .yp-code-block code{font-size:12px}
+ #messages .yap-prose .yp-code-block pre{padding:12px!important}
+ #messages .yap-prose th,#messages .yap-prose td{padding:9px 11px}
+}
+@media(prefers-reduced-motion:reduce){#messages .yap-prose *{scroll-behavior:auto!important}}
