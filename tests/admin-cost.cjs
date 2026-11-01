@@ -14,7 +14,7 @@ function setup({savedToken=true,fail=false}={}){
  const events={},calls=[],els=new Map();
  const el=id=>{if(!els.has(id))els.set(id,new Element);return els.get(id)};
  el('panel').hidden=true;
- const mock={month:'2026-10',observed_at:'2026-10-31T15:00:00Z',first_tracked_at:'2026-10-31T12:00:00Z',
+ const mock={month:new Date().toISOString().slice(0,7),observed_at:'2026-10-31T15:00:00Z',first_tracked_at:'2026-10-31T12:00:00Z',
   requests:3,priced_requests:2,partial_requests:1,unpriced_requests:0,estimated_usd:0.0095,average_usd:0.00316667,
   by_feature:[{feature:'web_search',requests:1,estimated_usd:0.005,incomplete:0},{feature:'cloud_chat',requests:2,estimated_usd:0.0045,incomplete:1}],
   by_model:[{provider:'google',model:'gemini-3.5-flash-lite',requests:2,estimated_usd:0.0045,incomplete:1}],
