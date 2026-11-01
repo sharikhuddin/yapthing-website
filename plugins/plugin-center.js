@@ -5,7 +5,7 @@
  if(!main||!api)return;
  const apps=[
   {id:'gmail',name:'Gmail',short:'G',group:'Productivity',desc:'Read your inbox, review messages, and choose what to do.',detail:'Requires your Google authorization. Only a verified, active connection grants access. Sending, archiving, and deleting always require separate confirmation.',kind:'oauth'},
-  {id:'desktop-commander',name:'YapThing Desktop',short:'PC',group:'Developer',desc:'Pair your own Windows computer for files and coding work.',detail:'Install or pair the local desktop connector on your own trusted computer. Approve each permitted action in the companion workflow.',kind:'local',url:'../desktop/'},
+  {id:'desktop-commander',name:'Desktop Commander',short:'PC',group:'Developer',desc:'Pair your own Windows computer for files and coding work.',detail:'Authorize your own Desktop Commander account. Keep the connector running on your computer. Review file edits and terminal checks before approving them in YapCoding or YapWork.',kind:'oauth'},
   {id:'github',name:'GitHub account',short:'GH',group:'Developer',desc:'Connect selected repositories with a GitHub App to inspect code and issues.',kind:'oauth',detail:'A GitHub App installed on repositories you choose is required. Read-only repository and issue operations; no commits, push or deletion.'},
   {id:'github-public',name:'GitHub Public',short:'GH',group:'Developer',desc:'Explore public repositories without connecting an account.',detail:'Public repository search works without account authorization. Private repositories require a separate verified connection.',kind:'public',url:'https://github.com/search?q=',param:true},
   {id:'wikipedia',name:'Wikipedia',short:'W',group:'Research',desc:'Find public encyclopedia articles and sources.',detail:'Public Wikipedia search. No private account access or OAuth needed.',kind:'public',url:'https://en.wikipedia.org/w/index.php?search=',param:true},
@@ -56,11 +56,12 @@
   if(p?.status==='connected')return {label:'Connected',cls:'connected',action:'Open'};
   if(p?.connect_available)return {label:p.status==='expired'?'Reconnect':'Connect securely',cls:'ready',action:'Connect'};
   if(!state.signedIn)return {label:'Sign in required',cls:'disabled',action:'Sign in'};
-  return {label:'Setup required',cls:'disabled',action:'Details'};
+  return {label:p?.status==='unavailable'?'Connection unavailable':'Setup required',cls:'disabled',action:'Details'};
  };
  const allowedAuth=url=>{
   const u=new URL(url);
-  if(u.protocol!=='https:'||!['accounts.google.com','github.com','api.supabase.com'].includes(u.hostname)||u.username||u.password)throw Error('Untrusted authorization destination.');
+  if(u.protocol!=='https:'||!['accounts.google.com','github.com','api.supabase.com','mcp.desktopcommander.app'].includes(u.hostname)||u.username||u.password)throw Error('Untrusted authorization destination.');
+  if(u.hostname==='mcp.desktopcommander.app'&&(u.pathname!=='/authorize'||u.port))throw Error('Untrusted computer authorization destination.');
   return u.href;
  };
  const ensureSession=async()=>{try{await api.getToken();return true;}catch{return false;}};
@@ -252,10 +253,13 @@
    if(p?.status==='connected'){
     const inbox=document.createElement('div');inbox.className='pc-result';inbox.setAttribute('role','status');extra.append(inbox);
     if(app.id==='gmail')actions.append(createButton('Read recent inbox',()=>gmailInbox(inbox)),createButton('Compose email',()=>gmailCompose(inbox)),createButton('Disconnect',()=>connect(app),false));
+    else if(app.id==='desktop-commander'){
+     actions.append(createButton('Check computers',async()=>{try{inbox.textContent='Checking your authorized computers…';const result=await api.computer('devices');inbox.textContent=(result.devices||[]).map(d=>d.name+' · '+(d.online?'Online':'Offline')).join('\n')||'No computers found. Start the connector, then check again.';}catch(e){inbox.textContent=String(e.message||e);}}),createButton('Open YapWork',()=>window.location.assign('../chat/?work=connected')),createButton('Disconnect',()=>connect(app),false));
+    }
     else if(app.id==='google-drive')driveDetails(extra,actions,app);
     else if(app.id==='github'||app.id==='supabase')developerDetails(extra,actions,app);
     else actions.append(createButton('Disconnect',()=>connect(app),false));
-   }else if(p?.connect_available){actions.append(createButton('Authorize with '+(app.id==='github'?'GitHub':app.id==='supabase'?'Supabase':'Google'),()=>connect(app)));}
+   }else if(p?.connect_available){actions.append(createButton('Authorize with '+(app.id==='desktop-commander'?'Desktop Commander':app.id==='github'?'GitHub':app.id==='supabase'?'Supabase':'Google'),()=>connect(app)));}
    else {
     if(app.id==='github'||app.id==='supabase'){
      const note=document.createElement('p');note.textContent='YapThing administrator setup is required before customers can authorize their accounts. No access has been granted.';extra.append(note);

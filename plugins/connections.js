@@ -14,5 +14,12 @@ window.YapPluginConnections=(()=>{
   if(!r.ok)throw Error(data.error||'Connection request failed');
   return data;
  }
- return {getToken:token,list:()=>request(),connect:p=>request('connect',p),pick:p=>request('pick',p),disconnect:p=>request('disconnect',p)};
+ async function computer(action){
+  const t=await token();const route=action==='start'?'yap-work-oauth':'yap-work';
+  const r=await fetch(endpoint.replace('yap-plugin-connections',route),{method:'POST',headers:{authorization:'Bearer '+t,apikey:key,'content-type':'application/json'},body:JSON.stringify({action}),signal:AbortSignal.timeout(25000)});
+  const data=await r.json().catch(()=>({}));if(await token()!==t)throw Error('Your account changed. Refresh connections.');
+  if(!r.ok||data.error)throw Error(data.error||'Computer connection unavailable.');return data;
+ }
+ async function list(){const data=await request();try{const work=await computer('status');data.providers=(data.providers||[]).filter(p=>p.id!=='desktop-commander');data.providers.push({id:'desktop-commander',status:work.connected?'connected':'disconnected',connect_available:true});}catch{data.providers=(data.providers||[]).filter(p=>p.id!=='desktop-commander');data.providers.push({id:'desktop-commander',status:'unavailable',connect_available:false});}return data;}
+ return {getToken:token,list,computer,connect:p=>p==='desktop-commander'?computer('start'):request('connect',p),pick:p=>request('pick',p),disconnect:p=>p==='desktop-commander'?computer('disconnect'):request('disconnect',p)};
 })();
