@@ -6,6 +6,19 @@ const actor=()=>window.YapWebAccount?.getUserId()||'guest';
 const prefKey=()=> 'yap.preferences.v1.'+actor();
 const enums={length:['balanced','concise','detailed'],tone:['plain','professional','friendly'],language:['English','Urdu','Spanish','Arabic']};
 function preferences(){try{const p=JSON.parse(localStorage.getItem(prefKey())||'{}');return Object.fromEntries(Object.entries(enums).filter(([k,v])=>v.includes(p[k])).map(([k])=>[k,p[k]]));}catch{return {};}}
+function learnExplicitStyle(text){
+ const original=String(text||"").trim();
+ if(original.length>130||original.includes("?")||actor()==="guest")return null;
+ if(!/\b(?:remember|from now on|going forward|always|for future (?:answers|replies)|save (?:this|my) preference)\b/i.test(original))return null;
+ let name="",value="";
+ if(/\b(?:short|shorter|concise|brief|to the point)\b/i.test(original)){name="length";value="concise";}
+ else if(/\b(?:detail|detailed|in depth|elaborate)\b/i.test(original)){name="length";value="detailed";}
+ else if(/\b(?:professional|formal)\b/i.test(original)){name="tone";value="professional";}
+ else if(/\b(?:friendly|casual|natural|conversational)\b/i.test(original)){name="tone";value="friendly";}
+ else if(/\b(?:plain|straightforward)\b/i.test(original)){name="tone";value="plain";}
+ if(!name||!enums[name]?.includes(value))return null;
+ try{const updated={...preferences(),[name]:value};localStorage.setItem(prefKey(),JSON.stringify(updated));return "Got it. I'll use a "+value+" "+(name==="length"?"response length":"tone")+" for your YapThing replies on this device. You can change or clear it in Do more → Your preferences.";}catch{return null;}
+}
 async function account(slug){
  const uid=actor(),token=await window.YapWebAccount?.getToken();if(!token||uid==='guest')throw Error('Sign in to use this account service.');
  const r=await (window.YapWebAccount.authFetch||fetch)(base+slug,{headers:{authorization:'Bearer '+token,apikey:key},signal:AbortSignal.timeout(12000)});
@@ -67,5 +80,5 @@ function open(){for(const [k,v] of Object.entries(inputs))v.value=preferences()[
 const trigger=el('button','Do more');trigger.type='button';trigger.id='yap-services-open';trigger.onclick=open;
 const attachment=document.querySelector('#yap-attachment-menu>div');if(attachment)attachment.append(trigger);else document.querySelector('.composer')?.append(trigger);
 window.addEventListener('yap:session-change',()=>dialog.close());
-window.YapChatServices={parse,run,preferences,open};
+window.YapChatServices={parse,run,preferences,learnExplicitStyle,open};
 })();
