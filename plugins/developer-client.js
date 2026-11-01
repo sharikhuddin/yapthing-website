@@ -16,7 +16,8 @@ window.YapDeveloperClient=(()=>{
    body:JSON.stringify({provider,action,...params}),signal:AbortSignal.timeout(24000),cache:"no-store"});
   const data=await r.json().catch(()=>({}));
   if(epoch!==revision||identity!==window.YapWebAccount?.getUserId?.()||window.YapWebChat?.isIncognito?.())throw Error("Account changed. Please try again.");
-  if(!r.ok){const e=Error(String(data.error||"Developer tool unavailable").slice(0,280));e.code=data.code;e.status=r.status;throw e;}
+  if(!r.ok){const fallback=({401:"Your YapThing session expired. Sign in again.",403:"Permission denied. Check your GitHub connection permissions.",404:"The developer tool or resource was not found.",409:"Reconnect your provider in YapThing Plugins.",429:"Provider rate limit reached. Try again later."})[r.status]||"Developer service unavailable. Try again later.";
+  const e=Error(String(data.error||fallback).slice(0,280));e.code=data.code;e.status=r.status;throw e;}
   return data;
  }
  return Object.freeze({
