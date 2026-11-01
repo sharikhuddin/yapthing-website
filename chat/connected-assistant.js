@@ -337,7 +337,7 @@
   const state=identity(),node=el('div');node.className='yca-progress';node.setAttribute('role','status');node.setAttribute('aria-live','polite');
   const label=el('span','Choosing the right tools…');label.dataset.label='';node.append(label,button('Stop',()=>{cancelActive();say('Stopped. Any action already approved must be checked in Work status before retrying.');}));
   const run={state,revision,text:String(text),entries:[],reads:new Map(),files:new Map(),operations:0,round:0,queue:[],changed:new Set(),document:window.YapAttachments?.getDocument?.()||'',node,canceled:false,allowedMail:/\b(gmail|emails?|inbox|mail)\b/i.test(text)||!!memo&&same(memo.state)&&memo.entries.some(e=>e.tool==='gmail.inbox')&&/\b(that|those|these|it|them|both|results)\b/i.test(text)};active=run;
-  if(memo&&same(memo.state))for(const entry of memo.entries){if(entry.tool==='computer.read'&&entry.args?.path&&entry.result?.sha256)run.reads.set(entry.args.path,entry.result.sha256);}
+  if(memo&&same(memo.state))for(const entry of memo.entries){if(entry.tool==='computer.read'&&entry.args?.path&&entry.result?.sha256){run.reads.set(entry.args.path,entry.result.sha256);if(typeof entry.result.content==='string')run.files.set(entry.args.path,entry.result.content);}}
   input.value='';input.disabled=true;$('send').disabled=true;attach(node);
   try{
    if(/^\s*(?:(?:can|could|would) you |please )?(?:deploy|merge|delete|remove|publish)\b/i.test(text)&&/\bgithub\b/i.test(text)){say('I can inspect code, make approved changes, run checks and prepare a draft pull request. Merging and deployment need a separate release review. Nothing was changed.');return true;}
