@@ -101,7 +101,8 @@
  $('account-signup').onclick=async()=>{
   note('Creating account…');
   try{await request('auth/v1/signup','POST',{
-   email:$('account-email').value.trim(),password:$('account-password').value
+   email:$('account-email').value.trim(),password:$('account-password').value,
+   ...(window.YapRegistrationCountry?.currentCode?.()?{data:{registration_country:window.YapRegistrationCountry.currentCode()}}:{})
   });note('Check your email for verification, then sign in.');}
   catch(e){note(e.message)}
  };

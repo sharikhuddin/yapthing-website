@@ -1,0 +1,21 @@
+const BASE=Deno.env.get("SUPABASE_URL")||"",ANON=Deno.env.get("SUPABASE_ANON_KEY")||"",ROLE=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||"";
+const allowed=new Set(["https://yapthing.com","https://www.yapthing.com","https://sharikhuddin.github.io"]);
+Deno.serve(async(req:Request)=>{
+ const origin=req.headers.get("origin")||"";
+ const headers:Record<string,string>={"content-type":"application/json","cache-control":"no-store","access-control-allow-headers":"authorization,apikey,content-type","access-control-allow-methods":"GET,OPTIONS"};
+ if(allowed.has(origin))headers["access-control-allow-origin"]=origin;
+ const reply=(status:number,data:unknown)=>new Response(JSON.stringify(data),{status,headers});
+ if(req.method==="OPTIONS")return new Response(null,{status:204,headers});
+ if(req.method!=="GET")return reply(405,{error:"Method not allowed"});
+ const auth=req.headers.get("authorization")||"";
+ if(!/^Bearer\s+\S+$/i.test(auth))return reply(401,{error:"Authentication required"});
+ const valid=await fetch(BASE+"/auth/v1/user",{headers:{authorization:auth,apikey:ANON}}).catch(()=>null);
+ if(!valid?.ok)return reply(401,{error:"Invalid session"});
+ const actor=await valid.json();
+ if(actor.app_metadata?.yap_admin!==true)return reply(403,{error:"Admin access required"});
+ const res=await fetch(BASE+"/rest/v1/rpc/yap_admin_registration_geography",{method:"POST",headers:{apikey:ROLE,authorization:"Bearer "+ROLE,"content-type":"application/json"},body:"{}"}).catch(()=>null);
+ if(!res?.ok)return reply(503,{error:"Registration geography unavailable"});
+ const data=await res.json().catch(()=>null);
+ if(!data||!Number.isFinite(Number(data.total)))return reply(503,{error:"Invalid registration summary"});
+ return reply(200,{...data,source:"optional_self_reported_registration_country",asOf:new Date().toISOString(),accuracy:"Optional country chosen at signup; not verified IP location. Older accounts and opt-outs are Unknown."});
+});

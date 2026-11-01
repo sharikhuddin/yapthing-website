@@ -1,0 +1,4 @@
+#account-panel .yap-signup-country{display:flex;flex-direction:column;gap:4px;max-width:340px;margin:8px 0;padding:3px 0;color:var(--fg);font-size:12px;font-weight:650}
+#account-panel .yap-signup-country[hidden]{display:none!important}
+#account-panel #registration-country{width:100%;padding:10px 11px;background:var(--panel);border:1px solid var(--border);border-radius:10px;color:var(--fg);min-height:42px;font:inherit}
+#account-panel .yap-signup-country small{font-size:11px;line-height:1.45;font-weight:400;opacity:.75}

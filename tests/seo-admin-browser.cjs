@@ -48,9 +48,9 @@ const server=http.createServer((req,res)=>{
  assert.equal(await page.locator('#seo-pages-body tr').count(),24,'all 24 published page metadata entries rendered');
  assert.equal(await page.locator('#seo-ideas .seo-idea').count(),6,'marketing topic queue');
  assert((await page.locator('#seo-automation-state').innerText()).length>0);
- assert(await page.locator('a[href="#seo-marketing"]').isVisible(),'SEO admin navigation');
- assert(await page.locator('a[href="#aeo-intelligence"]').isVisible(),'AEO admin navigation');
- assert(await page.locator('a[href="#yapknowledge-admin"]').isVisible(),'Knowledge admin navigation');
+ assert.equal(await page.locator('.admin-side-nav a[data-admin-link="marketing-seo"]').count(),1,'SEO admin navigation');
+ assert.equal(await page.locator('.admin-side-nav a[data-admin-link="marketing-aeo"]').count(),1,'AEO admin navigation');
+ assert.equal(await page.locator('.admin-side-nav a[data-admin-link="ai-knowledge"]').count(),1,'Knowledge admin navigation');
  if(width===390){const sizes=await page.evaluate(()=>({viewport:innerWidth,body:document.body.scrollWidth}));assert(sizes.body<=sizes.viewport+15,'admin mobile page overflows '+JSON.stringify(sizes))}
  assert.deepEqual(errors,[],'browser errors');
  console.log('PASS '+width+'px admin SEO pages, marketing queue, admin-only YapKnowledge totals/routes/activity, refresh controls; '+knowledgeRequests+' authenticated request(s)');
