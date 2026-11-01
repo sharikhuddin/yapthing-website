@@ -1,0 +1,33 @@
+{
+  "kind": "aeo-editorial-review",
+  "scope": "Human approval required",
+  "items": [
+    {
+      "page": "/plugins/",
+      "priority": "review",
+      "code": "internal_discovery",
+      "why": "Link to related first-party product information or practical guides",
+      "action": "Human editorial review required; do not change product claims or publish automatically"
+    }
+  ],
+  "suggestions": [
+    {
+      "path": "/guides/",
+      "topic": "Answer-first guides",
+      "why": "Add authentic short direct answers to frequent user questions, with links to current product facts",
+      "approval": "required"
+    },
+    {
+      "path": "/product/",
+      "topic": "Verified product capabilities",
+      "why": "Confirm each claimed feature is currently live before including it in explanatory answers",
+      "approval": "required"
+    },
+    {
+      "path": "/faq/",
+      "topic": "Accuracy and release-status review",
+      "why": "Review platforms, pricing, provider limitations and privacy wording for factual changes",
+      "approval": "required"
+    }
+  ]
+}

@@ -38,11 +38,18 @@ const server=http.createServer((req,res)=>{
  assert.equal(await page.locator('#knowledge-routes tr').count(),1,'route breakdown');
  assert((await page.locator('#knowledge-recent').innerText()).includes('academic'));
  assert.equal(await page.locator('#seo-marketing').count(),1);
+ assert.equal(await page.locator('#aeo-intelligence').count(),1,'dedicated AEO admin view');
+ await page.waitForFunction(()=>document.getElementById('aeo-intelligence-tracked')?.textContent==='24',{timeout:12000});
+ assert.equal(await page.locator('#aeo-intelligence-critical').innerText(),'0','critical AEO structural checks');
+ assert.equal(await page.locator('#aeo-intelligence-review').innerText(),'1','review queue count');
+ assert.equal(await page.locator('#aeo-intelligence-crawlers .seo-idea').count(),3,'search crawler status cards');
+ assert.equal(await page.locator('#aeo-intelligence-issues tr').count(),1,'one actionable editorial finding');
  await page.waitForFunction(()=>/audit complete|Live audit complete|report could not/i.test(document.getElementById('seo-status')?.textContent||''),{timeout:25000});
  assert.equal(await page.locator('#seo-pages-body tr').count(),24,'all 24 published page metadata entries rendered');
  assert.equal(await page.locator('#seo-ideas .seo-idea').count(),6,'marketing topic queue');
  assert((await page.locator('#seo-automation-state').innerText()).length>0);
  assert(await page.locator('a[href="#seo-marketing"]').isVisible(),'SEO admin navigation');
+ assert(await page.locator('a[href="#aeo-intelligence"]').isVisible(),'AEO admin navigation');
  assert(await page.locator('a[href="#yapknowledge-admin"]').isVisible(),'Knowledge admin navigation');
  if(width===390){const sizes=await page.evaluate(()=>({viewport:innerWidth,body:document.body.scrollWidth}));assert(sizes.body<=sizes.viewport+15,'admin mobile page overflows '+JSON.stringify(sizes))}
  assert.deepEqual(errors,[],'browser errors');

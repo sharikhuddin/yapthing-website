@@ -1,0 +1,431 @@
+{
+  "kind": "offline-answer-engine-readiness",
+  "origin": "https://yapthing.com",
+  "scope": "Crawlability and on-page answer-readiness only; not AI citations, search rankings, impressions or indexing",
+  "trackedPages": 24,
+  "criticalPages": 0,
+  "reviewPages": 1,
+  "checkedPages": 23,
+  "crawlerRules": {
+    "OAI-SearchBot": {
+      "robotsAllowed": true,
+      "note": "Search inclusion crawler; distinct from AI training"
+    },
+    "Googlebot": {
+      "robotsAllowed": true,
+      "note": "General search crawler"
+    },
+    "Bingbot": {
+      "robotsAllowed": true,
+      "note": "General search crawler"
+    }
+  },
+  "robotsSitemap": true,
+  "generatedFrom": "search-manifest.json",
+  "pages": [
+    {
+      "path": "/",
+      "url": "https://yapthing.com/",
+      "title": "YapThing AI Chat Assistant | Research, Writing Education",
+      "lastmod": "2026-10-31",
+      "visibleCharacters": 4865,
+      "questionHeadings": 5,
+      "structuredTypes": [
+        "BreadcrumbList",
+        "Organization",
+        "SoftwareApplication",
+        "WebPage",
+        "WebSite"
+      ],
+      "status": "checked",
+      "findings": []
+    },
+    {
+      "path": "/product/",
+      "url": "https://yapthing.com/product/",
+      "title": "YapThing AI assistant: features and availability",
+      "lastmod": "2026-10-31",
+      "visibleCharacters": 1127,
+      "questionHeadings": 3,
+      "structuredTypes": [
+        "BreadcrumbList",
+        "Organization",
+        "SoftwareApplication",
+        "WebPage",
+        "WebSite"
+      ],
+      "status": "checked",
+      "findings": []
+    },
+    {
+      "path": "/faq/",
+      "url": "https://yapthing.com/faq/",
+      "title": "YapThing frequently asked questions",
+      "lastmod": "2026-10-31",
+      "visibleCharacters": 1758,
+      "questionHeadings": 8,
+      "structuredTypes": [
+        "BreadcrumbList",
+        "FAQPage",
+        "Organization",
+        "WebPage",
+        "WebSite"
+      ],
+      "status": "checked",
+      "findings": []
+    },
+    {
+      "path": "/guides/",
+      "url": "https://yapthing.com/guides/",
+      "title": "YapThing guides: practical AI workflows",
+      "lastmod": "2026-11-01",
+      "visibleCharacters": 1984,
+      "questionHeadings": 6,
+      "structuredTypes": [
+        "BreadcrumbList",
+        "CollectionPage",
+        "Organization",
+        "WebSite"
+      ],
+      "status": "checked",
+      "findings": []
+    },
+    {
+      "path": "/guides/research-with-sources/",
+      "url": "https://yapthing.com/guides/research-with-sources/",
+      "title": "How to research a question with YapThing",
+      "lastmod": "2026-10-31",
+      "visibleCharacters": 1918,
+      "questionHeadings": 2,
+      "structuredTypes": [
+        "BreadcrumbList",
+        "Organization",
+        "WebPage",
+        "WebSite"
+      ],
+      "status": "checked",
+      "findings": []
+    },
+    {
+      "path": "/about/",
+      "url": "https://yapthing.com/about/",
+      "title": "About YapThing and our content standards",
+      "lastmod": "2026-10-31",
+      "visibleCharacters": 1441,
+      "questionHeadings": 1,
+      "structuredTypes": [
+        "AboutPage",
+        "BreadcrumbList",
+        "Organization",
+        "WebSite"
+      ],
+      "status": "checked",
+      "findings": []
+    },
+    {
+      "path": "/chat/",
+      "url": "https://yapthing.com/chat/",
+      "title": "YapThing AI Chat — Research, Writing Work Assistant",
+      "lastmod": "2026-10-31",
+      "visibleCharacters": 1440,
+      "questionHeadings": 0,
+      "structuredTypes": [
+        "BreadcrumbList",
+        "Organization",
+        "WebPage",
+        "WebSite"
+      ],
+      "status": "checked",
+      "findings": []
+    },
+    {
+      "path": "/plans/",
+      "url": "https://yapthing.com/plans/",
+      "title": "YapThing plans and Work credits",
+      "lastmod": "2026-10-31",
+      "visibleCharacters": 4680,
+      "questionHeadings": 4,
+      "structuredTypes": [
+        "BreadcrumbList",
+        "Organization",
+        "WebPage",
+        "WebSite"
+      ],
+      "status": "checked",
+      "findings": []
+    },
+    {
+      "path": "/desktop/",
+      "url": "https://yapthing.com/desktop/",
+      "title": "YapThing for your computer",
+      "lastmod": "2026-10-31",
+      "visibleCharacters": 3019,
+      "questionHeadings": 0,
+      "structuredTypes": [
+        "BreadcrumbList",
+        "Organization",
+        "WebPage",
+        "WebSite"
+      ],
+      "status": "checked",
+      "findings": []
+    },
+    {
+      "path": "/plugins/",
+      "url": "https://yapthing.com/plugins/",
+      "title": "YapThing Plugins · Connect services",
+      "lastmod": "2026-10-31",
+      "visibleCharacters": 2167,
+      "questionHeadings": 2,
+      "structuredTypes": [
+        "BreadcrumbList",
+        "Organization",
+        "WebPage",
+        "WebSite"
+      ],
+      "status": "review",
+      "findings": [
+        {
+          "code": "internal_discovery",
+          "priority": "review",
+          "description": "Link to related first-party product information or practical guides"
+        }
+      ]
+    },
+    {
+      "path": "/support/",
+      "url": "https://yapthing.com/support/",
+      "title": "Support | YapThing",
+      "lastmod": "2026-10-31",
+      "visibleCharacters": 1417,
+      "questionHeadings": 5,
+      "structuredTypes": [
+        "BreadcrumbList",
+        "Organization",
+        "WebPage",
+        "WebSite"
+      ],
+      "status": "checked",
+      "findings": []
+    },
+    {
+      "path": "/privacy/",
+      "url": "https://yapthing.com/privacy/",
+      "title": "Privacy Policy | YapThing",
+      "lastmod": "2026-10-31",
+      "visibleCharacters": 7279,
+      "questionHeadings": 0,
+      "structuredTypes": [
+        "BreadcrumbList",
+        "Organization",
+        "WebPage",
+        "WebSite"
+      ],
+      "status": "checked",
+      "findings": []
+    },
+    {
+      "path": "/delete-account/",
+      "url": "https://yapthing.com/delete-account/",
+      "title": "Delete your YapThing account | YapThing",
+      "lastmod": "2026-10-31",
+      "visibleCharacters": 1348,
+      "questionHeadings": 0,
+      "structuredTypes": [
+        "BreadcrumbList",
+        "Organization",
+        "WebPage",
+        "WebSite"
+      ],
+      "status": "checked",
+      "findings": []
+    },
+    {
+      "path": "/ai-chat-assistant/",
+      "url": "https://yapthing.com/ai-chat-assistant/",
+      "title": "AI Chat Assistant for Research, Writing and Study | YapThing",
+      "lastmod": "2026-10-31",
+      "visibleCharacters": 1013,
+      "questionHeadings": 0,
+      "structuredTypes": [
+        "BreadcrumbList",
+        "Organization",
+        "WebPage",
+        "WebSite"
+      ],
+      "status": "checked",
+      "findings": []
+    },
+    {
+      "path": "/ai-writing-assistant/",
+      "url": "https://yapthing.com/ai-writing-assistant/",
+      "title": "AI Writing Assistant for Emails and Messages | YapThing",
+      "lastmod": "2026-10-31",
+      "visibleCharacters": 607,
+      "questionHeadings": 0,
+      "structuredTypes": [
+        "BreadcrumbList",
+        "Organization",
+        "WebPage",
+        "WebSite"
+      ],
+      "status": "checked",
+      "findings": []
+    },
+    {
+      "path": "/ai-research-assistant/",
+      "url": "https://yapthing.com/ai-research-assistant/",
+      "title": "AI Research Assistant with Sources | YapThing",
+      "lastmod": "2026-10-31",
+      "visibleCharacters": 606,
+      "questionHeadings": 0,
+      "structuredTypes": [
+        "BreadcrumbList",
+        "Organization",
+        "WebPage",
+        "WebSite"
+      ],
+      "status": "checked",
+      "findings": []
+    },
+    {
+      "path": "/ai-work-productivity/",
+      "url": "https://yapthing.com/ai-work-productivity/",
+      "title": "AI Productivity Assistant for Work and Life | YapThing",
+      "lastmod": "2026-10-31",
+      "visibleCharacters": 599,
+      "questionHeadings": 0,
+      "structuredTypes": [
+        "BreadcrumbList",
+        "Organization",
+        "WebPage",
+        "WebSite"
+      ],
+      "status": "checked",
+      "findings": []
+    },
+    {
+      "path": "/medical-education/",
+      "url": "https://yapthing.com/medical-education/",
+      "title": "AI Medical Education Assistant for Doctors and Students | YapThing",
+      "lastmod": "2026-10-31",
+      "visibleCharacters": 2259,
+      "questionHeadings": 3,
+      "structuredTypes": [
+        "BreadcrumbList",
+        "Organization",
+        "WebPage",
+        "WebSite"
+      ],
+      "status": "checked",
+      "findings": []
+    },
+    {
+      "path": "/engineering-ai/",
+      "url": "https://yapthing.com/engineering-ai/",
+      "title": "AI Engineering Assistant for Learning and Projects | YapThing",
+      "lastmod": "2026-10-31",
+      "visibleCharacters": 658,
+      "questionHeadings": 0,
+      "structuredTypes": [
+        "BreadcrumbList",
+        "Organization",
+        "WebPage",
+        "WebSite"
+      ],
+      "status": "checked",
+      "findings": []
+    },
+    {
+      "path": "/design-ai/",
+      "url": "https://yapthing.com/design-ai/",
+      "title": "AI Design Assistant for Spaces and Creative Projects | YapThing",
+      "lastmod": "2026-10-31",
+      "visibleCharacters": 623,
+      "questionHeadings": 0,
+      "structuredTypes": [
+        "BreadcrumbList",
+        "Organization",
+        "WebPage",
+        "WebSite"
+      ],
+      "status": "checked",
+      "findings": []
+    },
+    {
+      "path": "/student-ai/",
+      "url": "https://yapthing.com/student-ai/",
+      "title": "AI Study Assistant for Students and Lifelong Learners | YapThing",
+      "lastmod": "2026-10-31",
+      "visibleCharacters": 591,
+      "questionHeadings": 0,
+      "structuredTypes": [
+        "BreadcrumbList",
+        "Organization",
+        "WebPage",
+        "WebSite"
+      ],
+      "status": "checked",
+      "findings": []
+    },
+    {
+      "path": "/professionals-ai/",
+      "url": "https://yapthing.com/professionals-ai/",
+      "title": "AI Assistant for Professionals and Business | YapThing",
+      "lastmod": "2026-10-31",
+      "visibleCharacters": 627,
+      "questionHeadings": 0,
+      "structuredTypes": [
+        "BreadcrumbList",
+        "Organization",
+        "WebPage",
+        "WebSite"
+      ],
+      "status": "checked",
+      "findings": []
+    },
+    {
+      "path": "/everyday-ai/",
+      "url": "https://yapthing.com/everyday-ai/",
+      "title": "Everyday AI Assistant for Daily Life | YapThing",
+      "lastmod": "2026-10-31",
+      "visibleCharacters": 555,
+      "questionHeadings": 0,
+      "structuredTypes": [
+        "BreadcrumbList",
+        "Organization",
+        "WebPage",
+        "WebSite"
+      ],
+      "status": "checked",
+      "findings": []
+    },
+    {
+      "path": "/yapthing-alternative/",
+      "url": "https://yapthing.com/yapthing-alternative/",
+      "title": "Choosing an AI Assistant: What to Compare | YapThing",
+      "lastmod": "2026-10-31",
+      "visibleCharacters": 1246,
+      "questionHeadings": 0,
+      "structuredTypes": [
+        "BreadcrumbList",
+        "Organization",
+        "WebPage",
+        "WebSite"
+      ],
+      "status": "checked",
+      "findings": []
+    }
+  ],
+  "externalReporting": {
+    "googleSearchConsole": "https://search.google.com/search-console",
+    "aiVisibilityGuide": "https://support.google.com/webmasters/answer/16984139",
+    "bingWebmaster": "https://www.bing.com/webmasters/",
+    "chatgptSearchBot": "https://developers.openai.com/api/docs/bots"
+  },
+  "disclaimers": [
+    "Rules checked from source; live network and search-crawler visits are not measured",
+    "Structured data must accurately describe visible content; it does not guarantee an AI citation or rich result",
+    "Do not auto-create mass-produced articles or invented customer reviews or performance claims"
+  ]
+}

@@ -29,11 +29,14 @@ jobs:
         run: node scripts/search-build.cjs
       - name: Generate factual marketing review queue
         run: node scripts/seo-marketing-queue.cjs
+      - name: Audit answer-engine readiness and create editorial review queue
+        run: node scripts/aeo-readiness.cjs
       - name: Verify generated metadata
         run: |
           node scripts/search-build.cjs --check
           node tests/search-health.cjs
           node tests/seo-marketing-automation.cjs
+          node tests/aeo-automation.cjs
       - name: Create review summary
         if: always()
         run: |
@@ -48,6 +51,8 @@ jobs:
           name: seo-marketing-review
           path: |
             seo/marketing-queue.json
+            seo/aeo-report.json
+            seo/aeo-opportunities.json
             sitemap.xml
           if-no-files-found: warn
           retention-days: 30
@@ -56,7 +61,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- index.html '**/index.html' search-manifest.json sitemap.xml seo/marketing-queue.json
+          git add -- index.html '**/index.html' search-manifest.json sitemap.xml seo/marketing-queue.json seo/aeo-report.json seo/aeo-opportunities.json
           if git diff --cached --quiet; then
             echo "No changes needed; metadata is current."
             exit 0
