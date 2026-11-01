@@ -50,3 +50,11 @@ YapCoding can hand a task to normal chat through **Use Gemini coding in chat**. 
 The Gemini Code Assist Management API is separate from model generation. It participates in Google’s GitHub-review setup, which requires linking repositories and installing its GitHub app. A draft-PR review offers an optional unchecked request to post `/gemini review`. The exact approval hash includes this choice. A failed review request does not discard the already-created PR, and request submission is not reported as completed review. No Google Cloud resources, billing changes, IAM grants or GitHub app installations are performed by YapThing.
 
 Official references: https://docs.cloud.google.com/gemini/docs/code-review/set-up-code-assist-github and https://ai.google.dev/api/generate-content .
+
+## Computer setup to coding
+
+Tools includes **Set up or troubleshoot this computer**. Setup verifies the authorized account and online devices, then shows **Choose project and start coding** only after an online device is confirmed. That returns to the existing project picker and coding loop. Connection troubleshooting uses deterministic guidance, including for signed-out users; ordinary project setup remains a coding request. Account changes clear verified device readiness.
+
+The Windows no-admin launcher uses a task-specific portable install variable, not reserved PowerShell HOME; cached Node paths are read and checked outside a batch expansion block. Windows OS architecture comes from RuntimeInformation. SHA-256 validation remains required. Errors are concise and the launcher points back to YapThing chat. Download links include a refreshed version so users can obtain a new copy after an old failure.
+
+Windows regression: `node tests/computer-noadmin-windows.cjs` exercises the actual extracted PowerShell with a verified ZIP fixture, mismatch rejection, and the actual batch cached-Node path without starting a remote connector. Browser setup tests cover phone/desktop guidance and verified handoff.

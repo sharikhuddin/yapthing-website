@@ -6,6 +6,7 @@
  const diagnostics='node --version; npm --version; Get-Command npx.cmd';
  const portableCommand='Invoke-WebRequest -Uri "https://yapthing.com/desktop/YapThing-Computer-NoAdmin.cmd" -OutFile "$env:USERPROFILE\\Downloads\\YapThing-Computer-NoAdmin.cmd"';
  const issues={
+  launcher:'This older launcher has a setup error. Download the updated no-admin launcher shown here and run the fresh copy. No administrator rights or execution-policy change is needed.',
   node:'Node.js or npm not recognized: choose No admin / Node missing. Download the YapThing No-Admin launcher. It can use an official verified portable Node.js ZIP in your user folder without an MSI installation. Never change your system execution policy.',
   admin:'No administrator rights: choose No admin / Node missing. Download and inspect the .cmd launcher, then run it as your normal user. It asks before downloading official portable Node.js; it does not require elevation. Managed PC rules still apply.',
   policy:'App blocked by organization policy: do not attempt to circumvent AppLocker, execution restrictions, antivirus, or your company policy. Ask IT to approve Node.js and Desktop Commander or continue using YapThing chat without computer access.',
@@ -25,6 +26,7 @@
  '<section><h3>1. Start the connector in PowerShell</h3><p>Run this on the Windows PC you want to connect. Requires Node.js and npm. Keep the window open while using YapThing.</p><div class="ycs-command"><code id="ycs-command"></code><button type="button" data-setup="copy">Copy</button></div><p><a href="https://nodejs.org/en/download" target="_blank" rel="noopener noreferrer">Get Node.js</a> · <a href="https://mcp.desktopcommander.app/" target="_blank" rel="noopener noreferrer">Desktop Commander devices</a></p></section>',
  '<section><h3>2. Authorize YapThing</h3><p>Complete the device code sign-in shown in PowerShell. Then connect the Desktop Commander account to the YapThing account you use on your phone or desktop.</p><div class="ycs-row"><button type="button" data-setup="authorize">Connect account</button><a href="/chat/" id="ycs-signin">Sign in to YapThing</a></div></section>',
  '<section><h3>3. Verify your computer</h3><p>Check live authorization and online devices. No connection is assumed before the server confirms it.</p><button type="button" data-setup="check">Check connection</button><div id="ycs-state" role="status" aria-live="polite">Not checked yet.</div><div id="ycs-devices"></div></section>',
+ '<section id="ycs-coding" hidden><h3>4. Start coding in chat</h3><p>Choose the project folder you want YapThing to work on, then describe what to build or fix. Review the proposed file and test scope once; YapThing can edit, test and repair within it. Commands and draft pull requests have separate reviews. Keep this chat and your connector open.</p><button type="button" data-setup="coding">Choose project and start coding</button></section>',
  '<section><h3>Having trouble?</h3><div class="ycs-trouble" id="ycs-trouble"></div><p id="ycs-help" role="status">Choose the issue you are seeing for steps to fix it.</p><div class="ycs-row"><button type="button" data-setup="diag">Copy PowerShell diagnostics</button><button type="button" data-setup="chat">Ask YapThing in chat</button></div></section>',
  '<p class="ycs-privacy">Computer access is granted through Desktop Commander. Only approve devices you own or are authorized to use. Project file contents and selected task results may pass through YapThing Work and its connected services; review permissions before continuing. Stop the connector with Ctrl+C to take your computer offline.</p>'
  ].join('');
@@ -44,7 +46,7 @@
  async function check(){
   const id=++serial;
   if(!work()?.account()){state('Sign in to your YapThing account, then check again.');return;}
-  pending(true);state('Checking account authorization and online devices…');get('devices').replaceChildren();
+  get('coding').hidden=true;pending(true);state('Checking account authorization and online devices…');get('devices').replaceChildren();
   try{
    const status=await work().request('status');if(id!==serial)return;
    if(!status.connected){state('YapThing is signed in, but Desktop Commander authorization is not active. Start the remote connector and choose Connect account.');return;}
@@ -52,6 +54,7 @@
    const devices=Array.isArray(result.devices)?result.devices:[];
    const online=devices.filter(x=>x.online);
    state(online.length?('Connected. '+online.length+' computer'+(online.length===1?'':'s')+' online and ready for approved Work tasks.'):('Account authorized, but no computer is online. Restart the PowerShell connector, complete device pairing, then check again.'));
+   get('coding').hidden=!online.length;
    for(const d of devices.slice(0,20)){const node=document.createElement('p');node.className='ycs-device';node.textContent=String(d.name||'Computer').slice(0,80)+' — '+(d.online?'Online':'Offline');get('devices').append(node);}
   }catch(e){if(id!==serial)return;state('Could not verify the connection: '+String(e.message||e).slice(0,220)+'. Check sign-in, internet access and remote connector permissions.');}
   finally{pending(false);}
@@ -68,10 +71,10 @@
   }catch(e){state('Could not start authorization: '+String(e.message||e).slice(0,240));}
   finally{pending(false);}
  }
- async function chatHelp(text){
+ async function chatHelp(text,{includeUser=true}={}){
   const message=String(text||'Help me connect my Windows computer to YapThing').slice(0,500);
-  if(window.YapWebChat?.add){window.YapWebChat.add(message,'user');const issue=/no admin|administrator|admin rights|can.t install/i.test(message)?issues.admin:/company policy|blocked by|restricted by/i.test(message)?issues.policy:/npm registry|npm blocked|proxy/i.test(message)?issues.registry:/hash|checksum/i.test(message)?issues.checksum:/node|npx|npm/i.test(message)?issues.node:/offline|disconnected/i.test(message)?issues.offline:/browser|code|auth/i.test(message)?issues.browser:/not found|missing/i.test(message)?issues.missing:/denied|permission/i.test(message)?issues.denied:'';window.YapWebChat.add((issue||('To connect: check Node.js and npm, run '+command+' in PowerShell, complete the device-code login, then choose Connect account and Check connection.'))+' Use the troubleshooting choices in this guide for further checks. Never share passwords, pairing codes or tokens in chat.','assistant');}
-  else if(window.YapAssistant?.appendWorkMessage){window.YapAssistant.appendWorkMessage(message,'user');window.YapAssistant.appendWorkMessage('Run '+command+' on the computer, finish pairing, then choose Connect account and Check connection. Do not share passwords or device codes.','thing');}
+  if(window.YapWebChat?.add){if(includeUser)window.YapWebChat.add(message,'user');const issue=/cannot overwrite.*home|home.*read.only/i.test(message)?issues.launcher:/no admin|administrator|admin rights|can.t install/i.test(message)?issues.admin:/company policy|blocked by|restricted by/i.test(message)?issues.policy:/npm registry|npm blocked|proxy/i.test(message)?issues.registry:/hash|checksum/i.test(message)?issues.checksum:/node|npx|npm/i.test(message)?issues.node:/offline|disconnected/i.test(message)?issues.offline:/browser|code|auth/i.test(message)?issues.browser:/not found|missing/i.test(message)?issues.missing:/denied|permission/i.test(message)?issues.denied:'';window.YapWebChat.add((issue||('To connect: check Node.js and npm, run '+command+' in PowerShell, complete the device-code login, then choose Connect account and Check connection.'))+' Use the troubleshooting choices in this guide for further checks. Never share passwords, pairing codes or tokens in chat.','assistant');}
+  else if(window.YapAssistant?.appendWorkMessage){if(includeUser)window.YapAssistant.appendWorkMessage(message,'user');window.YapAssistant.appendWorkMessage('Run '+command+' on the computer, finish pairing, then choose Connect account and Check connection. Do not share passwords or device codes.','thing');}
   modal.showModal();
  }
  for(const [key,label] of [['node','Node/npm missing'],['browser','Authorization did not open'],['offline','Computer offline'],['missing','Device not found'],['denied','Access denied'],['closed','Terminal closed'],['debug','Other error']]){
@@ -85,10 +88,11 @@
    case 'diag':copy(diagnostics,b);break;
    case 'authorize':authorize();break;
    case 'check':check();break;
+   case 'coding':modal.close();if(window.YapConnectedAssistant)window.YapConnectedAssistant.openTools();else location.assign('/chat/');break;
    case 'chat':modal.close();if(document.getElementById('form'))chatHelp();else location.assign('/chat/?connect=computer');break;
   }
  });
- const open=()=>{if(!modal.open)modal.showModal();state(work()?.account()?'Use Check connection to confirm your account and online devices.':'Start with PowerShell, then sign in to YapThing to authorize this computer.');};
+ const open=()=>{get('coding').hidden=true;if(!modal.open)modal.showModal();state(work()?.account()?'Use Check connection to confirm your account and online devices.':'Start with PowerShell, then sign in to YapThing to authorize this computer.');};
  const quick=document.createElement('button');quick.type='button';quick.className='ycs-trigger';quick.textContent='Connect computer';quick.onclick=open;
  if(document.getElementById('yap-tool-menu')){
   const menu=document.getElementById('yap-menu-settings')||document.getElementById('yap-tool-menu');
@@ -104,7 +108,7 @@
   e.preventDefault();e.stopImmediatePropagation();input.value='';
   if(window.YapWebChat?.add||window.YapAssistant?.appendWorkMessage)chatHelp(text);else open();
  },true);
- window.addEventListener('yap:session-change',()=>{serial++;get('devices').replaceChildren();state('Account changed. Check the connection again.');});
- window.YapComputerSetup=Object.freeze({open,check,command,diagnostics});
+ window.addEventListener('yap:session-change',()=>{serial++;get('coding').hidden=true;get('devices').replaceChildren();state('Account changed. Check the connection again.');});
+ window.YapComputerSetup=Object.freeze({open,check,command,diagnostics,help:chatHelp});
  if(new URLSearchParams(location.search).get('connect')==='computer')open();
 })();
