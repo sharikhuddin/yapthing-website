@@ -8,7 +8,7 @@ The website now has one main chat experience and a Tools button in the composer.
 - A bounded planner can combine GitHub, Supabase project metadata, authorized Google Drive files, explicitly requested Gmail snippets, and files in the selected computer project.
 - Common list/read/check requests use deterministic adapters without an extra planning call.
 - The response is grounded in the returned tool results. A failed connection stays a failed source, with a connection link. If the response service cannot finish after successful reads, the verified source facts are still shown.
-- Computer file saves, project checks, and new Drive notes create an inline review. Execution begins only after the user approves.
+- Computer saves/checks and Drive notes create an inline review. An approved coding task can continue edits and checks within the exact granted scope, including repairing a failed check. PowerShell, public page reading and draft pull requests always have separate exact-action reviews.
 - Selecting a computer folder is needed only for computer file tasks. The Tools panel can select an existing project directly. A visible Continue request control resumes after project selection or setup. Code-only drafts do not require choosing a computer project.
 - Code drafts can use the existing YapThing response service. The conversational flow does not require installing Ollama.
 
@@ -18,9 +18,9 @@ The website now has one main chat experience and a Tools button in the composer.
 
 The existing authenticated endpoints perform all provider access. No provider tokens or new API keys are added to model context. There are no new backend services or schema changes.
 
-Planning uses the existing `ios-chat` response endpoint, at most two read rounds (up to four reads per round) plus a final answer or a single proposed change. Existing chat and Work allowances continue to apply. It does not introduce unlimited free usage.
+Planning uses the existing `ios-chat` response endpoint, at most 12 planning rounds, four reads per round and 20 computer actions. Coding-task permission covers 1–6 exact paths, up to 8 saves and 3 selected checks (19 Work credits maximum for those edits/checks). Keep the chat open. Stop or context changes revoke further continuation. Existing chat and Work allowances continue to apply. It does not introduce unlimited free usage.
 
-Only the explicit tool catalog can execute. Model output is parsed as data; unknown tool names, invalid paths, and unsupported checks are rejected. There is no generic shell, SQL, GitHub write/deploy, email send/delete/archive, or arbitrary URL adapter.
+Only the explicit tool catalog can execute. Model output is parsed as data; unknown tool names, invalid paths, and unsupported checks are rejected. PowerShell runs only the exact reviewed command, once, with a 30-second limit and full Windows user permissions. Interrupted responses stop the loop without replay. Public browsing is HTTPS HTML/text reading from the computer, with public DNS/IP checks on every redirect; it does not control a signed-in browser, click, run JavaScript or reuse cookies. Draft PRs use the actual GitHub origin, an inspected diff, current HEAD and reviewed hashes, with a new yapthing/ branch. No automatic merge, deployment, database execution or email mutation is provided.
 
 Account, chat, selected-project and Incognito boundaries are checked before and after asynchronous work. Switching context invalidates in-flight results and previews; it also closes and clears the account-specific Tools panel. Incognito keeps ordinary coding chat available while blocking private tool calls. Computer writes use the SHA from a real prior read, or an expected missing file, so a proposed write cannot silently overwrite an unread existing file. Backend approval hashing, ownership and idempotency still apply.
 
