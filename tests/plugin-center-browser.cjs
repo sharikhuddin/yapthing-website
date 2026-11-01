@@ -15,7 +15,7 @@ const server=http.createServer((req,res)=>{try{const name=new URL(req.url,'http:
   await page.goto('http://127.0.0.1:'+server.address().port+'/plugins/',{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>Boolean(window.YapPluginCenter)&&window.YapPluginCenter.apps().some(p=>p.id==='gmail'&&p.status==='Connected'));
   assert.equal(await page.locator('#yap-connect-center').isVisible(),true);
-  assert.equal(await page.locator('#yap-connect-center .pc-card').count(),18);
+  assert.equal(await page.locator('#yap-connect-center .pc-card').count(),19);
   const gmail=page.locator('#yap-connect-center .pc-card').filter({has:page.getByRole('heading',{name:'Gmail'})});
   await gmail.getByRole('button',{name:'Open'}).click();
   await page.locator('#pc-dialog').waitFor({state:'visible'});
@@ -26,7 +26,7 @@ const server=http.createServer((req,res)=>{try{const name=new URL(req.url,'http:
   assert.equal(await page.locator('#yap-connect-center .pc-card').count(),1);
   await page.locator('#pc-search').fill('');
   await page.getByRole('button',{name:'Coming soon',exact:true}).first().click();
-  assert.equal(await page.locator('#yap-connect-center .pc-card').count(),12);
+  assert.equal(await page.locator('#yap-connect-center .pc-card').count(),11);
   const rect=await page.locator('#yap-connect-center').boundingBox();assert(rect&&rect.width<=width+1,'Plugin area wider than viewport');
   assert.deepEqual(errors,[]);
   console.log('PASS web plugin center and live-state mock '+width+'px');
