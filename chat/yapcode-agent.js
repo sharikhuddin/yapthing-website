@@ -13,6 +13,7 @@
   '<div class="yc-layout"><section class="yc-settings">',
   '<p class="yc-note">Your computer runs a local Ollama model. Files stay on that computer. YapThing syncs job records through your account.</p>',
   '<h3>Connected GitHub (no Work credits)</h3><label>GitHub request<textarea id="yc-github-request" rows="2" placeholder="GitHub issues owner/repository"></textarea></label><button type="button" data-yc="github">Run GitHub read</button>',
+  '<h3>Connected Supabase (no Work credits)</h3><label>Supabase request<textarea id="yc-supabase-request" rows="2" placeholder="List my Supabase projects"></textarea></label><button type="button" data-yc="supabase">Run Supabase read</button>',
   '<button type="button" data-yc="work">Connect or manage computer</button>',
   '<button type="button" data-yc="devices">Find connected computers</button>',
   '<label>Computer<select id="yc-device"><option value="">Select a computer</option></select></label>',
@@ -55,7 +56,7 @@
   actor=owner();pending=null;running=null;draft=null;original.clear();applied.clear();tested=false;githubReview=null;
   $('draft-section').hidden=true;$('review').hidden=true;$('progress').hidden=true;
   $('code').value='';$('log').textContent='No task has run.';$('summary').textContent='';
-  for(const id of ['root','paths','prompt','repo','branch','pr-title','github-request'])$(id).value='';
+  for(const id of ['root','paths','prompt','repo','branch','pr-title','github-request','supabase-request'])$(id).value='';
   for(const id of ['device','model']){const control=$(id);control.replaceChildren();const option=document.createElement('option');option.value='';option.textContent=id==='device'?'Select a computer':'Choose a model';control.append(option);}
   if(!actor)note('Sign in to YapThing first, then connect a computer.');
  };
@@ -202,6 +203,13 @@
    fresh();
    if(name==='close'){dialog.close();return;}
    if(name==='work'){dialog.close();if(window.YapComputerSetup)window.YapComputerSetup.open();else hub.open();return;}
+   if(name==='supabase'){
+    const tools=window.YapSupabaseTools,request=tools?.parse(get('supabase-request'));
+    if(!request)throw Error('Enter a Supabase request, such as list my Supabase projects.');
+    const before=owner(),data=await tools.execute(request);
+    if(before!==owner())throw Error('Account changed. Please retry.');
+    output(tools.format(data));note('Supabase read complete. No Work credits used.');return;
+   }
    if(name==='github'){
     const tools=window.YapGitHubTools,request=tools?.parse(get('github-request'));
     if(!request)throw Error('Enter a GitHub request, such as list my GitHub repositories.');

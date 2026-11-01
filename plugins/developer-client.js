@@ -16,7 +16,7 @@ window.YapDeveloperClient=(()=>{
    body:JSON.stringify({provider,action,...params}),signal:AbortSignal.timeout(24000),cache:"no-store"});
   const data=await r.json().catch(()=>({}));
   if(epoch!==revision||identity!==window.YapWebAccount?.getUserId?.()||window.YapWebChat?.isIncognito?.())throw Error("Account changed. Please try again.");
-  if(!r.ok){const fallback=({401:"Your YapThing session expired. Sign in again.",403:"Permission denied. Check your GitHub connection permissions.",404:"The developer tool or resource was not found.",409:"Reconnect your provider in YapThing Plugins.",429:"Provider rate limit reached. Try again later."})[r.status]||"Developer service unavailable. Try again later.";
+  if(!r.ok){const fallback=({401:"Your YapThing session expired. Sign in again.",403:"Permission denied. Check your connected provider permissions.",404:"The developer tool or resource was not found.",409:"Reconnect your provider in YapThing Plugins.",429:"Provider rate limit reached. Try again later."})[r.status]||"Developer service unavailable. Try again later.";
   const e=Error(String(data.error||fallback).slice(0,280));e.code=data.code;e.status=r.status;throw e;}
   return data;
  }
@@ -27,6 +27,7 @@ window.YapDeveloperClient=(()=>{
   githubRepositories:id=>call("github","repositories",{installation_id:id}),
   githubIssues:(owner,repo)=>call("github","issues",{owner,repo}),
   githubFile:(owner,repo,path)=>call("github","file",{owner,repo,path}),
+  supabaseExecute:({action,project_ref})=>call("supabase",action,{project_ref}),
   supabaseProjects:()=>call("supabase","projects"),
   supabaseFunctions:project_ref=>call("supabase","functions",{project_ref})
  });

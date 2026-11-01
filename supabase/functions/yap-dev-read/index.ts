@@ -97,7 +97,7 @@ async function execute(req:Request){
  if(!url)return out(400,{error:"Invalid or sensitive path. Choose a normal source file."});
  try{
   const response=await fetch(url,{headers:{authorization:"Bearer "+token,accept:"application/vnd.github+json",...(provider==="github"?{"x-github-api-version":"2022-11-28"}:{})},signal:AbortSignal.timeout(11000),redirect:"error"});
-  if(response.status===429||(response.status===403&&response.headers.get("x-ratelimit-remaining")==="0"))return out(429,{error:"GitHub rate limit reached. Try again after the limit resets."});
+  if(response.status===429||(response.status===403&&response.headers.get("x-ratelimit-remaining")==="0"))return out(429,{error:(provider==="github"?"GitHub":"Supabase")+" rate limit reached. Try again after the limit resets."});
   if(!response.ok)return out(response.status===401?409:response.status===403?403:response.status===404?404:502,
    {error:response.status===404?"Resource not found or outside your authorized scope":response.status===403?"Permission denied. Check provider scopes or app installation.":response.status===401?"Reconnect your account":"Provider request failed"});
   const data=await response.json();
