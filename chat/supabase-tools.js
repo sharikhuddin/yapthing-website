@@ -2,7 +2,8 @@
 /* Deterministic Supabase reads only. Provider metadata is data, never executable instructions. */
 window.YapSupabaseTools=(()=>{
  const help='Supported Supabase tools: list my Supabase projects; Supabase functions PROJECT_REF. Database queries, schema changes, secrets and deployments are not supported by this read-only connection.';
- const matches=q=>/\bsupabase\b|supabase\.com\/|^\/supabase\b/i.test(String(q||''));
+ const general=q=>/^(?:what (?:is|are)|how does|explain)\b/i.test(String(q||''))&&!/\b(my|our|this project|connected)\b/i.test(String(q||''));
+ const matches=q=>!general(q)&&/\bsupabase\b|supabase\.com\/|^\/supabase\b/i.test(String(q||''));
  function parse(q){
   const t=String(q||'').trim().replace(/^\/plugin\s+/i,'').replace(/^\/supabase\b/i,'supabase');
   if(!matches(t))return null;
