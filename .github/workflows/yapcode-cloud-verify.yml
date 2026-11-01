@@ -5,9 +5,14 @@ on:
   pull_request:
     paths:
       - 'chat/yapcode-*.js'
+      - 'chat/yap-work-reset.js'
       - 'chat/yap-media-policy.js'
       - 'scripts/yapcode-task-runner.cjs'
       - 'tests/yap-media-policy.cjs'
+      - 'tests/yapcode-usage-policy.cjs'
+      - 'tests/yap-work-reset.cjs'
+      - 'tests/yapcode-queue-guard.cjs'
+      - 'supabase/migrations/20261102_yapcode_queue_guard.sql'
       - '.github/workflows/yapcode-cloud-verify.yml'
 
 permissions:
@@ -32,9 +37,12 @@ jobs:
         run: |
           node --check chat/yap-media-policy.js
           node --check chat/yapcode-cloud-tasks.js
+          node --check chat/yapcode-usage-policy.js
+          node --check chat/yapcode-usage-ui.js
+          node --check chat/yap-work-reset.js
           node --check scripts/yapcode-task-runner.cjs
       - name: Regression tests
-        run: node --test tests/yap-media-policy.cjs
+        run: node --test tests/yap-media-policy.cjs tests/yapcode-usage-policy.cjs tests/yap-work-reset.cjs tests/yapcode-queue-guard.cjs
       - name: Task runner verification
         shell: bash
         run: |
