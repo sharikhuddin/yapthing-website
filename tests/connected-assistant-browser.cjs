@@ -106,7 +106,7 @@ const plan=(tools=[],answer='')=>({answer:JSON.stringify({tools,answer})});
   // A simple request needs no planning/model call or mode switch.
   const count=requests.filter(x=>x[0]==='model').length,checksBeforeSimple=checks;
   await send('run tests');await idle();await page.getByRole('button',{name:'Run check',exact:true}).waitFor();assert.equal(checks,checksBeforeSimple);
-  await page.getByRole('button',{name:'Run check',exact:true}).click();await page.getByText(/TESTS_OK/).waitFor();assert.equal(checks,checksBeforeSimple+1);
+  await page.getByRole('button',{name:'Run check',exact:true}).click();await page.getByText('The project check completed.',{exact:true}).waitFor();assert.equal(checks,checksBeforeSimple+1);
   assert.equal(requests.filter(x=>x[0]==='model').length,count);
   await send('Can you look for a repoistory on GitHub?');await idle();await page.getByText('example/demo (private)',{exact:false}).waitFor();
   assert.equal(requests.filter(x=>x[0]==='model').length,count);
