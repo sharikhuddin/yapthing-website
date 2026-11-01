@@ -24,6 +24,7 @@
  const current=/\b(latest|today|yesterday|tomorrow|currently|right now|live|breaking|recent news|prices?|forecast|weather|availability|in stock|near me|nearby|open now|election results|exchange rates?|release date)\b/i;
  const highStakes=/\b(self.harm|suicid|symptoms?|medications?|dosage|diagnos|medical emergency)\b/i;
  function route(q,mode='auto'){
+  if(/\bgithub\b|github\.com\//i.test(q))return 'github';
   if(mode!=='auto')return mode;
   if(highStakes.test(q)||current.test(q))return 'live';
   if(study.test(q))return 'academic';
@@ -32,6 +33,7 @@
  }
  function shouldSearch(q){return previous.shouldSearch(q)||study.test(q)||code.test(q);}
  async function research(prompt,mode='auto',style='balance'){
+  if(/\bgithub\b|github\.com\//i.test(String(prompt||'')))throw Error('Use the connected GitHub tools for this request. No web or academic fallback is allowed.');
   const q=normalize(prompt),kind=route(q,mode),begin=Date.now();
   if(kind!=='academic'&&kind!=='developer'){
    try{const result=await previous.research(prompt,mode,style);report('live','success',Date.now()-begin);return result}

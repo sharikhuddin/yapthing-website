@@ -18,7 +18,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
  await page.addScriptTag({content:code});
  assert.equal(await page.evaluate(()=>window.YapKnowledge.route('Find peer reviewed papers about ETL')),'academic');
  assert.equal(await page.evaluate(()=>window.YapKnowledge.route('Latest prices for GPUs')),'live');
- assert.equal(await page.evaluate(()=>window.YapKnowledge.route('Search GitHub repositories for ETL')),'developer');
+ assert.equal(await page.evaluate(()=>window.YapKnowledge.route('Search GitHub repositories for ETL')),'github');
  assert.equal(await page.evaluate(()=>window.YapKnowledge.shouldSearch('github repo for data tools')),true);
  await page.evaluate(()=>window.YapKnowledge.research('Peer reviewed papers about ETL'));
  assert.deepEqual(await page.evaluate(()=>window.__calls),['public']);

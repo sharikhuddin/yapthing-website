@@ -28,6 +28,7 @@ window.YapResearchFallback=(()=>{
   }finally{clearTimeout(timer);activity?.finish(complete?'Sources found':'Search unavailable',!complete)}
  }
  async function research(prompt,mode='auto',style='balance'){
+  if(/\bgithub\b|github\.com\//i.test(String(prompt||'')))throw Error('Use the connected GitHub tools for this request. No web or academic fallback is allowed.');
   // Swift and Balance use economical auto routing; explicit Google and Depth keep their own paths.
   if(mode==='auto'&&style==='depth'){
    const began=performance.now(),primary=await research(prompt,'google','depth');
