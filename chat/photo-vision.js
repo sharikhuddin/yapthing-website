@@ -30,7 +30,7 @@ async function cloudRequest(prompt,history,imageBase64,search=false,options={}){
   const response=await window.YapWebAccount.authFetch('https://uemjkfvcadggyvhbqqyp.supabase.co/functions/v1/ios-chat',{
    method:'POST',headers:{'content-type':'application/json','authorization':'Bearer '+token,
     'apikey':'sb_publishable_HqcXeSMELbRgGodOzr0kCA_VwZldmBJ'},
-   body:JSON.stringify({prompt,responseMode:options.responseMode||window.YapResponseModes?.current()?.id||'auto',preferences:window.YapChatServices?.preferences()||{},history:history.filter(m=>m.role==='user'||m.role==='assistant').slice(-8).map(m=>({role:m.role==='assistant'?'model':m.role,text:m.content})),...(imageBase64?{imageBase64}:{}),search:!!search})
+   body:JSON.stringify({prompt,responseMode:options.responseMode||window.YapResponseModes?.current()?.id||'auto',...(options.purpose==='coding_plan'?{purpose:'coding_plan'}:{}),preferences:window.YapChatServices?.preferences()||{},history:history.filter(m=>m.role==='user'||m.role==='assistant').slice(-8).map(m=>({role:m.role==='assistant'?'model':m.role,text:m.content})),...(imageBase64?{imageBase64}:{}),search:!!search})
   });
   const result=await response.json().catch(()=>({}));
   if(!response.ok){const e=Error(result.error||result.message||'YapThing Cloud unavailable ('+response.status+')');e.code=result.code;e.status=response.status;throw e;}

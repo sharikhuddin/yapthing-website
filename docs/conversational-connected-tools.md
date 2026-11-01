@@ -42,3 +42,11 @@ node tests/composer-polish-browser.cjs
 The connected assistant regression covers multi-provider reads, partial failures, reviewed computer writes, reviewed Drive creation, no unrelated Gmail access, deterministic terminal checks, typo handling, project continuation, unknown-tool rejection, account switching, Incognito and ordinary informational questions at phone and desktop widths.
 
 This change targets the website. It does not build or distribute a new Android/iOS binary.
+
+## Gemini coding
+
+YapCoding can hand a task to normal chat through **Use Gemini coding in chat**. The planner requests `purpose: coding_plan`; the existing authenticated ios-chat backend uses Gemini directly with a bounded JSON response schema, 4,096 output tokens, and the existing configured chat model/key. Ordinary chat routing is unchanged. Model and tool allowances remain enforced; keys stay server-side. Malformed or truncated plans are rejected. After task approval, ordered batches of allowed edits/checks run sequentially, and a failed step clears the remaining queued steps before replanning.
+
+The Gemini Code Assist Management API is separate from model generation. It participates in Google’s GitHub-review setup, which requires linking repositories and installing its GitHub app. A draft-PR review offers an optional unchecked request to post `/gemini review`. The exact approval hash includes this choice. A failed review request does not discard the already-created PR, and request submission is not reported as completed review. No Google Cloud resources, billing changes, IAM grants or GitHub app installations are performed by YapThing.
+
+Official references: https://docs.cloud.google.com/gemini/docs/code-review/set-up-code-assist-github and https://ai.google.dev/api/generate-content .

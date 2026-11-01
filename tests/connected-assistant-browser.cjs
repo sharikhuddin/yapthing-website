@@ -13,7 +13,7 @@ const plan=(tools=[],answer='')=>({answer:JSON.stringify({tools,answer})});
   await page.route('**/*',r=>r.request().url().startsWith('http://127.0.0.1')?r.continue():r.abort());
   await page.route('**/functions/v1/ios-chat',async route=>{
    const body=route.request().postDataJSON();requests.push(['model',body]);
-   assert(body.prompt.length<=14000,'planner prompt exceeds service limit');
+   assert(body.prompt.length<=14000,'planner prompt exceeds service limit');if(body.prompt.startsWith('You are planning'))assert.equal(body.purpose,'coding_plan');
    if(hold){held=route;return;}
    assert(models.length,'Unexpected model call');await route.fulfill({json:models.shift()});
   });
@@ -30,7 +30,7 @@ const plan=(tools=[],answer='')=>({answer:JSON.stringify({tools,answer})});
    if(b.action==='projects')out={projects:[]};
    if(b.action==='quote'){const job={id:b.request_id,approval_hash:'hash',status:'quoted',payload:b.task,cost:b.task.kind==='write'?2:b.task.kind==='check'?1:0};jobs.set(job.id,job);out={job};}
    if(b.action==='cancel')out={job:{...jobs.get(b.id),status:'canceled'}};
-   if(b.action==='approve'){const j=jobs.get(b.id);assert(j);let data={};if(j.payload.kind==='read')data={path:j.payload.path,content:'Original local file',sha256:'a'.repeat(64)};if(j.payload.kind==='inspect')data={entries:[{name:'README.md',type:'file'}]};if(j.payload.kind==='write'){writes++;if(uncertainNextWrite){uncertainNextWrite=false;return route.fulfill({json:{job:{...j,status:'uncertain',result:{ok:false,error:'Result uncertain: check Work status'}}}});}assert(['a'.repeat(64),'b'.repeat(64)].includes(j.payload.expectedSha));data={path:j.payload.path,sha256:'b'.repeat(64)};}if(j.payload.kind==='check'){checks++;if(failNextCheck){failNextCheck=false;return route.fulfill({json:{job:{...j,status:'failed',result:{ok:false,error:'Assertion failed: expected repaired code'}}}});}data={output:'TESTS_OK'};}if(j.payload.kind==='github_context')data={repository:'example/demo',head:'c'.repeat(40),branch:'main',status:' M notes.md'};if(j.payload.kind==='github_diff')data={head:'c'.repeat(40),status:' M notes.md',diff:'Reviewed actual diff',files:[{path:'notes.md',sha256:'b'.repeat(64)}]};if(j.payload.kind==='github_pr')data={url:'https://github.com/example/demo/pull/1'};if(j.payload.kind==='powershell')data={output:'POWERSHELL_OK'};if(j.payload.kind==='browse')data={url:j.payload.url,title:'Public docs',text:'PUBLIC_PAGE_OK'};out={job:{...j,status:'completed',result:{ok:true,data}}};}
+   if(b.action==='approve'){const j=jobs.get(b.id);assert(j);let data={};if(j.payload.kind==='read')data={path:j.payload.path,content:'Original local file',sha256:'a'.repeat(64)};if(j.payload.kind==='inspect')data={entries:[{name:'README.md',type:'file'}]};if(j.payload.kind==='write'){writes++;if(uncertainNextWrite){uncertainNextWrite=false;return route.fulfill({json:{job:{...j,status:'uncertain',result:{ok:false,error:'Result uncertain: check Work status'}}}});}assert(['a'.repeat(64),'b'.repeat(64)].includes(j.payload.expectedSha));data={path:j.payload.path,sha256:'b'.repeat(64)};}if(j.payload.kind==='check'){checks++;if(failNextCheck){failNextCheck=false;return route.fulfill({json:{job:{...j,status:'failed',result:{ok:false,error:'Assertion failed: expected repaired code'}}}});}data={output:'TESTS_OK'};}if(j.payload.kind==='github_context')data={repository:'example/demo',head:'c'.repeat(40),branch:'main',status:' M notes.md'};if(j.payload.kind==='github_diff')data={head:'c'.repeat(40),status:' M notes.md',diff:'Reviewed actual diff',files:[{path:'notes.md',sha256:'b'.repeat(64)}]};if(j.payload.kind==='github_pr')data={url:'https://github.com/example/demo/pull/1',geminiReview:j.payload.geminiReview?'requested':'not_requested'};if(j.payload.kind==='powershell')data={output:'POWERSHELL_OK'};if(j.payload.kind==='browse')data={url:j.payload.url,title:'Public docs',text:'PUBLIC_PAGE_OK'};out={job:{...j,status:'completed',result:{ok:true,data}}};}
    return route.fulfill({json:out});
   });
   await page.route('**/functions/v1/yap-gmail-messages',route=>{mailReads++;return route.fulfill({json:{messages:[{subject:'Project update',from:'colleague@example.com',snippet:'The mock project is ready for review.'}]}});});
@@ -72,8 +72,7 @@ const plan=(tools=[],answer='')=>({answer:JSON.stringify({tools,answer})});
   models=[
    plan([{tool:'computer.repository',args:{}},{tool:'computer.read',args:{path:'notes.md'}}]),
    plan([{tool:'computer.coding_session',args:{summary:'Repair notes and verify with npm test.',paths:['notes.md'],checks:['npm_test']}}]),
-   plan([{tool:'computer.write',args:{path:'notes.md',content:'First attempt'}}]),
-   plan([{tool:'computer.check',args:{check:'npm_test'}}]),
+   plan([{tool:'computer.write',args:{path:'notes.md',content:'First attempt'}},{tool:'computer.check',args:{check:'npm_test'}}]),
    plan([{tool:'computer.replace',args:{path:'notes.md',find:'First attempt',replace:'Repaired code'}}]),
    plan([{tool:'computer.check',args:{check:'npm_test'}}]),
    plan([{tool:'computer.diff',args:{paths:['notes.md']}}]),
@@ -84,8 +83,8 @@ const plan=(tools=[],answer='')=>({answer:JSON.stringify({tools,answer})});
   await page.getByRole('button',{name:'Start coding task',exact:true}).click();await idle();
   await page.getByRole('button',{name:'Create draft pull request',exact:true}).waitFor();assert.equal(writes,beforeLoopWrites+2);assert.equal(checks,beforeLoopChecks+2);
   assert(!requests.some(x=>x[0]==='work'&&x[1].action==='approve'&&jobs.get(x[1].id)?.payload.kind==='github_pr'));
-  await page.getByRole('button',{name:'Create draft pull request',exact:true}).click();await page.getByText('Draft pull request created: https://github.com/example/demo/pull/1',{exact:true}).waitFor();
-  const submitted=requests.filter(x=>x[0]==='work'&&x[1].task?.kind==='github_pr').at(-1)[1].task;assert.equal(submitted.repository,'example/demo');assert.equal(submitted.expectedHead,'c'.repeat(40));assert.equal(submitted.files[0].sha256,'b'.repeat(64));
+  await page.getByLabel('Request Gemini Code Assist review (posts /gemini review on this PR)',{exact:true}).check();await page.getByRole('button',{name:'Create draft pull request',exact:true}).click();await page.getByText(/Gemini review requested/).waitFor();
+  const submitted=requests.filter(x=>x[0]==='work'&&x[1].task?.kind==='github_pr').at(-1)[1].task;assert.equal(submitted.geminiReview,true);assert.equal(submitted.repository,'example/demo');assert.equal(submitted.expectedHead,'c'.repeat(40));assert.equal(submitted.files[0].sha256,'b'.repeat(64));
   // A model cannot broaden the user's approved file scope.
   models=[plan([{tool:'computer.coding_session',args:{summary:'Edit one file.',paths:['notes.md'],checks:[]}}]),plan([{tool:'computer.write',args:{path:'other.md',content:'Out of scope'}}])];
   const scopedWrites=writes;await send('Fix this project code.');await idle();await page.getByRole('button',{name:'Start coding task',exact:true}).click();await idle();await page.getByText(/outside the approved task scope/).waitFor();assert.equal(writes,scopedWrites);
@@ -143,6 +142,11 @@ const plan=(tools=[],answer='')=>({answer:JSON.stringify({tools,answer})});
   assert.equal(requests.filter(x=>x[0]==='work'&&['local_models','draft_project'].includes(x[1].task?.kind)).length,localModelCalls);
   await page.evaluate(()=>{window.YapWorkChat.currentProject=()=>null;});
   models=[plan([],'Here is the Python draft: print("Hello")')];await send('Write a Python script that prints Hello.');await idle();await page.getByText(/Here is the Python draft/).waitFor();assert.equal(await page.getByRole('button',{name:'Continue request',exact:true}).isVisible(),false);
+
+  // The YapCoding panel can hand a task to the existing Gemini chat loop without local AI.
+  models=[plan([],'Gemini coding draft from the YapCoding panel.')];
+  await page.evaluate(()=>window.YapCode.open('Write a Python script that prints Hello.'));
+  await page.getByRole('button',{name:'Use Gemini coding in chat',exact:true}).click();await idle();await page.getByText('Gemini coding draft from the YapCoding panel.',{exact:true}).waitFor();assert.equal(await page.locator('#yapcode-dialog').isVisible(),false);
 
   // Definitions stay in ordinary chat rather than querying private connections.
   const devBefore=requests.filter(x=>x[0]==='developer').length;

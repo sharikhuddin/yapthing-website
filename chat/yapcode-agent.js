@@ -11,7 +11,7 @@
  dialog.innerHTML=[
   '<header class="yc-header"><div><small>YAPTHING WORK</small><h2 id="yc-title">YapCode <span class="yc-version">MVP</span></h2><p>Plan, draft, review, test, then publish.</p></div><button type="button" data-yc="close" aria-label="Close YapCode">Close</button></header>',
   '<div class="yc-layout"><section class="yc-settings">',
-  '<p class="yc-note">Your computer runs a local Ollama model. Files stay on that computer. YapThing syncs job records through your account.</p>',
+  '<p class="yc-note">For the connected coding loop, use Gemini in chat below. It uses your selected chat project and existing allowances; relevant file context is sent to YapThing’s Gemini service. The advanced local workflow below runs a local Ollama model. Files stay on that computer. YapThing syncs job records through your account.</p>',
   '<h3>Connected GitHub (no Work credits)</h3><label>GitHub request<textarea id="yc-github-request" rows="2" placeholder="GitHub issues owner/repository"></textarea></label><button type="button" data-yc="github">Run GitHub read</button>',
   '<h3>Connected Supabase (no Work credits)</h3><label>Supabase request<textarea id="yc-supabase-request" rows="2" placeholder="List my Supabase projects"></textarea></label><button type="button" data-yc="supabase">Run Supabase read</button>',
   '<button type="button" data-yc="work">Connect or manage computer</button>',
@@ -22,6 +22,7 @@
   '<label>Coding model<select id="yc-model"><option value="">Choose a model</option></select></label>',
   '<label>Existing context files (one per line; maximum 6)<textarea id="yc-paths" rows="5" spellcheck="false" placeholder="src/app.js&#10;package.json"></textarea></label>',
   '<label>What should YapCode change?<textarea id="yc-prompt" rows="5" maxlength="3000" placeholder="Fix this bug and add tests. Keep existing functionality."></textarea></label>',
+  '<div class="yc-actions"><button type="button" data-yc="cloud" class="yc-primary">Use Gemini coding in chat</button></div>',
   '<div class="yc-actions"><button type="button" data-yc="inspect">Explore folder (free)</button><button type="button" data-yc="draft" class="yc-primary">Generate project draft (5 credits)</button></div>',
   '<p class="yc-note">A draft does not modify files. Only chosen context files may be replaced; you approve each edit separately. No background or automatic deployment.</p>',
   '</section><section class="yc-output">',
@@ -202,6 +203,12 @@
   try{
    fresh();
    if(name==='close'){dialog.close();return;}
+   if(name==='cloud'){
+    const request=get('prompt');if(request.length<8)throw Error('Describe the coding task first.');
+    if(!window.YapConnectedAssistant)throw Error('Refresh chat to load Gemini coding.');
+    if(window.YapWebChat?.isIncognito?.())throw Error('Use a normal chat for connected coding.');
+    dialog.close();void window.YapConnectedAssistant.submit(request);return;
+   }
    if(name==='work'){dialog.close();if(window.YapComputerSetup)window.YapComputerSetup.open();else hub.open();return;}
    if(name==='supabase'){
     const tools=window.YapSupabaseTools,request=tools?.parse(get('supabase-request'));
