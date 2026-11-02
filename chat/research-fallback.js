@@ -10,6 +10,20 @@ window.YapResearchFallback=(()=>{
 // Search is reserved for questions requiring current or cited information.
   return /\b(restaurants?|cafes?|pharmacies|local events|latest|current|today|tonight|recent|weather|forecast|price|prices|availability|opening hours|near me|nearby|news|research|sources?|citations?|cite|verify|search|look up|find online|compare options|regulations?|laws?|legal requirements?|updated|202[4-9]|best (?:available|options?|results?|places?|tools?|services?))\b/i.test(prompt);
  }
+ // Navigation-only requests can be answered with a browser link without spending search credits.
+ // Do not use this shortcut for live hours, distance, safety, ratings, or branch-specific claims.
+ function navigationAnswer(prompt){
+  const q=String(prompt||'').trim().replace(/\s+/g,' ');
+  if(q.length>160||/\b(?:open|closed|hours?|now|today|tonight|nearest|closest|near me|nearby|distance|how far|directions? from|best|top|rating|reviews?|phone|number|price|menu|delivery|available|availability|verify|source|cite|research|compare|list|all branches|every branch|exact address)\b/i.test(q))return null;
+  const m=q.match(/^(?:(?:please )?(?:tell me |show me )?)?(?:where (?:is|are|can i find)|find|locate)\s+(.+?)\s+(?:in|at)\s+([a-z][a-z .'-]{2,45})[?.!]*$/i);
+  if(!m)return null;
+  const business=m[1].replace(/^(?:the|a|an)\s+/i,'').trim();
+  const location=m[2].trim();
+  if(!business||business.length>65||/\b(?:my|me|I|we|you|home|house|address|hospital|clinic|pharmacy|emergency|police|ambulance|shelter)\b/i.test(business+' '+location))return null;
+  const maps='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(business+' '+location);
+  const official=/^kfc$/i.test(business)?'\n[KFC Pakistan official website](https://www.kfcpakistan.com/)':'';
+  return {source:'navigation-link',text:'You can find '+business+' locations in '+location+' on the map:\n[Open locations in Google Maps]('+maps+')'+official+'\n\nFor current hours, availability, or the nearest branch, ask me to check live information.'};
+ }
  function queryFor(prompt){return String(prompt||'').replace(/\s+/g,' ').trim().slice(0,180)}
  async function call(slug,prompt,timeoutMs=26000,style='balance'){
   const revision=window.YapLocation?.revision();
@@ -55,5 +69,5 @@ window.YapResearchFallback=(()=>{
   throw Error('Live research is unavailable. '+errors.join(' | ').slice(0,260));
  }
  function externalLink(prompt){return 'https://www.google.com/search?q='+encodeURIComponent(queryFor(prompt))}
- return {shouldSearch,research,externalLink,topicFor,supportAnswer};
+ return {shouldSearch,research,externalLink,topicFor,supportAnswer,navigationAnswer};
 })();
