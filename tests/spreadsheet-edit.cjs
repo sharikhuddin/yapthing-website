@@ -1,0 +1,27 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const ExcelJS=require('../chat/exceljs.min.js');
+let saved;
+const elements=new Map();
+const host={append:(a)=>{saved=a}};
+elements.set('photo-preview',{parentElement:host});
+class TestBlob extends Blob {constructor(parts,options){super(parts,options);globalThis.lastBlob=this}};
+const context={window:{ExcelJS,URL:{createObjectURL:()=> 'blob:test',revokeObjectURL:()=>{}}},ExcelJS,document:{getElementById:(id)=>id==='yap-sheet-download'?null:elements.get(id)||null,createElement:()=>({style:{},addEventListener(){}}),body:host},Blob:TestBlob,URL:{createObjectURL:()=> 'blob:test',revokeObjectURL:()=>{}},console};
+vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../chat/yap-spreadsheet.js'),'utf8'),context);
+(async()=>{
+ const book=new ExcelJS.Workbook(),sheet=book.addWorksheet('Data');sheet.getCell('B15').value='Old';sheet.getCell('C15').value='Keep';sheet.getCell('A16').value=44;
+ const bytes=await book.xlsx.writeBuffer();
+ const file={name:'report.xlsx',size:bytes.byteLength,arrayBuffer:async()=>bytes};
+ const module=context.window.YapSpreadsheet;
+ assert.match(await module.load(file),/Attached report.xlsx/);
+ assert.match((await module.handle('fix row 15')).text,/B15: Old/);
+ assert.equal(saved,undefined);
+ assert.match((await module.handle('set B15 to Approved')).text,/Updated Data!B15/);
+ assert.equal(saved.download,'report-fixed.xlsx');
+ const output=await globalThis.lastBlob.arrayBuffer();
+ const edited=new ExcelJS.Workbook();await edited.xlsx.load(output);
+ assert.equal(edited.getWorksheet('Data').getCell('B15').value,'Approved');
+ assert.equal(edited.getWorksheet('Data').getCell('C15').value,'Keep');
+ assert.equal(edited.getWorksheet('Data').getCell('A16').value,44);
+ assert.equal(sheet.getCell('B15').value,'Old');
+ console.log('PASS workbook roundtrip, untouched cells, and preserved original');
+})().catch(e=>{console.error(e);process.exitCode=1});
