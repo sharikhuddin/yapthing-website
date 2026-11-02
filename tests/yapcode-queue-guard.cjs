@@ -1,0 +1,12 @@
+﻿'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const source=fs.readFileSync('supabase/migrations/20261102_yapcode_queue_guard.sql','utf8');
+assert.match(source,/security invoker/i);
+assert.match(source,/auth\.uid\(\)/);
+assert.match(source,/pg_advisory_xact_lock/);
+assert.match(source,/recent_count >= 3/);
+assert.match(source,/pending_count >= 1/);
+assert.match(source,/status in \('queued','claimed','verifying'\)/);
+assert.doesNotMatch(source,/execute\s+job|http_post|net\.http/i);
+console.log('PASS: SQL migration is guarded, low-cost, and dispatch-free (static checks only)');

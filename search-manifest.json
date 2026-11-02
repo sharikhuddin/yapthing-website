@@ -40,14 +40,14 @@
     {
       "url": "https://yapthing.com/chat/",
       "file": "chat/index.html",
-      "sha256": "14353f7e0eb4f8f58fb47ea8beef1b549b84df61929b5ba9b60a5182f7d351c8",
+      "sha256": "c496b5dd3ea453da932070560bcb257fc4d302cb730f7e62bd27f037d3e362ac",
       "lastmod": "2026-11-01"
     },
     {
       "url": "https://yapthing.com/plans/",
       "file": "plans/index.html",
-      "sha256": "98c3e799761c146fe9694f65aeef1b9c4686df21550f6c7b5757ff9e999c03d4",
-      "lastmod": "2026-10-31"
+      "sha256": "268e3b96df7fd2b71288cfc63e67779e8edf673d0f86d7123321120a9bd15995",
+      "lastmod": "2026-11-01"
     },
     {
       "url": "https://yapthing.com/desktop/",
