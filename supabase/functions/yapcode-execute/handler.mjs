@@ -67,7 +67,7 @@ export function makeHandler(env,fetchImpl=fetch){
   }catch(error){
    // No retry, no fallback, no secret-bearing upstream messages.
    const message=error instanceof Error?error.message:'UNAVAILABLE';
-   const safe=/^(GITHUB_|OAUTH_|SYSTEM_|USER_|AUDIT_|IDEMPOTENCY_|SIGN_IN_REQUIRED|PRICING_|INVALID_|SENSITIVE_|CONSENT_|DRAFT_|SOURCE_|INPUT_|INCOMPLETE_|NO_CHANGES|EXECUTION_STOPPED|DEADLINE|BASE_CHANGED|REPOSITORY_|UNSUPPORTED_|USAGE_|RESULT_)/.test(message)?message.slice(0,100):'EXECUTION_UNAVAILABLE';
+   const safe=/^(GITHUB_|MODEL_|OAUTH_|SYSTEM_|USER_|AUDIT_|IDEMPOTENCY_|SIGN_IN_REQUIRED|PRICING_|INVALID_|SENSITIVE_|CONSENT_|DRAFT_|SOURCE_|INPUT_|INCOMPLETE_|NO_CHANGES|EXECUTION_STOPPED|DEADLINE|BASE_CHANGED|REPOSITORY_|UNSUPPORTED_|USAGE_|RESULT_)/.test(message)?message.slice(0,100):'EXECUTION_UNAVAILABLE';
    if(taskId)await checkpoint({error:safe,manual_reconciliation_required:true},'failed').catch(()=>{});
    const status=taskId?502:safe.startsWith('GITHUB_')?409:safe==='SIGN_IN_REQUIRED'?401:/LIMIT|BUDGET/.test(safe)?429:/BUSY|CONFLICT/.test(safe)?409:safe.startsWith('INVALID_')||error instanceof SyntaxError?400:503;
    return out(status,{error:safe,...(taskId?{id:taskId,notice:'Do not resubmit with a new request key. Inspect the saved task and branch first.'}:{})});

@@ -48,12 +48,14 @@ window.YapCoding=(()=>{
     if(!attempt)attempt={fingerprint,key:crypto.randomUUID()};
     $('status').textContent='Drafting. If interrupted, inspect My recent results before starting another task.';
     data=await window.YapCoding.execute({...input,request_key:attempt.key});
+    if(data.task?.status==='failed')throw Error('Saved task failed: '+String(data.task.result?.error||'Unknown failure')+'. Inspect My recent results before starting another task.');
+    if(data.task?.status==='running')throw Error('This task is still running. Inspect My recent results before submitting again.');
     if(data.status==='completed'||data.task?.status==='completed'){attempt=null;$('consent').checked=false;}
    }else if(action==='connection')data=await window.YapCoding.connection($('repo').value.trim());
    else data=await window.YapCoding[action]();
    if(actor!==window.YapWebAccount?.getUserId?.())throw Error('Account changed. Discarding result.');
    $('output').textContent=JSON.stringify(data,null,2);
-   $('status').textContent=action==='connection'?(data.github?.can_push?'GitHub write access verified for '+data.github.name+'.':'GitHub is connected, but repository write access is missing.'):action==='status'?(data.task_submission_enabled?'Bounded draft PR creation is available.':'Execution is stopped. '+(data.control?.reason||'')):action==='history'?'Your saved results. Failed or interrupted tasks may require checking their recorded branch.':'Draft result saved. Review the PR and run trusted tests before merging.';
+   $('status').textContent=action==='connection'?(data.github?.can_push?'GitHub repository push access reported for '+data.github.name+'. App Contents and Pull requests write permissions must also be granted.':'GitHub is connected, but repository write access is missing.'):action==='status'?(data.task_submission_enabled?'Bounded draft PR creation is available.':'Execution is stopped. '+(data.control?.reason||'')):action==='history'?'Your saved results. Failed or interrupted tasks may require checking their recorded branch.':'Draft result saved. Review the PR and run trusted tests before merging.';
   }catch(e){$('status').textContent=e.message||'YapCoding unavailable. Inspect recent results before retrying.';}
   finally{busy=false;buttons.forEach(b=>b.disabled=false);}
  });
