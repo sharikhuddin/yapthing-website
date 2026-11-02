@@ -9,7 +9,7 @@ export async function githubConnection({base,anon,service,userId,authorization,e
  const load=()=>read(url,{headers});
  let rows=await load();
  if(!Array.isArray(rows)||rows.length!==1)throw Error('GITHUB_RECONNECT_REQUIRED');
- const expired=record=>record.access_expires_at&&Date.parse(record.access_expires_at)<Date.now()+90000;
+ const expired=record=>record.access_expires_at&&(!Number.isFinite(Date.parse(record.access_expires_at))||Date.parse(record.access_expires_at)<Date.now()+90000);
  if(expired(rows[0])){
   // The OAuth gateway validates this same caller and handles encrypted refresh/CAS.
   // Never send a service-role identity to it or substitute a desktop GitHub token.

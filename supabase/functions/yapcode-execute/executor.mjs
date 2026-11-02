@@ -1,6 +1,6 @@
 // Shared, dependency-injected executor. Never imports or executes repository code.
 export const LIMITS=Object.freeze({runtimeMs:90000,providerMs:35000,maxFiles:3,inputBytes:16000,inputTokens:18000,outputTokens:4096,outputBytes:24000,retries:0,reserveUsd:0.05});
-export const MODEL='gemini-2.5-flash-lite';
+export const MODEL='gemini-3.1-flash-lite';
 const bytes=s=>new TextEncoder().encode(s).length;
 export function validateInput(v){
  if(!v||typeof v!=='object'||Array.isArray(v))throw Error('INVALID_INPUT');
@@ -45,7 +45,7 @@ export async function executeDraft({input,taskId,githubToken,modelKey,fetchImpl=
  async function request(url,options={},max=240000,timeout=10000){
   await guard();
   const response=await fetchImpl(url,{...options,redirect:'error',signal:AbortSignal.any([deadline,AbortSignal.timeout(timeout)])});
-  return readJsonBounded(response,max);
+  try{return await readJsonBounded(response,max);}catch(error){const stage=url.startsWith('https://api.github.com/')?'GITHUB':'MODEL';if(/^UPSTREAM_/.test(error.message))throw Error(stage+'_'+error.message);throw error;}
  }
  const root='https://api.github.com/repos/'+parsed.repo;
  async function gh(path,body){
@@ -76,12 +76,12 @@ export async function executeDraft({input,taskId,githubToken,modelKey,fetchImpl=
  const model=await request('https://generativelanguage.googleapis.com/v1beta/models/'+MODEL+':generateContent',{
   method:'POST',headers:{'x-goog-api-key':modelKey,'content-type':'application/json'},body:JSON.stringify({
    system_instruction:{parts:[{text:system}]},contents:[{role:'user',parts:[{text:prompt}]}],
-   generationConfig:{temperature:0.1,maxOutputTokens:LIMITS.outputTokens,thinkingConfig:{thinkingBudget:0},responseMimeType:'application/json'}
+   generationConfig:{temperature:0.1,maxOutputTokens:LIMITS.outputTokens,thinkingConfig:{thinkingLevel:'minimal'},responseMimeType:'application/json'}
   })},100000,LIMITS.providerMs);
  const usage=model.usageMetadata;
  if(!usage||usage.promptTokenCount<0||usage.candidatesTokenCount<0||!Number.isInteger(usage.thoughtsTokenCount||0)||(usage.thoughtsTokenCount||0)<0||!Number.isInteger(usage.promptTokenCount)||!Number.isInteger(usage.candidatesTokenCount)||usage.promptTokenCount>LIMITS.inputTokens||usage.candidatesTokenCount+(usage.thoughtsTokenCount||0)>LIMITS.outputTokens)throw Error('USAGE_NOT_VERIFIED');
  // Meter before parsing: malformed responses still consume the reservation.
- const estimate=(usage.promptTokenCount*0.10+(usage.candidatesTokenCount+(usage.thoughtsTokenCount||0))*0.40)/1000000;
+ const estimate=(usage.promptTokenCount*0.25+(usage.candidatesTokenCount+(usage.thoughtsTokenCount||0))*1.50)/1000000;
  await checkpoint({usage,estimated_model_usd:estimate,model:MODEL,base_sha:parent,base_branch:base,branch:'yapcoding/'+taskId});
  if(model.candidates?.[0]?.finishReason!=='STOP')throw Error('INCOMPLETE_DRAFT');
  const candidate=model.candidates[0];

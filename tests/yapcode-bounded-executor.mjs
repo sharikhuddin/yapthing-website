@@ -29,7 +29,7 @@ function fixture(options={}){
 }
 test('successful bounded flow produces a draft PR and persists provenance and usage',async()=>{
  const f=fixture();const r=await executeDraft(f.args);assert.equal(r.pr_number,1);assert.equal(r.verified,false);
- const model=f.calls.find(x=>x.url.includes('generateContent'));assert.equal(model.body.generationConfig.maxOutputTokens,4096);assert.equal(model.body.generationConfig.thinkingConfig.thinkingBudget,0);assert.equal(model.body.tools,undefined);
+ const model=f.calls.find(x=>x.url.includes('generateContent'));assert.equal(model.body.generationConfig.maxOutputTokens,4096);assert.equal(model.body.generationConfig.thinkingConfig.thinkingLevel,'minimal');assert.equal(model.body.tools,undefined);
  const pr=f.calls.find(x=>x.url.endsWith('/pulls'));assert.equal(pr.body.draft,true);assert.equal(pr.body.base,'main');
  assert.equal(f.saved[0].base_sha,a);assert.ok(f.saved.some(x=>x.commit_sha===e));
  assert.ok(!JSON.stringify(f.saved).includes('fake-private-token'));
@@ -116,3 +116,4 @@ test('connection readiness can refresh while execution is stopped without admitt
  assert.equal(g.db.some(x=>x.includes('yapcode_admit')),false);
  assert.equal(g.f.calls.some(x=>x.url.includes('generateContent')),false);
 });
+
