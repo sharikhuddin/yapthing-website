@@ -24,6 +24,23 @@ window.YapResearchFallback=(()=>{
   const official=/^kfc$/i.test(business)?'\n[KFC Pakistan official website](https://www.kfcpakistan.com/)':'';
   return {source:'navigation-link',text:'You can find '+business+' locations in '+location+' on the map:\n[Open locations in Google Maps]('+maps+')'+official+'\n\nFor current hours, availability, or the nearest branch, ask me to check live information.'};
  }
+ // Curated service shortcuts for explicit navigation only; never claim to have opened an account.
+ const officialSites=Object.freeze({
+  'excel':'https://support.microsoft.com/excel','microsoft excel':'https://support.microsoft.com/excel',
+  'word':'https://support.microsoft.com/word','microsoft word':'https://support.microsoft.com/word',
+  'powerpoint':'https://support.microsoft.com/powerpoint','microsoft powerpoint':'https://support.microsoft.com/powerpoint',
+  'google docs':'https://docs.google.com/','google sheets':'https://sheets.google.com/',
+  'google drive':'https://drive.google.com/','gmail':'https://mail.google.com/',
+  'google maps':'https://maps.google.com/','google translate':'https://translate.google.com/',
+  'youtube':'https://www.youtube.com/','linkedin':'https://www.linkedin.com/'
+ });
+ function officialLinkAnswer(prompt){
+  const q=String(prompt||'').trim().toLowerCase().replace(/[?.!]+$/,'').replace(/\s+/g,' ');
+  const m=q.match(/^(?:take me to|open|go to|official (?:site|website|help|support) (?:for|of)|(?:where (?:is|can i find)) the official (?:site|website|help|support) (?:for|of))\s+([a-z ]{3,40})$/);
+  const site=m?.[1]?.trim();
+  if(!site||!Object.prototype.hasOwnProperty.call(officialSites,site))return null;
+  return {source:'official-link',text:'Here is the official '+site+' website:\n[Open '+site+']('+officialSites[site]+')\n\nIf you tell me what you are trying to do, I can guide you step by step here in YapThing.'};
+ }
  function queryFor(prompt){return String(prompt||'').replace(/\s+/g,' ').trim().slice(0,180)}
  async function call(slug,prompt,timeoutMs=26000,style='balance'){
   const revision=window.YapLocation?.revision();
@@ -69,5 +86,5 @@ window.YapResearchFallback=(()=>{
   throw Error('Live research is unavailable. '+errors.join(' | ').slice(0,260));
  }
  function externalLink(prompt){return 'https://www.google.com/search?q='+encodeURIComponent(queryFor(prompt))}
- return {shouldSearch,research,externalLink,topicFor,supportAnswer,navigationAnswer};
+ return {shouldSearch,research,externalLink,topicFor,supportAnswer,navigationAnswer,officialLinkAnswer};
 })();

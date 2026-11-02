@@ -39,6 +39,7 @@ async function cloudRequest(prompt,history,imageBase64,search=false,options={}){
 window.YapPhotoVision={
  ask:(prompt,history,search=false,options={})=>cloudRequest(prompt,history,null,search,options),
  hasPhoto:()=>!!image,
+ isScreenshot:()=>!!image&&/(?:screenshot|screen.?shot|screen.?capture|capture|snip)/i.test(image.name),
  file:()=>image,
  removePhoto:reset,
  analyze:async(prompt,history)=>{
