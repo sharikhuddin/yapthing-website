@@ -1,7 +1,9 @@
 'use strict';
 (()=>{
 const $=id=>document.getElementById(id),input=$('photo-input'),controls=$('edit-controls'),run=$('edit-run'),result=$('edit-result'),status=$('edit-status');let busy=false;
-const refresh=()=>{controls.hidden=!input.files?.length;result.hidden=true;status.textContent='';};
+const skill=document.createElement('select');skill.id='yap-photo-skill';skill.setAttribute('aria-label','Photo editing skill');skill.innerHTML='<option value="auto">Auto select skill</option><option value="remove-background">Remove background (Runware)</option><option value="creative">Creative edit</option><option value="remove-object">Remove person or object</option>';run.before(skill);
+const chooseSkill=prompt=>{const text=prompt.toLowerCase();if(skill.value!=='auto')return skill.value;if(/remove (the )?background|transparent background|cut ?out/i.test(text))return 'remove-background';if(/remove (the |a )?(person|people|object|someone)|erase (a |the )?(person|object)/i.test(text))return 'remove-object';return 'creative';};
+const refresh=()=>{controls.hidden=!input.files?.length;controls.style.display=input.files?.length?'flex':'none';result.hidden=true;status.textContent='';};
 input.addEventListener('change',refresh);
 $('photo-remove').addEventListener('click',()=>{controls.hidden=true;result.hidden=true;});
 async function jpg(file){
@@ -19,7 +21,11 @@ run.addEventListener('click',async()=>{
  busy=true;run.disabled=true;status.textContent='Editing your photo…';result.hidden=true;
  try{
  const token=await window.YapWebAccount?.getToken();if(!token)throw Error('Sign in to use AI photo editing.');
- const response=await fetch('https://uemjkfvcadggyvhbqqyp.supabase.co/functions/v1/yap-image-edit',{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+token,apikey:'sb_publishable_HqcXeSMELbRgGodOzr0kCA_VwZldmBJ'},body:JSON.stringify({imageBase64:await jpg(file),prompt:prompt.slice(0,1200),preset:$('edit-preset').value})});
+ const selectedSkill=chooseSkill(prompt);
+ if(selectedSkill==='remove-object')throw Error('Object removal needs a mask or supported inpainting skill. It is not enabled yet.');
+ const endpoint=selectedSkill==='remove-background'?'yap-runware-edit':'yap-image-edit';
+ status.textContent=selectedSkill==='remove-background'?'Removing background with YapThing Photo Studio…':'Editing your photo…';
+ const response=await fetch('https://uemjkfvcadggyvhbqqyp.supabase.co/functions/v1/'+endpoint,{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+token,apikey:'sb_publishable_HqcXeSMELbRgGodOzr0kCA_VwZldmBJ'},body:JSON.stringify({imageBase64:await jpg(file),prompt:prompt.slice(0,1200),preset:$('edit-preset').value,skill:selectedSkill})});
  const data=await response.json().catch(()=>({}));if(!response.ok)throw Error(data.error||'Image edit failed.');
  if(!data.imageBase64||!['image/png','image/jpeg','image/webp'].includes(data.mimeType))throw Error('No edited image returned.');
  const uri='data:'+data.mimeType+';base64,'+data.imageBase64;
