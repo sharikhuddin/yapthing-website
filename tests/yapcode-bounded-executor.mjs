@@ -68,8 +68,8 @@ test('GET reports disabled payments and no customer-code execution',async()=>{
  const response=await handler(new Request('https://example.com',{headers:{authorization:'Bearer session'}}));const data=await response.json();assert.equal(data.payments_enabled,false);assert.equal(data.repository_code_execution_enabled,false);assert.equal(data.system.waiting_queue,0);
 });
 
-async function gatewayFixture({replay=false,expired=false}={}){
- const f=fixture(),checkpoints=[],db=[];
+async function gatewayFixture({replay=false,expired=false,refresh=false,stopped=false}={}){
+ const f=fixture(),checkpoints=[],db=[];let refreshed=false;
  const raw=new Uint8Array(32).fill(7),iv=new Uint8Array(12).fill(8),k=await crypto.subtle.importKey('raw',raw,'AES-GCM',false,['encrypt']);
  const encrypted=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},k,new TextEncoder().encode('fake-private-token')));
  const b64=v=>btoa(String.fromCharCode(...v));
@@ -77,9 +77,10 @@ async function gatewayFixture({replay=false,expired=false}={}){
  const handler=makeHandler(environment,async(url,init={})=>{
   if(url.startsWith('https://api.github.com')||url.includes('generativelanguage.googleapis.com'))return f.args.fetchImpl(url,init);
   db.push(url);
+  if(url.includes('/functions/v1/yap-dev-read')){assert.equal(init.headers.authorization,'Bearer session');const b=JSON.parse(init.body);assert.equal(b.provider,'github');assert.equal(b.owner,'test');assert.equal(b.repo,'project');refreshed=refresh;return json({},refresh?200:409);}
   if(url.includes('/auth/'))return json({id:taskId,email_confirmed_at:'2026-01-01',is_anonymous:false});
-  if(url.includes('runtime_status'))return json({stopped:false,enabled_until:'2026-12-01T00:00:00Z'});
-  if(url.includes('oauth_credentials')){assert.ok(url.includes('user_id=eq.'+taskId));return json([{encrypted_access_token:b64(encrypted),access_iv:b64(iv),access_expires_at:expired?'2020-01-01':null}]);}
+  if(url.includes('runtime_status'))return json({stopped,enabled_until:'2026-12-01T00:00:00Z'});
+  if(url.includes('oauth_credentials')){assert.ok(url.includes('user_id=eq.'+taskId));return json([{encrypted_access_token:b64(encrypted),access_iv:b64(iv),access_expires_at:expired&&!refreshed?'2020-01-01':null}]);}
   if(url.includes('yapcode_admit')){const body=JSON.parse(init.body);assert.equal(body.p_owner,taskId);return json({created:!replay,task:{id:taskId,status:'completed'}});}
   if(url.includes('yapcode_permit'))return json(true);
   if(url.includes('yapcode_checkpoint')){checkpoints.push(JSON.parse(init.body));return json(true);}
@@ -99,4 +100,19 @@ test('replayed admission never invokes the model or GitHub',async()=>{
 test('expired GitHub connection fails before budget admission',async()=>{
  const g=await gatewayFixture({expired:true});const response=await g.handler(new Request('https://example.com',{method:'POST',headers:{authorization:'Bearer session'},body:JSON.stringify(input)}));
  assert.equal(response.status,409);assert.equal(g.db.some(x=>x.includes('yapcode_admit')),false);assert.equal(g.f.calls.length,0);
+});
+
+test('expired credential refresh stays bound to the same website caller and then completes',async()=>{
+ const g=await gatewayFixture({expired:true,refresh:true});
+ const response=await g.handler(new Request('https://example.com',{method:'POST',headers:{authorization:'Bearer session'},body:JSON.stringify(input)}));
+ assert.equal(response.status,200);assert.equal(g.db.filter(x=>x.includes('yap-dev-read')).length,1);
+ assert.equal(g.checkpoints.at(-1).p_finish,'completed');
+});
+test('connection readiness can refresh while execution is stopped without admitting or calling a model',async()=>{
+ const g=await gatewayFixture({expired:true,refresh:true,stopped:true});
+ const response=await g.handler(new Request('https://example.com?check=github&repo=test/project',{headers:{authorization:'Bearer session'}}));
+ const data=await response.json();assert.equal(response.status,200);assert.equal(data.execution_stopped,true);
+ assert.equal(data.github.can_push,true);assert.equal(data.model_invoked,false);
+ assert.equal(g.db.some(x=>x.includes('yapcode_admit')),false);
+ assert.equal(g.f.calls.some(x=>x.url.includes('generateContent')),false);
 });

@@ -1,3 +1,4 @@
+import {githubConnection} from './github-connection.mjs';
 import {executeDraft,validateInput,readJsonBounded,LIMITS,MODEL} from './executor.mjs';
 const origins=['https://yapthing.com','https://www.yapthing.com','https://sharikhuddin.github.io'];
 export function makeHandler(env,fetchImpl=fetch){
@@ -41,6 +42,12 @@ export function makeHandler(env,fetchImpl=fetch){
    const state=await rpc('yapcode_runtime_status',{});
    if(!state||typeof state.stopped!=='boolean')throw Error('CONTROL_UNAVAILABLE');
    const enabled=!state.stopped&&Date.parse(state.enabled_until)>Date.now();
+   if(req.method==='GET'&&new URL(req.url).searchParams.get('check')==='github'){
+    const repo=new URL(req.url).searchParams.get('repo'),encryptedKey=env('YAP_OAUTH_ENCRYPTION_KEY');
+    if(!encryptedKey)throw Error('OAUTH_CONFIGURATION_REQUIRED');
+    const {repository}=await githubConnection({base,anon,service,userId:user.id,authorization,encryptionKey:encryptedKey,repo,read,fetchImpl,signal:deadline,inspect:true});
+    return out(200,{github:repository,execution_stopped:!enabled,model_invoked:false});
+   }
    if(req.method==='GET')return out(200,{feature:'yapcoding',stage:enabled?'bounded-pr-drafting':'stopped',payments_enabled:false,task_submission_enabled:enabled,automatic_cloud_execution_enabled:false,repository_code_execution_enabled:false,model:MODEL,limits:LIMITS,system:{concurrency:1,waiting_queue:0,user_tasks_24h:3,reserved_usd_per_task:0.05,daily_reserved_usd:1,monthly_reserved_usd:10,user_saved_results:100,system_saved_results:1000,audit_records:10000,failure_quarantine_seconds:150},control:state,configured:{model:!!env('GEMINI_API_KEY'),oauth_encryption:!!env('YAP_OAUTH_ENCRYPTION_KEY')}});
    if(!enabled)return out(503,{error:'EXECUTION_STOPPED',reason:state.reason});
    if(Number(req.headers.get('content-length'))>6000)return out(413,{error:'REQUEST_TOO_LARGE'});
@@ -48,13 +55,7 @@ export function makeHandler(env,fetchImpl=fetch){
    const input=validateInput(await readJsonBounded(new Response(req.body),6000));
    const key=env('GEMINI_API_KEY'),encryptedKey=env('YAP_OAUTH_ENCRYPTION_KEY');
    if(!key||!encryptedKey)return out(503,{error:'PROVIDER_CONFIGURATION_REQUIRED'});
-   const rows=await read(base+'/rest/v1/yap_developer_oauth_credentials?user_id=eq.'+encodeURIComponent(user.id)+'&provider=eq.github&select=encrypted_access_token,access_iv,access_expires_at&limit=1',{headers:sh});
-   if(rows.length!==1||rows[0].access_expires_at&&Date.parse(rows[0].access_expires_at)<Date.now()+120000)return out(409,{error:'GITHUB_RECONNECT_REQUIRED'});
-   const dec=(s)=>Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
-   const rawKey=dec(encryptedKey);if(rawKey.length!==32)throw Error('OAUTH_CONFIGURATION_REQUIRED');
-   const cryptoKey=await crypto.subtle.importKey('raw',rawKey,'AES-GCM',false,['decrypt']);
-   const token=new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:dec(rows[0].access_iv)},cryptoKey,dec(rows[0].encrypted_access_token)));
-   if(!token)throw Error('GITHUB_RECONNECT_REQUIRED');
+   const {token}=await githubConnection({base,anon,service,userId:user.id,authorization,encryptionKey:encryptedKey,repo:input.repo,read,fetchImpl,signal:deadline});
    const admitted=await rpc('yapcode_admit',{p_owner:user.id,p_key:input.request_key,p_input:input});
    if(!admitted?.task?.id)throw Error('ADMISSION_FAILED');
    if(!admitted.created)return out(200,{task:admitted.task,replayed:true});
@@ -66,9 +67,9 @@ export function makeHandler(env,fetchImpl=fetch){
   }catch(error){
    // No retry, no fallback, no secret-bearing upstream messages.
    const message=error instanceof Error?error.message:'UNAVAILABLE';
-   const safe=/^(SYSTEM_|USER_|AUDIT_|IDEMPOTENCY_|SIGN_IN_REQUIRED|PRICING_|INVALID_|SENSITIVE_|CONSENT_|DRAFT_|SOURCE_|INPUT_|INCOMPLETE_|NO_CHANGES|EXECUTION_STOPPED|DEADLINE|BASE_CHANGED|REPOSITORY_|UNSUPPORTED_|USAGE_|RESULT_)/.test(message)?message.slice(0,100):'EXECUTION_UNAVAILABLE';
+   const safe=/^(GITHUB_|OAUTH_|SYSTEM_|USER_|AUDIT_|IDEMPOTENCY_|SIGN_IN_REQUIRED|PRICING_|INVALID_|SENSITIVE_|CONSENT_|DRAFT_|SOURCE_|INPUT_|INCOMPLETE_|NO_CHANGES|EXECUTION_STOPPED|DEADLINE|BASE_CHANGED|REPOSITORY_|UNSUPPORTED_|USAGE_|RESULT_)/.test(message)?message.slice(0,100):'EXECUTION_UNAVAILABLE';
    if(taskId)await checkpoint({error:safe,manual_reconciliation_required:true},'failed').catch(()=>{});
-   const status=taskId?502:safe==='SIGN_IN_REQUIRED'?401:/LIMIT|BUDGET/.test(safe)?429:/BUSY|CONFLICT/.test(safe)?409:safe.startsWith('INVALID_')||error instanceof SyntaxError?400:503;
+   const status=taskId?502:safe.startsWith('GITHUB_')?409:safe==='SIGN_IN_REQUIRED'?401:/LIMIT|BUDGET/.test(safe)?429:/BUSY|CONFLICT/.test(safe)?409:safe.startsWith('INVALID_')||error instanceof SyntaxError?400:503;
    return out(status,{error:safe,...(taskId?{id:taskId,notice:'Do not resubmit with a new request key. Inspect the saved task and branch first.'}:{})});
   }
  };
