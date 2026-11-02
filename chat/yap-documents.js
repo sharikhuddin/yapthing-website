@@ -23,6 +23,20 @@ window.YapDocuments=(()=>{
  async function handle(query){
   if(!original)return null;
   const q=String(query||'').trim();
+
+  if(/\b(scan|audit|inspect|find issues|repair|undo|restore original)\b/i.test(q)){
+   if(/\b(undo|restore original)\b/i.test(q)){document.getElementById('yap-document-download')?.remove();return {text:'Undo complete. The original uploaded document is retained; any generated download was removed.',source:'document-help'};}
+   if(kind==='docx'){
+    const zip=await JSZip.loadAsync(await original.arrayBuffer());const xml=await zip.file('word/document.xml').async('string');
+    const issues=[];if(/<w:ins\b|<w:del\b/.test(xml))issues.push('Tracked changes present: review acceptance in Word.');
+    if(/<w:commentRangeStart\b/.test(xml))issues.push('Review comments are present.');
+    if(/<w:hyperlink\b/.test(xml))issues.push('Contains hyperlinks: verify destinations manually.');
+    return {text:'Word inspection preview (no changes applied):\n'+(issues.join('\n')||'No structural review flags detected.')+'\nThe editor cannot verify grammar or the semantic correctness of the document automatically. Use an explicit replace instruction for safe editing.',source:'document-help'};
+   }
+   const pdf=await PDFLib.PDFDocument.load(await original.arrayBuffer());
+   return {text:'PDF inspection preview: '+pdf.getPageCount()+' pages; document opened successfully. No pages were changed. Visual layout, OCR, signatures and factual correctness are not automatically audited. Use "add correction: ..." to append a reversible correction note.',source:'document-help'};
+  }
+
   if(kind==='docx'){
    const m=q.match(/^replace\s+["“](.+?)["”]\s+with\s+["“](.+?)["”][.!]?$/i);
    if(!m)return {text:'For Word, specify the exact change: replace "Old text" with "New text".',source:'document-help'};
