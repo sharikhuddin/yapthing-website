@@ -3,8 +3,8 @@
 const $=id=>document.getElementById(id),menu=$('yap-attachment-menu'),photo=$('photo-input'),camera=$('yap-camera-input'),docs=$('yap-document-input');
 let documentText='',documentName='';
 const clearDocument=()=>{
- const had=!!documentText||!!window.YapSpreadsheet?.hasFile?.();
- window.YapSpreadsheet?.clear?.();
+ const had=!!documentText||!!window.YapSpreadsheet?.hasFile?.()||!!window.YapDocuments?.hasFile?.();
+ window.YapSpreadsheet?.clear?.();window.YapDocuments?.clear?.();
  documentText='';documentName='';docs.value='';
  if(had){$('photo-preview').hidden=true;$('photo-thumb').hidden=false;$('photo-name').textContent='';$('photo-remove').onclick=window.YapPhotoVision?.removePhoto||null;}
 };
@@ -27,6 +27,7 @@ camera.onchange=()=>{const file=camera.files?.[0];if(!file)return;const transfer
 docs.onchange=async()=>{
  const file=docs.files?.[0];if(!file)return;
  try{
+  if(/\.(docx|pdf)$/i.test(file.name)){window.YapPhotoVision?.removePhoto?.();clearDocument();const info=await window.YapDocuments.load(file);documentName=file.name;$('photo-name').textContent=file.name;$('photo-thumb').hidden=true;$('photo-preview').hidden=false;$('photo-remove').onclick=clearDocument;$('prompt').value='';$('send').disabled=false;report(info);return;}
   if(/\.xlsx$/i.test(file.name)){window.YapPhotoVision?.removePhoto?.();clearDocument();const info=await window.YapSpreadsheet.load(file);documentName=file.name;$('photo-name').textContent=file.name;$('photo-thumb').hidden=true;$('photo-preview').hidden=false;$('photo-remove').onclick=clearDocument;$('prompt').value='inspect row 15';$('send').disabled=false;report(info);return;}
   if(file.size>2*1024*1024)throw Error('Choose a document smaller than 2 MB.');
   if(!/\.(txt|md|csv|json)$/i.test(file.name))throw Error('Choose TXT, Markdown, CSV or JSON. PDF reading is not yet supported.');
@@ -38,5 +39,5 @@ docs.onchange=async()=>{
   $('send').disabled=false;
  }catch(error){report(error.message)}finally{docs.value='';menu.open=false}
 };
-window.YapAttachments={getDocument:()=>documentText,getDocumentName:()=>documentName,clearDocument,hasSpreadsheet:()=>!!window.YapSpreadsheet?.hasFile?.(),action:()=>$('yap-image-action').value};
+window.YapAttachments={getDocument:()=>documentText,getDocumentName:()=>documentName,clearDocument,hasSpreadsheet:()=>!!window.YapSpreadsheet?.hasFile?.(),hasEditableDocument:()=>!!window.YapDocuments?.hasFile?.(),action:()=>$('yap-image-action').value};
 })();
