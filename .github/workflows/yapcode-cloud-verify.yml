@@ -10,6 +10,7 @@ on:
       - 'supabase/functions/yap-stripe-checkout/**'
       - 'supabase/migrations/*bounded_yapcoding*.sql'
       - 'tests/yapcode-bounded-executor.mjs'
+      - 'tests/fixtures/yapcoding-smoke.js'
       - 'chat/yap-work-reset.js'
       - 'chat/yap-media-policy.js'
       - 'scripts/yapcode-task-runner.cjs'
@@ -49,6 +50,7 @@ jobs:
           node --check chat/yapcoding-autonomous.js
           node --check supabase/functions/yapcode-execute/executor.mjs
           node --check supabase/functions/yapcode-execute/handler.mjs
+          node --check supabase/functions/yapcode-execute/github-connection.mjs
       - name: Regression tests
         run: node --test tests/yapcode-bounded-executor.mjs tests/yap-media-policy.cjs tests/yapcode-usage-policy.cjs tests/yap-work-reset.cjs tests/yapcode-queue-guard.cjs
       - name: Task runner verification

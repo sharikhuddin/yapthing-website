@@ -15,7 +15,7 @@ window.YapCoding=(()=>{
   if(!r.ok)throw Error(String(data.error||'YapCoding unavailable')+'. '+String(data.reason||data.notice||''));
   return data;
  }
- return Object.freeze({status:()=>call('/functions/v1/yapcode-execute'),execute:input=>call('/functions/v1/yapcode-execute',input),
+ return Object.freeze({status:()=>call('/functions/v1/yapcode-execute'),connection:repo=>call('/functions/v1/yapcode-execute?check=github&repo='+encodeURIComponent(repo)),execute:input=>call('/functions/v1/yapcode-execute',input),
   history:()=>call('/rest/v1/yapcode_runs?select=id,input,status,result,created_at,updated_at&order=created_at.desc&limit=10')});
 })();
 (()=>{
@@ -27,7 +27,7 @@ window.YapCoding=(()=>{
  '<label>Existing source paths (up to 3)<textarea id="yca-paths" rows="3" placeholder="src/app.js" maxlength="500"></textarea></label>'+
  '<label>Change to make<textarea id="yca-goal" rows="3" maxlength="1000"></textarea></label>'+
  '<label><input id="yca-consent" type="checkbox"> Send these selected files to Gemini and create a GitHub draft PR.</label>'+
- '<div class="yc-actions"><button type="button" data-yca="status">Check availability</button><button type="button" data-yca="execute">Create draft PR</button><button type="button" data-yca="history">My recent results</button></div>'+
+ '<div class="yc-actions"><button type="button" data-yca="status">Check availability</button><button type="button" data-yca="connection">Check GitHub access</button><button type="button" data-yca="execute">Create draft PR</button><button type="button" data-yca="history">My recent results</button></div>'+
  '<p id="yca-status" role="status" aria-live="polite">Execution is stopped pending live integration verification.</p><pre id="yca-output" tabindex="0"></pre>';
  settings.prepend(panel);
  const $=id=>panel.querySelector('#yca-'+id);
@@ -49,10 +49,11 @@ window.YapCoding=(()=>{
     $('status').textContent='Drafting. If interrupted, inspect My recent results before starting another task.';
     data=await window.YapCoding.execute({...input,request_key:attempt.key});
     if(data.status==='completed'||data.task?.status==='completed'){attempt=null;$('consent').checked=false;}
-   }else data=await window.YapCoding[action]();
+   }else if(action==='connection')data=await window.YapCoding.connection($('repo').value.trim());
+   else data=await window.YapCoding[action]();
    if(actor!==window.YapWebAccount?.getUserId?.())throw Error('Account changed. Discarding result.');
    $('output').textContent=JSON.stringify(data,null,2);
-   $('status').textContent=action==='status'?(data.task_submission_enabled?'Bounded draft PR creation is available.':'Execution is stopped. '+(data.control?.reason||'')):action==='history'?'Your saved results. Failed or interrupted tasks may require checking their recorded branch.':'Draft result saved. Review the PR and run trusted tests before merging.';
+   $('status').textContent=action==='connection'?(data.github?.can_push?'GitHub write access verified for '+data.github.name+'.':'GitHub is connected, but repository write access is missing.'):action==='status'?(data.task_submission_enabled?'Bounded draft PR creation is available.':'Execution is stopped. '+(data.control?.reason||'')):action==='history'?'Your saved results. Failed or interrupted tasks may require checking their recorded branch.':'Draft result saved. Review the PR and run trusted tests before merging.';
   }catch(e){$('status').textContent=e.message||'YapCoding unavailable. Inspect recent results before retrying.';}
   finally{busy=false;buttons.forEach(b=>b.disabled=false);}
  });
