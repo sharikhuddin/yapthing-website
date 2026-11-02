@@ -18,7 +18,9 @@ Deno.serve(async req=>{
  let body;
  try{body=await req.json()}catch{return reply(400,{error:"Invalid JSON"})}
  const encoded=body?.imageBase64,preset=body?.skill||"remove-background";
- if(preset!=="remove-background")return reply(400,{error:"This Runware skill is not enabled yet"});
+ if(!["remove-background","creative","remove-object"].includes(preset))return reply(400,{error:"Unsupported photo skill"});
+ const prompt=typeof body?.prompt==="string"?body.prompt.trim().slice(0,1000):"";
+ if(preset!=="remove-background"&&prompt.length<3)return reply(400,{error:"Describe the image edit"});
  if(typeof encoded!=="string"||encoded.length<100||encoded.length>1_750_000||!/^[A-Za-z0-9+/]+={0,2}$/.test(encoded))return reply(400,{error:"Image must be valid JPEG base64 under 1.3MB"});
  // Atomic per-user daily allowance to bound costs and concurrency; deny if database migration is missing.
  const {data:allowed,error:quotaError}=await sb.rpc("yap_claim_runware_edit",{p_limit:2});
@@ -30,10 +32,10 @@ Deno.serve(async req=>{
   return result.data;
  };
  try{
-  const upload=await invoke([{taskType:"mediaStorage",taskUUID:crypto.randomUUID(),operation:"upload",media:"data:image/jpeg;base64,"+encoded}]);
-  const mediaUUID=upload[0]?.mediaUUID;
-  if(!mediaUUID)throw Error("Runware upload returned no media");
-  const edited=await invoke([{taskType:"removeBackground",taskUUID:crypto.randomUUID(),model:"runware:112@10",inputs:{image:mediaUUID},includeCost:true}]);
+  const source="data:image/jpeg;base64,"+encoded;
+  const instructions=preset==="remove-object"?"Remove only the requested person or object and fill the space naturally, preserving other people, faces, scenery and perspective. "+prompt:"Edit this image following the user request while preserving people and important details not mentioned: "+prompt;
+  const task=preset==="remove-background"?{taskType:"removeBackground",taskUUID:crypto.randomUUID(),model:"runware:112@10",inputImage:source,outputType:"URL",outputFormat:"PNG",includeCost:true}:{taskType:"imageInference",taskUUID:crypto.randomUUID(),model:"runware:106@1",positivePrompt:instructions,inputs:{referenceImages:[source]},outputType:"URL",outputFormat:"PNG",includeCost:true};
+  const edited=await invoke([task]);
   const imageURL=edited[0]?.imageURL;
   if(typeof imageURL!=="string"||!imageURL.startsWith("https://im.runware.ai/"))throw Error("Runware returned no valid image URL");
   const imgResponse=await fetch(imageURL,{signal:AbortSignal.timeout(20000)});

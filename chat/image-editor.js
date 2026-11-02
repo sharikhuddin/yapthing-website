@@ -22,9 +22,9 @@ run.addEventListener('click',async()=>{
  try{
  const token=await window.YapWebAccount?.getToken();if(!token)throw Error('Sign in to use AI photo editing.');
  const selectedSkill=chooseSkill(prompt);
- if(selectedSkill==='remove-object')throw Error('Object removal needs a mask or supported inpainting skill. It is not enabled yet.');
- const endpoint=selectedSkill==='remove-background'?'yap-runware-edit':'yap-image-edit';
- status.textContent=selectedSkill==='remove-background'?'Removing background with YapThing Photo Studio…':'Editing your photo…';
+
+ const endpoint='yap-runware-edit';
+ status.textContent='YapThing Photo Studio is editing your photo…';
  const response=await fetch('https://uemjkfvcadggyvhbqqyp.supabase.co/functions/v1/'+endpoint,{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+token,apikey:'sb_publishable_HqcXeSMELbRgGodOzr0kCA_VwZldmBJ'},body:JSON.stringify({imageBase64:await jpg(file),prompt:prompt.slice(0,1200),preset:$('edit-preset').value,skill:selectedSkill})});
  const data=await response.json().catch(()=>({}));if(!response.ok)throw Error(data.error||'Image edit failed.');
  if(!data.imageBase64||!['image/png','image/jpeg','image/webp'].includes(data.mimeType))throw Error('No edited image returned.');
